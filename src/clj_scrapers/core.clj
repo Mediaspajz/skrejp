@@ -10,8 +10,9 @@
   ;)
 
  (defn classify-url-source [url]
-   (cond
-    (re-find #"^http://ujszo\.com/" url)   :ujszo.com
-    (re-find #"^http://(www\.){0,1}bumm\.sk/" url) :bumm.sk
+   (condp re-find url
+    #"^http://ujszo\.com/"           :ujszo.com
+    #"^http://(www\.){0,1}bumm\.sk/" :bumm.sk
+     nil
     )
    )
