@@ -6,6 +6,7 @@
   :plugins [[lein-expectations "0.0.7"]]
   :dependencies [[org.clojure/clojure     "1.6.0"]
                  [http-kit                "2.1.16"]
+                 [clojurewerkz/urly       "1.0.0"]
                  [enlive                  "1.1.5"]
                  [com.gfredericks/vcr-clj "0.3.3"]
                  [expectations            "2.0.6"]
