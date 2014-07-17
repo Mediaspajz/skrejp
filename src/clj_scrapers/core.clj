@@ -4,12 +4,9 @@
   (:require [clojurewerkz.urly.core :refer [url-like host-of]])
   )
 
+(def scrapers-ns *ns*)
 
-;(defn load-page
-  ;"Loads the page"
-  ;(http/get "http://www.bumm.sk/index.php?show=97202")
-  ;)
 
 (defn classify-url-source [url]
-  (keyword (host-of (url-like url)))
+  (keyword (str scrapers-ns) (host-of (url-like url)))
   )
