@@ -7,3 +7,7 @@
         (classify-url-source "http://bumm.sk/index.php?show=97202"))
 (expect :clj-scrapers.core/ujszo.com
         (classify-url-source "http://ujszo.com/napilap/kulfold/2014/06/23/szorult-helyzetben-a-tusk-kormany"))
+
+(def bumm-page (scrape "http://www.bumm.sk/97202/zsenialis-magyar-kajak-kenusok-8-arany-5-ezust.html"))
+
+(expect "Zseniális magyar kajak-kenusok: 8 arany, 5 ezüst!" bumm-page)
