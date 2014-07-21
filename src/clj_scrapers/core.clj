@@ -23,6 +23,13 @@
   (http/get url http-options scrape)
   )
 
+(defn extract-tag-content [body selector]
+  (-> (java.io.StringReader. body)
+      html/html-resource
+      (html/select selector)
+      first :content first)
+  )
+
 (defmulti scrape classify-url-source)
 
 (defmethod scrape ::www.bumm.sk [url]
@@ -31,10 +38,7 @@
       (fn [{:keys [status headers body error]}]
         (deliver page
                  (create-article
-                  { :title (-> (java.io.StringReader. body)
-                               html/html-resource
-                               (html/select [:div#content :div#article_detail_title])
-                               first :content first )
+                  { :title (extract-tag-content body [:div#content :div#article_detail_title])
                     :url url }
                   )
                  )
