@@ -10,4 +10,4 @@
 
 (def bumm-page (scrape "http://www.bumm.sk/97202/zsenialis-magyar-kajak-kenusok-8-arany-5-ezust.html"))
 
-(expect "Zseniális magyar kajak-kenusok: 8 arany, 5 ezüst!" bumm-page)
+(expect "Zseniális magyar kajak-kenusok: 8 arany, 5 ezüst!" (:title @bumm-page))
