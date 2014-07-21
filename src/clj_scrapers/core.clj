@@ -19,23 +19,28 @@
   (merge (Article. nil nil nil nil nil nil nil) attrs)
   )
 
+(defn fetch-page [url scrape]
+  (http/get url http-options scrape)
+  )
+
 (defmulti scrape classify-url-source)
 
 (defmethod scrape ::www.bumm.sk [url]
   (let [ page (promise) ]
-      (http/get url http-options
-                (fn [{:keys [status headers body error]}]
-                  (deliver page
-                           (create-article
-                            { :title (-> (java.io.StringReader. body)
-                                         html/html-resource
-                                         (html/select [:div#content :div#article_detail_title])
-                                         first :content first ) }
-                            )
-                           )
+    (fetch-page url
+      (fn [{:keys [status headers body error]}]
+        (deliver page
+                 (create-article
+                  { :title (-> (java.io.StringReader. body)
+                               html/html-resource
+                               (html/select [:div#content :div#article_detail_title])
+                               first :content first )
+                    :url url }
                   )
+                 )
+        )
       )
-      page
+    page
     )
   )
 
