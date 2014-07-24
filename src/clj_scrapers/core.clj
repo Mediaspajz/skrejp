@@ -33,7 +33,8 @@
 (defmethod scrape ::www.bumm.sk [url]
   (fetch-page url
     (fn [body]
-      { :title (extract-tag body [:div#content :div#article_detail_title])
+      { :title   (extract-tag body [:div#content :div#article_detail_title])
+        :summary (extract-tag body [:div#content :div#article_detail_lead])
         :url url }
       )
     )
