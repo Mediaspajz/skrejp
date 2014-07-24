@@ -14,10 +14,14 @@
   )
 
 (defn fetch-page [url scrape]
-  (http/get url http-options scrape)
+  (let [ page (promise) ]
+    (http/get url http-options
+      (fn [{:keys [status headers body error]}] (deliver page (scrape body))))
+    page
+    )
   )
 
-(defn extract-tag-content [body selector]
+(defn extract-tag [body selector]
   (-> (java.io.StringReader. body)
       html/html-resource
       (html/select selector)
@@ -27,16 +31,11 @@
 (defmulti scrape classify-url-source)
 
 (defmethod scrape ::www.bumm.sk [url]
-  (let [ page (promise) ]
-    (fetch-page url
-      (fn [{:keys [status headers body error]}]
-        (deliver page
-          { :title (extract-tag-content body [:div#content :div#article_detail_title])
-            :url url }
-          )
-        )
+  (fetch-page url
+    (fn [body]
+      { :title (extract-tag body [:div#content :div#article_detail_title])
+        :url url }
       )
-    page
     )
   )
 
