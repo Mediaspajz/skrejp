@@ -13,12 +13,6 @@
   (keyword (str scrapers-ns) (host-of (url-like url)))
   )
 
-(defrecord Article [title summary body full-page url author published-at])
-
-(defn create-article [attrs]
-  (merge (Article. nil nil nil nil nil nil nil) attrs)
-  )
-
 (defn fetch-page [url scrape]
   (http/get url http-options scrape)
   )
@@ -37,11 +31,9 @@
     (fetch-page url
       (fn [{:keys [status headers body error]}]
         (deliver page
-                 (create-article
-                  { :title (extract-tag-content body [:div#content :div#article_detail_title])
-                    :url url }
-                  )
-                 )
+          { :title (extract-tag-content body [:div#content :div#article_detail_title])
+            :url url }
+          )
         )
       )
     page
