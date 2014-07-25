@@ -13,3 +13,4 @@
 (expect "http://www.bumm.sk/97202/zsenialis-magyar-kajak-kenusok-8-arany-5-ezust.html" (:url @bumm-page))
 (expect "Zseniális magyar kajak-kenusok: 8 arany, 5 ezüst!" (:title   @bumm-page))
 (expect #"^A magyar versenyzők nagyszerű teljesítményt"     (:summary @bumm-page))
+(expect #"A szombati döntők során három-három arany-"       (:content @bumm-page))

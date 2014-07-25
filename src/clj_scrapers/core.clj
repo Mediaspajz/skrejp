@@ -1,5 +1,6 @@
 (ns clj-scrapers.core
   (:require [clojurewerkz.urly.core :refer [url-like host-of]])
+  (:require [clojure.string :refer [join]])
   (:require [org.httpkit.client :as http])
   (:require [net.cgrand.enlive-html :as html])
   )
@@ -25,7 +26,8 @@
   (-> (java.io.StringReader. body)
       html/html-resource
       (html/select selector)
-      first :content first)
+      first
+      html/text)
   )
 
 (defmulti scrape classify-url-source)
@@ -35,6 +37,7 @@
     (fn [body]
       { :title   (extract-tag body [:div#content :div#article_detail_title])
         :summary (extract-tag body [:div#content :div#article_detail_lead])
+        :content (extract-tag body [:div#content :div#article_detail_text])
         :url url }
       )
     )
