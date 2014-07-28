@@ -32,18 +32,33 @@
 
 (defmulti scrape classify-url-source)
 
-(defmethod scrape ::www.bumm.sk [url]
-  (fetch-page url
-    (fn [body]
-      { :title   (extract-tag body [:div#content :div#article_detail_title])
-        :summary (extract-tag body [:div#content :div#article_detail_lead])
-        :content (extract-tag body [:div#content :div#article_detail_text])
-        :url url }
+;(defmethod scrape ::www.bumm.sk [url]
+;  (fetch-page url
+;    (fn [body]
+;      { :title   (extract-tag body [:div#content :div#article_detail_title])
+;        :summary (extract-tag body [:div#content :div#article_detail_lead])
+;        :content (extract-tag body [:div#content :div#article_detail_text])
+;        :url url }
+;      )
+;    )
+;  )
+
+(defmacro defscraper [source mappings]
+  `(defmethod scrape ~source [url#]
+    (fetch-page url#
+      (fn [body#]
+        (reduce
+         (fn [scraped-content# [attr# selector#]]
+           (assoc scraped-content# attr# (extract-tag body# selector#)))
+         { :url url# } ~mappings
+         )
+        )
       )
     )
   )
 
-;(defn load-page
-  ;"Loads the page"
-  ;(http/get "http://www.bumm.sk/index.php?show=97202")
-  ;)
+(defscraper ::www.bumm.sk
+  { :title   [:div#content :div#article_detail_title]
+    :summary [:div#content :div#article_detail_lead]
+    :content [:div#content :div#article_detail_text] }
+  )
