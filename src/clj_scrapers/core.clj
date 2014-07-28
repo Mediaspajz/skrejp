@@ -62,3 +62,15 @@
     :summary [:div#content :div#article_detail_lead]
     :content [:div#content :div#article_detail_text] }
   )
+
+(defscraper ::felvidek.ma
+  { :title   [:article :header.article-title :h1.article-title]
+    :content [:div#ja-content :div.article-content] }
+  )
+
+(defscraper ::ujszo.com
+  { :title   [:div.node.node-article :h1]
+    :loc     [:div.node.node-article :div.field-name-field-lead :span.place]
+    :summary [:div.node.node-article :div.field-name-field-lead :p]
+    :content [:div.node.node-article :div.field-name-body] }
+  )

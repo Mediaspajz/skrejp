@@ -14,3 +14,15 @@
 (expect "Zseniális magyar kajak-kenusok: 8 arany, 5 ezüst!" (:title   @bumm-page))
 (expect #"^A magyar versenyzők nagyszerű teljesítményt"     (:summary @bumm-page))
 (expect #"A szombati döntők során három-három arany-"       (:content @bumm-page))
+
+;(def felvidekma-page (scrape "http://felvidek.ma/felvidek/hitelet/47584-boldog-a-szemetek-mert-lat"))
+;(expect "http://felvidek.ma/felvidek/hitelet/47584-boldog-a-szemetek-mert-lat" (:url @felvidekma-page))
+;(expect "Boldog a szemetek, mert lát…"                      (:title   @felvidekma-page))
+;(expect #"Történelmi tény az is, hogy 1751. június 16-án"   (:content @felvidekma-page))
+
+(def ujszo-page (scrape "http://ujszo.com/online/kozelet/2014/07/28/kiska-penzunk-nincs-de-segitunk-terchovanak"))
+(expect "http://ujszo.com/online/kozelet/2014/07/28/kiska-penzunk-nincs-de-segitunk-terchovanak" (:url @ujszo-page))
+(expect "Kiska: pénzünk nincs, de segítünk Terchovának"     (:title   @ujszo-page))
+(expect #"^Andrej Kiska államfő is ellátogatott szombaton"  (:summary @ujszo-page))
+(expect #"A kormány a katasztrófa miatt ma megszakítja"     (:content @ujszo-page))
+(expect "Terchová" (:loc @ujszo-page))
