@@ -1,6 +1,6 @@
 (ns clj-scrapers.core
   (:require [clojurewerkz.urly.core :refer [url-like host-of]])
-  (:require [clojure.string :refer [join]])
+  (:require [clojure.string :refer [join trim]])
   (:require [org.httpkit.client :as http])
   (:require [net.cgrand.enlive-html :as html])
   )
@@ -32,24 +32,14 @@
 
 (defmulti scrape classify-url-source)
 
-;(defmethod scrape ::www.bumm.sk [url]
-;  (fetch-page url
-;    (fn [body]
-;      { :title   (extract-tag body [:div#content :div#article_detail_title])
-;        :summary (extract-tag body [:div#content :div#article_detail_lead])
-;        :content (extract-tag body [:div#content :div#article_detail_text])
-;        :url url }
-;      )
-;    )
-;  )
-
 (defmacro defscraper [source mappings]
   `(defmethod scrape ~source [url#]
     (fetch-page url#
       (fn [body#]
         (reduce
          (fn [scraped-content# [attr# selector#]]
-           (assoc scraped-content# attr# (extract-tag body# selector#)))
+           (assoc scraped-content# attr# (trim (extract-tag body# selector#)))
+           )
          { :url url# } ~mappings
          )
         )
@@ -64,8 +54,8 @@
   )
 
 (defscraper ::felvidek.ma
-  { :title   [:article :header.article-title :h1.article-title]
-    :content [:div#ja-content :div.article-content] }
+  { :title   [:article :header.article-header :h1.article-title :a]
+    :content [:section.article-content] }
   )
 
 (defscraper ::ujszo.com
