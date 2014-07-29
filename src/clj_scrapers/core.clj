@@ -65,8 +65,14 @@
     :content [:div.node.node-article :div.field-name-body] }
   )
 
+(derive ::vasarnap.ujszo.com ::ujszo.com)
+
 (defscraper ::www.parameter.sk
   { :title   [:div#page_container :div#content :h1]
     :summary [:div#content :div.field-name-field-lead :p]
     :content [:div#content :div.node-content] }
+  )
+
+(defscraper ::www.hirek.sk
+  { :title    [:span#tcikkintro] }
   )

@@ -27,8 +27,22 @@
 (expect #"A kormány a katasztrófa miatt ma megszakítja"     (:content @ujszo-page))
 (expect "Terchová" (:loc @ujszo-page))
 
+(def vasarnap-page (scrape "http://vasarnap.ujszo.com/online/kozelet/2014/07/29/csak-szamlara-jon-a-segely"))
+(expect "http://vasarnap.ujszo.com/online/kozelet/2014/07/29/csak-szamlara-jon-a-segely" (:url @vasarnap-page))
+(expect "Csak számlára jön a segély"                        (:title   @vasarnap-page))
+(expect #"^Várhatóan bankszámlát kell nyitnia minden"       (:summary @vasarnap-page))
+(expect #"A tervet a pénzügyminisztérium felügyeli"         (:content @vasarnap-page))
+(expect "Pozsony" (:loc @vasarnap-page))
+
 (def parameter-page (scrape "http://www.parameter.sk/rovat/belfold/2014/07/28/smer-mar-odaig-mereszkedett-hogy-egyenesen-tekintelyelvunek-neveztek-kiskat"))
 (expect "http://www.parameter.sk/rovat/belfold/2014/07/28/smer-mar-odaig-mereszkedett-hogy-egyenesen-tekintelyelvunek-neveztek-kiskat" (:url @parameter-page))
 (expect "A Smer már odáig merészkedett, hogy egyenesen tekintélyelvűnek nevezték Kiskát" (:title   @parameter-page))
 (expect #"^Bár a Robert Fico vezette Smer-SD tudhatta, hogy nem lesz könnyű dolga"       (:summary @parameter-page))
 (expect #"Az Aktualne.sk azonban megkérdezte Tomáš Koziak politológust, aki nem lát"     (:content @parameter-page))
+
+;(def hirek-page (scrape "http://www.hirek.sk/szines/20140729085555/Rekordmeretu-szarvasgombat-talaltak-Magyarorszagon.html"))
+;(expect "http://www.hirek.sk/szines/20140729085555/Rekordmeretu-szarvasgombat-talaltak-Magyarorszagon.html" (:url @hirek-page))
+;(expect "Rekordméretű szarvasgombát találtak Magyarországon"            (:title   @hirek-page))
+;(expect #"^Rekordméretű, 1,28 kilogrammos nyári szarvasgombát találtak" (:summary @hirek-page))
+;(expect #"\"Egy amerikai kliensünk már másnap 3 ezer eurót"             (:content @hirek-page))
+;(expect "Budapest" (:loc @hirek-page))
