@@ -74,3 +74,9 @@
     :summary [:div.node.node-article :div.field-name-field-lead :p]
     :content [:div.node.node-article :div.field-name-body] }
   )
+
+(defscraper ::www.parameter.sk
+  { :title   [:div#page_container :div#content :h1]
+    :summary [:div#content :div.field-name-field-lead :p]
+    :content [:div#content :div.node-content] }
+  )

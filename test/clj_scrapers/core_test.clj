@@ -26,3 +26,9 @@
 (expect #"^Andrej Kiska államfő is ellátogatott szombaton"  (:summary @ujszo-page))
 (expect #"A kormány a katasztrófa miatt ma megszakítja"     (:content @ujszo-page))
 (expect "Terchová" (:loc @ujszo-page))
+
+(def parameter-page (scrape "http://www.parameter.sk/rovat/belfold/2014/07/28/smer-mar-odaig-mereszkedett-hogy-egyenesen-tekintelyelvunek-neveztek-kiskat"))
+(expect "http://www.parameter.sk/rovat/belfold/2014/07/28/smer-mar-odaig-mereszkedett-hogy-egyenesen-tekintelyelvunek-neveztek-kiskat" (:url @parameter-page))
+(expect "A Smer már odáig merészkedett, hogy egyenesen tekintélyelvűnek nevezték Kiskát" (:title   @parameter-page))
+(expect #"^Bár a Robert Fico vezette Smer-SD tudhatta, hogy nem lesz könnyű dolga"       (:summary @parameter-page))
+(expect #"Az Aktualne.sk azonban megkérdezte Tomáš Koziak politológust, aki nem lát"     (:content @parameter-page))
