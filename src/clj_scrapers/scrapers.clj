@@ -7,11 +7,12 @@
 
 (def this-ns *ns*)
 
+(defn- source-keyword [source] (keyword (str this-ns) source))
+
 (def http-options { :timeout    1000
                     :user-agent "Mozilla/5.0 (Windows NT 5.2; rv:2.0.1) Gecko/20100101 Firefox/4.0.1" } )
 
-(defn classify-url-source [url]
-  (keyword (str this-ns) (host-of (url-like url)))
+(defn classify-url-source [url] (source-keyword (host-of (url-like url)))
   )
 
 (defn fetch-page [url scrape]
@@ -33,7 +34,7 @@
 (defmulti scrape classify-url-source)
 
 (defmacro defscraper [source mappings]
-  `(defmethod scrape (keyword "clj-scrapers.scrapers" (name ~source)) [url#]
+  `(defmethod scrape ~(source-keyword (name source)) [url#]
     (fetch-page url#
       (fn [body#]
         (reduce
@@ -45,4 +46,8 @@
         )
       )
     )
+  )
+
+(defn derive-scraper [sub-source super-source]
+  (derive (source-keyword sub-source) (source-keyword super-source))
   )

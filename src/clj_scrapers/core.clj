@@ -1,5 +1,5 @@
 (ns clj-scrapers.core
-  (:require [clj-scrapers.scrapers :refer [defscraper scrape]])
+  (:require [clj-scrapers.scrapers :refer [defscraper derive-scraper]])
   )
 
 (defscraper "www.bumm.sk"
@@ -20,7 +20,7 @@
     :content [:div.node.node-article :div.field-name-body] }
   )
 
-(derive :clj-scrapers.scrapers/vasarnap.ujszo.com :clj-scrapers.scrapers/ujszo.com)
+(derive-scraper "vasarnap.ujszo.com" "ujszo.com")
 
 (defscraper "www.parameter.sk"
   { :title   [:div#page_container :div#content :h1]
