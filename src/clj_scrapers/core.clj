@@ -8,7 +8,7 @@
 (def scrapers-ns *ns*)
 
 (def http-options { :timeout    1000
-                    :user-agent "User-Agent-string" } )
+                    :user-agent "Mozilla/5.0 (Windows NT 5.2; rv:2.0.1) Gecko/20100101 Firefox/4.0.1" } )
 
 (defn classify-url-source [url]
   (keyword (str scrapers-ns) (host-of (url-like url)))
@@ -74,5 +74,7 @@
   )
 
 (defscraper ::www.hirek.sk
-  { :title    [:span#tcikkintro] }
+  { :title    [:span.tcikkcim]
+    :summary  [:span#tcikkintro]
+    :content  [:div#tcikktext] }
   )
