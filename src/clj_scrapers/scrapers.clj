@@ -31,23 +31,30 @@
       html/text)
   )
 
+(defn gather-attrs
+  "Scrape the passed attributes from a string based on mappings."
+  [mappings body]
+  (reduce
+    (fn [scraped-content [attr selector]]
+      (assoc scraped-content attr (trim (extract-tag body selector)))
+      )
+    {} mappings)
+  )
+
 (defmulti scrape classify-url-source)
 
-(defmacro defscraper [source mappings]
+(defmacro defscraper
+  "Define a scraper for a source."
+  [source mappings]
   `(defmethod scrape ~(source-keyword (name source)) [url#]
     (fetch-page url#
-      (fn [body#]
-        (reduce
-         (fn [scraped-content# [attr# selector#]]
-           (assoc scraped-content# attr# (trim (extract-tag body# selector#)))
-           )
-         { :url url# } ~mappings
-         )
-        )
+      (fn [body#] (-> (gather-attrs ~mappings body#) (assoc :url url#)))
       )
     )
   )
 
-(defn derive-scraper [sub-source super-source]
+(defn derive-scraper
+  "Derive scraper of a source from another source."
+  [sub-source super-source]
   (derive (source-keyword sub-source) (source-keyword super-source))
   )
