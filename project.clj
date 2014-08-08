@@ -6,6 +6,7 @@
   :plugins      [[lein-expectations "0.0.7"]]
   :core.typed    {:check [clj-scrapers.scraper]}
   :dependencies [[org.clojure/clojure     "1.6.0"]
+                 [org.clojure/core.async  "0.1.319.0-6b1aca-alpha"]
                  [prismatic/schema        "0.2.6"]
                  [http-kit                "2.1.16"]
                  [clojurewerkz/urly       "1.0.0"]

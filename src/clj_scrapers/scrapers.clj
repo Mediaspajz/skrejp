@@ -1,4 +1,5 @@
 (ns clj-scrapers.scrapers
+  (:require [clojure.core.async :refer [go chan >!]])
   (:require [clojurewerkz.urly.core :refer [url-like host-of]])
   (:require [clojure.string :refer [join trim]])
   (:require [org.httpkit.client :as http])
@@ -15,11 +16,14 @@
 (defn classify-url-source [url] (source-keyword (host-of (url-like url)))
   )
 
-(defn fetch-page [url scrape]
-  (let [ page (promise) ]
+(defn fetch-page [url scrape-fn]
+  (let [ page-chan (chan) ]
     (http/get url http-options
-      (fn [{:keys [status headers body error]}] (deliver page (scrape body))))
-    page
+      (fn [{:keys [status headers body error]}]
+        (go (>! page-chan (scrape-fn body)))
+        )
+      )
+    page-chan
     )
   )
 
@@ -31,7 +35,7 @@
       html/text)
   )
 
-(defn gather-attrs
+(defn collect-attrs
   "Scrape the passed attributes from a string based on mappings."
   [mappings body]
   (reduce
@@ -48,7 +52,7 @@
   [source mappings]
   `(defmethod scrape ~(source-keyword (name source)) [url#]
     (fetch-page url#
-      (fn [body#] (-> (gather-attrs ~mappings body#) (assoc :url url#)))
+      (fn [body#] (-> (collect-attrs ~mappings body#) (assoc :url url#)))
       )
     )
   )
