@@ -1,5 +1,5 @@
 (ns clj-scrapers.scrapers
-  (:require [clojure.core.async :refer [go chan >!]])
+  (:require [clojure.core.async :refer [go chan put! >!]])
   (:require [clojurewerkz.urly.core :refer [url-like host-of]])
   (:require [clojure.string :refer [join trim]])
   (:require [org.httpkit.client :as http])
@@ -20,7 +20,7 @@
   (let [ page-chan (chan) ]
     (http/get url http-options
       (fn [{:keys [status headers body error]}]
-        (go (>! page-chan (scrape-fn body)))
+        (put! page-chan (scrape-fn body))
         )
       )
     page-chan
