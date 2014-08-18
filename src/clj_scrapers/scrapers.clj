@@ -17,7 +17,7 @@
   )
 
 (defn fetch-page [url scrape-fn]
-  (let [ page-chan (chan) ]
+  (let [ page-chan (chan 1) ]
     (http/get url http-options
       (fn [{:keys [status headers body error]}]
         (put! page-chan (scrape-fn body))
