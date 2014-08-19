@@ -14,4 +14,6 @@
                  [com.gfredericks/vcr-clj "0.3.3"]
                  [expectations            "2.0.6"]
                  [clojurewerkz/elastisch  "2.0.0"]
-                 [org.clojars.scsibug/feedparser-clj "0.4.0"]])
+                 [org.clojars.scsibug/feedparser-clj "0.4.0"]]
+  :main          clj-scrapers.archives
+  )

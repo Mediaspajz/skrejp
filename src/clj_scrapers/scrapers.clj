@@ -1,8 +1,8 @@
 (ns clj-scrapers.scrapers
-  (:require [clojure.core.async :refer [go chan put! >!]])
-  (:require [clojurewerkz.urly.core :refer [url-like host-of]])
-  (:require [clojure.string :refer [join trim]])
-  (:require [org.httpkit.client :as http])
+  (:require [clojure.core.async     :refer [go chan put! >!]])
+  (:require [clojure.string         :refer [join trim]])
+  (:require [clojurewerkz.urly.core :as urly])
+  (:require [org.httpkit.client     :as http])
   (:require [net.cgrand.enlive-html :as html])
   )
 
@@ -13,7 +13,8 @@
 (def http-options { :timeout    1000
                     :user-agent "Mozilla/5.0 (Windows NT 5.2; rv:2.0.1) Gecko/20100101 Firefox/4.0.1" } )
 
-(defn classify-url-source [url] (source-keyword (host-of (url-like url)))
+(defn classify-url-source [url]
+  (source-keyword (urly/host-of (urly/url-like url)))
   )
 
 (defn fetch-page [url scrape-fn]
@@ -27,12 +28,16 @@
     )
   )
 
-(defn extract-tag [body selector]
-  (-> (java.io.StringReader. body)
-      html/html-resource
-      (html/select selector)
-      first
-      html/text)
+(defn extract-sel [body sel]
+  (-> (java.io.StringReader. body) html/html-resource (html/select sel))
+  )
+
+(defn extract-href [body sel]
+  (-> (extract-sel body sel) first (get-in [:attrs :href]))
+  )
+
+(defn extract-tag [body sel]
+  (-> (extract-sel body sel) first html/text)
   )
 
 (defn collect-attrs
@@ -42,7 +47,8 @@
     (fn [scraped-content [attr selector]]
       (assoc scraped-content attr (trim (extract-tag body selector)))
       )
-    {} mappings)
+    {} mappings
+    )
   )
 
 (defmulti scrape classify-url-source)
