@@ -1,7 +1,7 @@
 (ns clj-scrapers.archives
   (:require [clj-scrapers.scrapers  :refer [fetch-page extract-sel extract-href
                                             classify-url-source source-keyword]])
-  (:require [clojure.core.async     :refer [<!! >! <! chan go go-loop] :as async])
+  (:require [clojure.core.async     :refer [<!! >! <! chan go onto-chan] :as async])
   (:require [clojurewerkz.urly.core :as urly])
   (:require [org.httpkit.client     :as http])
   (:require [net.cgrand.enlive-html :as html])
@@ -9,10 +9,18 @@
 
 (defn- gen-scrape-index
   [index-href-sel]
-  (defn scrape-index-page [url]
-    (fetch-page url
-                (fn [body] (map #(get-in % [:attrs :href])
-                                (extract-sel body index-href-sel))))))
+  (fn scrape-index-page [url]
+    (let
+      [ index-pages-c (chan 64)
+        page-result-c (fetch-page url
+                                  (fn [body]
+                                    (map #(urly/resolve url (get-in % [:attrs :href]))
+                                         (extract-sel body index-href-sel))
+                                    )) ]
+      (go (onto-chan index-pages-c (<! page-result-c)))
+      index-pages-c
+      ))
+  )
 
 (defn- gen-scrape-next-indexes
   [href-sel]
@@ -45,14 +53,23 @@
      ))
 
 (defindexscraper "ujszo.com"
-                 [:div.content :span.field-content :a]
-                 [:div.content :ul.pager :li.pager-next :a])
+                 [:div#content :span.field-content :a]
+                 [:div#content :ul.pager :li.pager-next :a])
+
+(defn sink [f c]
+  (go (loop []
+        (when-some [v (<! c)]
+                   (f v)
+                   (recur)))))
 
 (defn -main [& args]
-  (let
-      [c (scrape-next-indexes "http://ujszo.com/cimkek/online-archivum")
-       v1 (<!! c)
-       v2 (<!! c)
-       v3 (<!! c)]
-    (println v1 v2 v3)
-    ))
+  (let [index-page-c (scrape-next-indexes "http://ujszo.com/cimkek/online-archivum")]
+    (dotimes [n 101]
+      (let [index-page-url (<!! index-page-c)]
+        (let [index-urls-c (scrape-index index-page-url)]
+          (sink println index-urls-c)
+          )
+        )
+      )
+    )
+  )
