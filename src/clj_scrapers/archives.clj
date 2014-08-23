@@ -14,12 +14,11 @@
       [ index-pages-c (chan 64)
         page-result-c (fetch-page url
                                   (fn [body]
-                                    (map #(urly/resolve url (get-in % [:attrs :href]))
+                                    (map #(get-in % [:attrs :href])
                                          (extract-sel body index-href-sel))
                                     )) ]
-      (go (onto-chan index-pages-c (<! page-result-c)))
-      index-pages-c
-      ))
+      (go (onto-chan index-pages-c (map (partial urly/resolve url) (<! page-result-c))))
+      index-pages-c))
   )
 
 (defn- gen-scrape-next-indexes
@@ -64,7 +63,7 @@
 
 (defn -main [& args]
   (let [index-page-c (scrape-next-indexes "http://ujszo.com/cimkek/online-archivum")]
-    (dotimes [n 101]
+    (dotimes [n 10]
       (let [index-page-url (<!! index-page-c)]
         (let [index-urls-c (scrape-index index-page-url)]
           (sink println index-urls-c)
