@@ -53,16 +53,16 @@
 
 (defmulti scrape classify-url-source)
 
-(defn gen-scrape-fn [mappings]
+(defn gen-scrape-fn [mappings fetch-fn]
   (fn [url]
-    (fetch-page url (fn [body] (-> (collect-attrs mappings body) (assoc :url url))))))
+    (fetch-fn url (fn [body] (-> (collect-attrs mappings body) (assoc :url url))))))
 
 (defmacro defscraper
   "Define a scraper for a source."
-  [source mappings]
+  [source mappings & {:keys [fetch-fn] :or {fetch-fn fetch-page}}]
   `(let
        [ source-kw# ~(source-keyword (name source))
-         scrape-fn#  (gen-scrape-fn ~mappings) ]
+         scrape-fn#  (gen-scrape-fn ~mappings ~fetch-fn) ]
       (defmethod scrape source-kw# [url#] (apply scrape-fn# [url#]))
       ))
 
