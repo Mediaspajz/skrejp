@@ -10,12 +10,12 @@
 
 (defn source-keyword [source] (keyword (str this-ns) source))
 
-(def http-options { :timeout    1000
-                    :user-agent "Mozilla/5.0 (Windows NT 5.2; rv:2.0.1) Gecko/20100101 Firefox/4.0.1" } )
-
 (defn classify-url-source [url]
   (source-keyword (urly/host-of (urly/url-like url)))
   )
+
+(def http-options { :timeout    1000
+                    :user-agent "Mozilla/5.0 (Windows NT 5.2; rv:2.0.1) Gecko/20100101 Firefox/4.0.1" } )
 
 (defn fetch-page [url scrape-fn]
   (let [ page-chan (chan 1) ]

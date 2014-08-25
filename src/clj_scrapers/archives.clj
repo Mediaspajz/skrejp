@@ -12,12 +12,15 @@
   (fn scrape-index-page [url]
     (let
       [ index-pages-c (chan 64)
-        page-result-c (fetch-page url
-                                  (fn [body]
-                                    (map #(get-in % [:attrs :href])
-                                         (extract-sel body index-href-sel))
-                                    )) ]
-      (go (onto-chan index-pages-c (map (partial urly/resolve url) (<! page-result-c))))
+        page-result-c
+          (fetch-page url
+                      (fn [body]
+                        (map #(get-in % [:attrs :href])
+                             (extract-sel body index-href-sel))
+                        )) ]
+      (go (onto-chan index-pages-c
+                     (map (partial urly/resolve url)
+                          (<! page-result-c))))
       index-pages-c))
   )
 
