@@ -8,24 +8,24 @@
   )
 
 (defn- gen-scrape-index
-  [index-href-sel]
-  (fn scrape-index-page [url]
+  [article-href-sel]
+  (fn [url]
     (let
-      [ index-pages-c (chan 64)
+      [ article-pages-c (chan 64)
         page-result-c
           (fetch-page url
                       (fn [body]
                         (map #(get-in % [:attrs :href])
-                             (extract-sel body index-href-sel))
+                             (extract-sel body article-href-sel))
                         )) ]
-      (go (onto-chan index-pages-c
+      (go (onto-chan article-pages-c
                      (map (partial urly/resolve url)
                           (<! page-result-c))))
-      index-pages-c))
+      article-pages-c))
   )
 
 (defn- gen-scrape-next-indexes
-  [href-sel]
+  [next-href-sel]
   (fn [initial-url]
     (let [ index-page-c (chan 100) ]
       (go
@@ -33,7 +33,7 @@
         (loop [current-url initial-url]
           (let [next-url-c
                 (fetch-page current-url
-                            (fn [body] (extract-href body href-sel)))
+                            (fn [body] (extract-href body next-href-sel)))
                 next-url (urly/resolve initial-url (<! next-url-c)) ]
             (>! index-page-c next-url)
             (recur next-url)
@@ -67,10 +67,9 @@
 (defn -main [& args]
   (let [index-page-c (scrape-next-indexes "http://ujszo.com/cimkek/online-archivum")]
     (dotimes [n 10]
-      (let [index-page-url (<!! index-page-c)]
-        (let [index-urls-c (scrape-index index-page-url)]
-          (sink println index-urls-c)
-          )
+      (let [ index-page-url (<!! index-page-c)
+             index-urls-c (scrape-index index-page-url) ]
+        (sink println index-urls-c)
         )
       )
     )
