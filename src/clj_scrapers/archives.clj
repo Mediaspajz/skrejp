@@ -1,5 +1,6 @@
 (ns clj-scrapers.archives
-  (:require [clj-scrapers.scrapers  :refer [fetch-page extract-sel extract-href
+  (:require [clj-scrapers.core])
+  (:require [clj-scrapers.scrapers  :refer [scrape fetch-page extract-sel extract-href
                                             classify-url-source source-keyword]])
   (:require [clojure.core.async     :refer [<!! >! <! chan go onto-chan] :as async])
   (:require [clojurewerkz.urly.core :as urly])
@@ -65,11 +66,17 @@
                    (recur)))))
 
 (defn -main [& args]
-  (let [index-page-c (scrape-next-indexes "http://ujszo.com/cimkek/online-archivum")]
+  (let [index-page-c (scrape-next-indexes "http://ujszo.com/online")]
     (dotimes [n 10]
       (let [ index-page-url (<!! index-page-c)
-             index-urls-c (scrape-index index-page-url) ]
-        (sink println index-urls-c)
+             article-urls-c (scrape-index index-page-url) ]
+        (sink (fn [article-url]
+                (let [ article-page-c (scrape article-url)
+                       article        (<!! article-page-c) ]
+                  (printf "%s\nTITLE: %s\nSUMMARY: %s\n\n" (:url article) (:title article) (:summary article))
+                  )
+                )
+              article-urls-c)
         )
       )
     )
