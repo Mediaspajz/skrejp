@@ -18,5 +18,4 @@
 
                  [clojurewerkz/elastisch  "2.0.0"]
                  [org.clojars.scsibug/feedparser-clj "0.4.0"]]
-  :main          clj-scrapers.archives
-  )
+  :main          clj-scrapers.archives)
