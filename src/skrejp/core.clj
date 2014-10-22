@@ -1,42 +1,112 @@
 (ns skrejp.core
   (:require [com.stuartsierra.component :as component]) )
 
-(defrecord Storage [host port connection]
-  ;; Implement the Lifecycle protocol
+(defrecord Storage []
   component/Lifecycle
 
   (start [component]
-    (println ";; Starting the storage")
-    ;; In the 'start' method, initialize this component
-    ;; and start it running. For example, connect to a
-    ;; database, create thread pools, or initialize shared
-    ;; state.
-    (let [conn (connect-to-database host port)]
-      ;; Return an updated version of the component with
-      ;; the run-time state assoc'd in.
-      (assoc component :connection conn)))
+    (println ";; Starting the Storage")
+    component
+    )
 
   (stop [component]
-    (println ";; Stopping the storage")
-    ;; In the 'stop' method, shut down the running
-    ;; component and release any external resources it has
-    ;; acquired.
-    (.close connection)
-    ;; Return the component, optionally modified. Remember that if you
-    ;; dissoc one of a record's base fields, you get a plain map.
-    (assoc component :connection nil)))
+    (println ";; Stopping the Storage")
+    component
+    )
+  )
 
-defrecord ExampleComponent [options cache database scheduler]
+(defn new-storage
+  "Create a new storage."
+  []
+  (map->Storage {})
+  )
+
+(defrecord PageRetrieval [storage error-handling]
   component/Lifecycle
 
   (start [this]
-    (println ";; Starting ExampleComponent")
-    ;; In the 'start' method, a component may assume that its
-    ;; dependencies are available and have already been started.
-    (assoc this :admin (get-user database "admin")))
+    (println ";; Starting PageContentRetrieval")
+    this)
 
   (stop [this]
-    (println ";; Stopping ExampleComponent")
-    ;; Likewise, in the 'stop' method, a component may assume that its
-    ;; dependencies will not be stopped until AFTER it is stopped.
+    (println ";; Stopping PageContentRetrieval")
     this))
+
+(defn page-retrieval-component
+  "Create a PageRetrieval component."
+  [config-options]
+  (map->PageRetrieval {:options config-options})
+  )
+
+(defrecord ErrorHandling []
+  component/Lifecycle
+
+  (start [this]
+    (println ";; Starting ErrorHandling")
+    this)
+
+  (stop [this]
+    (println ";; Stopping ErrorHanding")
+    this))
+
+(defn error-handling-component
+  "Create an ErrorHandling component."
+  []
+  (map->ErrorHandling {})
+  )
+
+(defrecord CrawlPlanner []
+  component/Lifecycle
+
+  (start [this]
+    (println ";; Starting CrawlPlanner")
+    this)
+
+  (stop [this]
+    (println ";; Stopping CrawlPlanner")
+    this))
+
+(defn crawl-planner-component
+  "Create a CrawlPlanner component."
+  []
+  (map->CrawlPlanner {})
+  )
+
+(defrecord ScraperVerification []
+  component/Lifecycle
+
+  (start [this]
+    (println ";; Starting ScraperVerification")
+    this)
+
+  (stop [this]
+    (println ";; Stopping ScraperVerification")
+    this)
+  )
+
+(defn scraper-verification-component
+  "Create a ScraperVerification component."
+  []
+  (map->ScraperVerification {})
+  )
+
+(defn simple-system
+  "Create a simple example system."
+  [config-options]
+  (component/system-map
+    :storage (new-storage)
+    :error-handling (error-handling-component)
+    :page-retrieval (component/using
+                      (page-retrieval-component config-options)
+                      [:storage :error-handling]
+                      )
+    :crawl-planner (component/using
+                     (crawl-planner-component)
+                     [:page-retrieval :error-handling]
+                     )
+    :scraper-verification (component/using
+                            (scraper-verification-component)
+                            [:storage :page-retrieval :error-handling]
+                            )
+    )
+  )
