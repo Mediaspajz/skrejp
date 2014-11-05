@@ -6,7 +6,7 @@
   :plugins      [[lein-expectations "0.0.7"]
                  [lein-marginalia   "0.8.0"]]
   :core.typed    {:check [clj-scrapers.scraper]}
-  :dependencies [[org.clojure/clojure     "1.7.0-alpha2"]
+  :dependencies [[org.clojure/clojure     "1.7.0-alpha3"]
                  [org.clojure/core.async  "0.1.319.0-6b1aca-alpha"]
                  [prismatic/schema        "0.2.6"]
                  [com.stuartsierra/component "0.2.2"]
