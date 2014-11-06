@@ -2,7 +2,7 @@
   (:require [com.stuartsierra.component :as component])
   )
 
-(defrecord ScraperComponent [storage error-handling]
+(defrecord ScraperComponent [scraper-defs storage error-handling]
   component/Lifecycle
 
   (start [this]
@@ -15,6 +15,6 @@
 
 (defn build-component
   "Build a Scraper component."
-  [config-options]
-  (map->ScraperComponent {:options config-options})
+  [scraper-defs]
+  (map->ScraperComponent {:scraper-defs scraper-defs})
   )

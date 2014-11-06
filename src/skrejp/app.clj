@@ -3,7 +3,28 @@
   (:require [skrejp.system :as system])
   )
 
-(def config-options {})
+
+(def config-options
+  {:scraper-defs
+    {"www.bumm.sk"      {:title   [:div#content :div#article_detail_title]
+                         :summary [:div#content :div#article_detail_lead]
+                         :content [:div#content :div#article_detail_text]}
+     "felvidek.ma"      {:title   [:article :header.article-header :h1.article-title :a]
+                         :content [:section.article-content]}
+     "ujszo.com"        {:title   [:div.node.node-article :h1]
+                         :loc     [:div.node.node-article :div.field-name-field-lead :span.place]
+                         :summary [:div.node.node-article :div.field-name-field-lead :p]
+                         :content [:div.node.node-article :div.field-name-body]}
+     "www.parameter.sk" {:title   [:div#page_container :div#content :h1]
+                         :summary [:div#content :div.field-name-field-lead :p]
+                         :content [:div#content :div.node-content]}
+     "www.hirek.sk"     {:title   [:span.tcikkcim]
+                         :summary [:span#tcikkintro]
+                         :content [:div#tcikktext]}
+     "vasarnap.ujszo.com" "ujszo.com"
+     }
+    }
+  )
 
 (def scraper-system (system/build-scraper-system config-options))
 
