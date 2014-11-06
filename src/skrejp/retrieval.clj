@@ -2,7 +2,7 @@
   (:require [com.stuartsierra.component :as component])
   )
 
-(defrecord RetrievalComponent [storage error-handling]
+(defrecord RetrievalComponent []
   component/Lifecycle
 
   (start [this]
