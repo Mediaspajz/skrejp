@@ -1,5 +1,5 @@
 (ns skrejp.system
-  (:require [com.stuartsierra.component :as component])
+  (:require [com.stuartsierra.component  :as component])
   (:require [skrejp.retrieval            :as retrieval])
   (:require [skrejp.scraper              :as scraper])
   (:require [skrejp.storage              :as storage])
