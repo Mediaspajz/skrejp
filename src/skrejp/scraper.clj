@@ -4,17 +4,16 @@
   (:require [clojure.core.async     :refer [go chan put! >!]])
   )
 
+;; ScraperComponent implements a component LifeCycle.
+;; It depends on the page-retrieval, storage and error-handling components.
+;; scraper-defs contains the scraper definitions.
+;; url-c is a channel for the urls to process.
+;; The ScraperComponent processes the urls coming through the url-c and puts it to the
+;; doc-c of the storage component.
 (defrecord ScraperComponent
-  "ScraperComponent implements a component LifeCycle.
-   It depends on the page-retrieval, storage and error-handling components.
-   scraper-defs contains the scraper definitions.
-   url-c is a channel for the urls to process.
-   The ScraperComponent processes the urls coming through the url-c and puts it to the
-   doc-c of the storage component."
   [scraper-defs
    page-retrieval storage error-handling
-   url-c
-   ]
+   url-c]
   component/Lifecycle
 
   (start [this]
