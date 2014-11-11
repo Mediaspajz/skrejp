@@ -3,7 +3,7 @@
   (:require [clojurewerkz.urly.core :as urly])
   )
 
-(defrecord ScraperComponent [scraper-defs storage error-handling]
+(defrecord ScraperComponent [scraper-defs page-retrieval storage error-handling]
   component/Lifecycle
 
   (start [this]

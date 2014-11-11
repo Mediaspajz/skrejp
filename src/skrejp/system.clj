@@ -19,11 +19,11 @@
       :page-retrieval (retrieval/build-component config-options)
       :crawl-planner  (component/using
                         (crawl-planner/build-component)
-                        [:page-retrieval :error-handling]
+                        [:page-retrieval :error-handling :scraper]
                         )
       :scraper        (component/using
                         (scraper/build-component scraper-defs)
-                        [:storage :error-handling]
+                        [:page-retrieval :storage :error-handling]
                         )
       :scraper-verification
                       (component/using

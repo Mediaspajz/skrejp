@@ -2,7 +2,7 @@
   (:require [com.stuartsierra.component :as component])
   )
 
-(defrecord ScraperVerificationComponent []
+(defrecord ScraperVerificationComponent [storage page-retrieval error-handling]
   component/Lifecycle
 
   (start [this]

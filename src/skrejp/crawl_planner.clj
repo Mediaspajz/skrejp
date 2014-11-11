@@ -2,7 +2,7 @@
   (:require [com.stuartsierra.component :as component])
   )
 
-(defrecord CrawlPlannerComponent []
+(defrecord CrawlPlannerComponent [page-retrieval scraper error-handling]
   component/Lifecycle
 
   (start [this]
