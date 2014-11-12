@@ -2866,7 +2866,7 @@ net.brehaut.ClojureTools = (function (SH) {
   };
 })(SyntaxHighlighter);
 </script><title>clj-scrapers -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name"><a href="http://example.com/FIXME">clj-scrapers</a></h1><h2 class="project-version">0.1.0-SNAPSHOT</h2><br /><p>FIXME: write description</p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.7.0-alpha3</td></tr><tr><td class="dep-name">org.clojure/core.async</td><td class="dotted"><hr /></td><td class="dep-version">0.1.319.0-6b1aca-alpha</td></tr><tr><td class="dep-name">prismatic/schema</td><td class="dotted"><hr /></td><td class="dep-version">0.2.6</td></tr><tr><td class="dep-name">com.stuartsierra/component</td><td class="dotted"><hr /></td><td class="dep-version">0.2.2</td></tr><tr><td class="dep-name">http-kit</td><td class="dotted"><hr /></td><td class="dep-version">2.1.16</td></tr><tr><td class="dep-name">clojurewerkz/urly</td><td class="dotted"><hr /></td><td class="dep-version">1.0.0</td></tr><tr><td class="dep-name">enlive</td><td class="dotted"><hr /></td><td class="dep-version">1.1.5</td></tr><tr><td class="dep-name">expectations</td><td class="dotted"><hr /></td><td class="dep-version">2.0.6</td></tr><tr><td class="dep-name">clojurewerkz/elastisch</td><td class="dotted"><hr /></td><td class="dep-version">2.0.0</td></tr><tr><td class="dep-name">org.clojars.scsibug/feedparser-clj</td><td class="dotted"><hr /></td><td class="dep-version">0.4.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#clj-scrapers.archives">clj-scrapers.archives</a></li><li><a href="#clj-scrapers.core">clj-scrapers.core</a></li><li><a href="#clj-scrapers.schemas">clj-scrapers.schemas</a></li><li><a href="#clj-scrapers.scrapers">clj-scrapers.scrapers</a></li><li><a href="#skrejp.app">skrejp.app</a></li><li><a href="#skrejp.crawl-planner">skrejp.crawl-planner</a></li><li><a href="#skrejp.error-handling">skrejp.error-handling</a></li><li><a href="#skrejp.retrieval">skrejp.retrieval</a></li><li><a href="#skrejp.scraper">skrejp.scraper</a></li><li><a href="#skrejp.scraper-verification">skrejp.scraper-verification</a></li><li><a href="#skrejp.storage">skrejp.storage</a></li><li><a href="#skrejp.system">skrejp.system</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#clj-scrapers.archives" name="clj-scrapers.archives"><h1 class="project-name">clj-scrapers.archives</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.7.0-alpha3</td></tr><tr><td class="dep-name">org.clojure/core.async</td><td class="dotted"><hr /></td><td class="dep-version">0.1.319.0-6b1aca-alpha</td></tr><tr><td class="dep-name">prismatic/schema</td><td class="dotted"><hr /></td><td class="dep-version">0.2.6</td></tr><tr><td class="dep-name">com.stuartsierra/component</td><td class="dotted"><hr /></td><td class="dep-version">0.2.2</td></tr><tr><td class="dep-name">http-kit</td><td class="dotted"><hr /></td><td class="dep-version">2.1.16</td></tr><tr><td class="dep-name">clojurewerkz/urly</td><td class="dotted"><hr /></td><td class="dep-version">1.0.0</td></tr><tr><td class="dep-name">enlive</td><td class="dotted"><hr /></td><td class="dep-version">1.1.5</td></tr><tr><td class="dep-name">expectations</td><td class="dotted"><hr /></td><td class="dep-version">2.0.6</td></tr><tr><td class="dep-name">http-kit.fake</td><td class="dotted"><hr /></td><td class="dep-version">0.2.1</td></tr><tr><td class="dep-name">clojurewerkz/elastisch</td><td class="dotted"><hr /></td><td class="dep-version">2.0.0</td></tr><tr><td class="dep-name">org.clojars.scsibug/feedparser-clj</td><td class="dotted"><hr /></td><td class="dep-version">0.4.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#clj-scrapers.archives">clj-scrapers.archives</a></li><li><a href="#clj-scrapers.core">clj-scrapers.core</a></li><li><a href="#clj-scrapers.schemas">clj-scrapers.schemas</a></li><li><a href="#clj-scrapers.scrapers">clj-scrapers.scrapers</a></li><li><a href="#skrejp.app">skrejp.app</a></li><li><a href="#skrejp.crawl-planner">skrejp.crawl-planner</a></li><li><a href="#skrejp.error-handling">skrejp.error-handling</a></li><li><a href="#skrejp.retrieval">skrejp.retrieval</a></li><li><a href="#skrejp.scraper">skrejp.scraper</a></li><li><a href="#skrejp.scraper-verification">skrejp.scraper-verification</a></li><li><a href="#skrejp.storage">skrejp.storage</a></li><li><a href="#skrejp.system">skrejp.system</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#clj-scrapers.archives" name="clj-scrapers.archives"><h1 class="project-name">clj-scrapers.archives</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns clj-scrapers.archives
   (:require [clj-scrapers.core])
   (:require [clj-scrapers.scrapers  :refer [scrape fetch-page extract-sel extract-href
@@ -2999,24 +2999,28 @@ net.brehaut.ClojureTools = (function (SH) {
   (:require [skrejp.system :as system]))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def config-options
   {:scraper-defs
-    {&quot;www.bumm.sk&quot;      {:title   [:div#content :div#article_detail_title]
-                         :summary [:div#content :div#article_detail_lead]
-                         :content [:div#content :div#article_detail_text]}
-     &quot;felvidek.ma&quot;      {:title   [:article :header.article-header :h1.article-title :a]
-                         :content [:section.article-content]}
-     &quot;ujszo.com&quot;        {:title   [:div.node.node-article :h1]
-                         :loc     [:div.node.node-article :div.field-name-field-lead :span.place]
-                         :summary [:div.node.node-article :div.field-name-field-lead :p]
-                         :content [:div.node.node-article :div.field-name-body]}
-     &quot;www.parameter.sk&quot; {:title   [:div#page_container :div#content :h1]
-                         :summary [:div#content :div.field-name-field-lead :p]
-                         :content [:div#content :div.node-content]}
-     &quot;www.hirek.sk&quot;     {:title   [:span.tcikkcim]
-                         :summary [:span#tcikkintro]
-                         :content [:div#tcikktext]}
-     &quot;vasarnap.ujszo.com&quot; &quot;ujszo.com&quot;
-     }
-    })</pre></td></tr><tr><td class="docs">
+     {&quot;www.bumm.sk&quot;      {:title   [:div#content :div#article_detail_title]
+                          :summary [:div#content :div#article_detail_lead]
+                          :content [:div#content :div#article_detail_text]}
+      &quot;felvidek.ma&quot;      {:title   [:article :header.article-header :h1.article-title :a]
+                          :content [:section.article-content]}
+      &quot;ujszo.com&quot;        {:title   [:div.node.node-article :h1]
+                          :loc     [:div.node.node-article :div.field-name-field-lead :span.place]
+                          :summary [:div.node.node-article :div.field-name-field-lead :p]
+                          :content [:div.node.node-article :div.field-name-body]}
+      &quot;www.parameter.sk&quot; {:title   [:div#page_container :div#content :h1]
+                          :summary [:div#content :div.field-name-field-lead :p]
+                          :content [:div#content :div.node-content]}
+      &quot;www.hirek.sk&quot;     {:title   [:span.tcikkcim]
+                          :summary [:span#tcikkintro]
+                          :content [:div#tcikktext]}
+      &quot;vasarnap.ujszo.com&quot; &quot;ujszo.com&quot;
+      }
+   :http-req-opts
+     {:timeout    200 ; ms
+      :user-agent &quot;User-Agent-string&quot;
+      :headers    {&quot;X-Header&quot; &quot;Value&quot;}}
+   })</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def scraper-system (system/build-scraper-system config-options))</pre></td></tr><tr><td class="docs"><p>starts the scraper system.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn start-scraper-system
   []
@@ -3051,16 +3055,16 @@ net.brehaut.ClojureTools = (function (SH) {
   []
   (map-&gt;ErrorHandlingComponent {}))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#skrejp.retrieval" name="skrejp.retrieval"><h1 class="project-name">skrejp.retrieval</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns skrejp.retrieval
-  (:require [com.stuartsierra.component :as component]))</pre></td></tr><tr><td class="docs"><h2>IRetrieval</h2>
+  (:require [com.stuartsierra.component :as component])
+  (:require [org.httpkit.client :as http]))</pre></td></tr><tr><td class="docs"><h2>IRetrieval</h2>
 
 <p>  Defines methods for fetching pages.
-  <em>fetch-page</em> is used for fetching a page from a url.
-  It expects the URL of the resource and a channel to which it is pushing the fetch page.
+  <em>fetch-page</em> is a transducer for fetching a page from a url.
+  It expects the URL of the resource and it is pushing the fetch page to the channel it is applied on.
   If the error-fn is passed, it calls the error-fn function in case of an error.</p>
 </td><td class="codes"><pre class="brush: clojure">(defprotocol IRetrieval
-  (fetch-page
-    [this url page-c] [this url page-c error-fn]))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defrecord RetrievalComponent []
+  (fetch-page [this] [this error-fn]))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defrecord RetrievalComponent [http-opts]
   component/Lifecycle
   IRetrieval
   (start [this]
@@ -3069,15 +3073,34 @@ net.brehaut.ClojureTools = (function (SH) {
   (stop [this]
     (println &quot;;; Stopping PageContentRetrieval&quot;)
     this)
-  (fetch-page [this url page-c]
-    nil))</pre></td></tr><tr><td class="docs"><p>Build a PageRetrieval component.</p>
+  (fetch-page [this]
+    (fn [xf]
+      (fn ([] (xf))
+        ([result] (xf result))
+        ([result url]
+         (http/get url (:http-opts this)
+                   (fn [{:keys [error] :as resp}]
+                     (if-not error
+                       (xf result resp))))
+         result)))))</pre></td></tr><tr><td class="docs"><p>Build a PageRetrieval component.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn build-component
   [config-options]
-  (map-&gt;RetrievalComponent {:options config-options}))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#skrejp.scraper" name="skrejp.scraper"><h1 class="project-name">skrejp.scraper</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+  (map-&gt;RetrievalComponent (select-keys config-options [:http-req-opts])))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#skrejp.scraper" name="skrejp.scraper"><h1 class="project-name">skrejp.scraper</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns skrejp.scraper
   (:require [com.stuartsierra.component :as component])
   (:require [clojurewerkz.urly.core :as urly])
-  (:require [clojure.core.async     :refer [go chan put! &gt;!]]))</pre></td></tr><tr><td class="docs"><p>ScraperComponent implements a component LifeCycle.
+  (:require [clojure.core.async     :refer [go chan put! &gt;!]])
+  (:require [net.cgrand.enlive-html :as html]))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn classify-url-source [url] (keyword (urly/host-of (urly/url-like url))) )</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn extract-sel [body sel]
+  (-&gt; (java.io.StringReader. body) html/html-resource (html/select sel)) )</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn extract-tag [body sel]
+  (-&gt; (extract-sel body sel) first html/text) )</pre></td></tr><tr><td class="docs"><h2>IScraper</h2>
+
+<p>  Defines methods for scraping structure content from web pages.
+  <em>scrape</em> is a transducer taking a http responses and returning map with extacted values.</p>
+</td><td class="codes"><pre class="brush: clojure">(defprotocol IScraper
+  (scrape [this]))</pre></td></tr><tr><td class="docs"><p>ScraperComponent implements a component LifeCycle.
 It depends on the page-retrieval, storage and error-handling components.
 scraper-defs contains the scraper definitions.
 url-c is a channel for the urls to process.
@@ -3088,19 +3111,29 @@ doc-c of the storage component.</p>
    page-retrieval storage error-handling
    url-c]
   component/Lifecycle
+  IScraper
   (start [this]
     (println &quot;;; Starting Scraper&quot;)
     (assoc this :url-c (chan 512)))
   (stop [this]
     (println &quot;;; Stopping Scraper&quot;)
-    this))</pre></td></tr><tr><td class="docs"><p>Build a Scraper component.</p>
+    this)
+  (scrape [this]
+    (fn [xf]
+      (fn ([] (xf))
+        ([result] (xf result))
+        ([result http-resp]
+         (let
+           [scraper-def ((:scraper-defs this) (classify-url-source (http-resp :url)))
+            scraped-doc (into {}
+                              (map
+                                (fn [[attr sel]]
+                                  [attr (extract-tag (:body http-resp) sel)])
+                                scraper-def)) ]
+           (xf result (assoc scraped-doc :url (http-resp :url)))))))))</pre></td></tr><tr><td class="docs"><p>Build a Scraper component.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn build-component
-  [scraper-defs]
-  (map-&gt;ScraperComponent {:scraper-defs scraper-defs}))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(def this-ns *ns*)</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn source-keyword [source] (keyword (str this-ns) source))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn classify-url-source [url]
-  (source-keyword (urly/host-of (urly/url-like url))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#skrejp.scraper-verification" name="skrejp.scraper-verification"><h1 class="project-name">skrejp.scraper-verification</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+  [config-options]
+  (map-&gt;ScraperComponent (select-keys config-options [:scraper-defs ])))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#skrejp.scraper-verification" name="skrejp.scraper-verification"><h1 class="project-name">skrejp.scraper-verification</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns skrejp.scraper-verification
   (:require [com.stuartsierra.component :as component]))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defrecord ScraperVerificationComponent [storage page-retrieval error-handling]

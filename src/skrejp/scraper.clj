@@ -2,6 +2,24 @@
   (:require [com.stuartsierra.component :as component])
   (:require [clojurewerkz.urly.core :as urly])
   (:require [clojure.core.async     :refer [go chan put! >!]])
+  (:require [net.cgrand.enlive-html :as html])
+  )
+
+(defn classify-url-source [url] (keyword (urly/host-of (urly/url-like url))) )
+
+(defn extract-sel [body sel]
+  (-> (java.io.StringReader. body) html/html-resource (html/select sel)) )
+
+(defn extract-tag [body sel]
+  (-> (extract-sel body sel) first html/text) )
+
+(defprotocol IScraper
+  "## IScraper
+  Defines methods for scraping structure content from web pages.
+  *scrape* is a transducer taking a http responses and returning map with extacted values.
+  "
+
+  (scrape [this])
   )
 
 ;; ScraperComponent implements a component LifeCycle.
@@ -15,6 +33,7 @@
    page-retrieval storage error-handling
    url-c]
   component/Lifecycle
+  IScraper
 
   (start [this]
     (println ";; Starting Scraper")
@@ -23,18 +42,31 @@
 
   (stop [this]
     (println ";; Stopping Scraper")
-    this))
+    this)
+
+  (scrape [this]
+    (fn [xf]
+      (fn ([] (xf))
+        ([result] (xf result))
+        ([result http-resp]
+         (let
+           [scraper-def ((:scraper-defs this) (classify-url-source (http-resp :url)))
+            scraped-doc (into {}
+                              (map
+                                (fn [[attr sel]]
+                                  [attr (extract-tag (:body http-resp) sel)])
+                                scraper-def)
+                              ) ]
+           (xf result (assoc scraped-doc :url (http-resp :url)))
+          )
+         )
+        )
+      )
+    )
+  )
 
 (defn build-component
   "Build a Scraper component."
-  [scraper-defs]
-  (map->ScraperComponent {:scraper-defs scraper-defs})
-  )
-
-(def this-ns *ns*)
-
-(defn source-keyword [source] (keyword (str this-ns) source))
-
-(defn classify-url-source [url]
-  (source-keyword (urly/host-of (urly/url-like url)))
+  [config-options]
+  (map->ScraperComponent (select-keys config-options [:scraper-defs ]))
   )
