@@ -1,18 +1,18 @@
 (ns skrejp.retrieval
   (:require [com.stuartsierra.component :as component])
+  (:require [org.httpkit.client :as http])
   )
 
 (defprotocol IRetrieval
   "## IRetrieval
   Defines methods for fetching pages.
-  *fetch-page* is used for fetching a page from a url.
-  It expects the URL of the resource and a channel to which it is pushing the fetch page.
+  *fetch-page* is a transducer for fetching a page from a url.
+  It expects the URL of the resource and it is pushing the fetch page to the channel it is applied on.
   If the error-fn is passed, it calls the error-fn function in case of an error."
-  (fetch-page
-    [this url page-c] [this url page-c error-fn])
+  (fetch-page [this] [this error-fn])
   )
 
-(defrecord RetrievalComponent []
+(defrecord RetrievalComponent [http-opts]
   component/Lifecycle
   IRetrieval
 
@@ -24,12 +24,26 @@
     (println ";; Stopping PageContentRetrieval")
     this)
 
-  (fetch-page [this url page-c]
-    nil)
+  (fetch-page [this]
+    (fn [xf]
+      (fn ([] (xf))
+        ([result] (xf result))
+        ([result url]
+         (http/get url (:http-opts this)
+                   (fn [{:keys [error] :as resp}]
+                     (if-not error
+                       (xf result resp)
+                       )
+                     )
+                   )
+         result)
+        )
+      )
+    )
   )
 
 (defn build-component
   "Build a PageRetrieval component."
   [config-options]
-  (map->RetrievalComponent {:options config-options})
+  (map->RetrievalComponent (select-keys config-options [:http-req-opts]))
   )
