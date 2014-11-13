@@ -11,12 +11,13 @@
 (let
   [scraper-cmpnt (scraper/build-component
                    { :scraper-defs
-                     { :example.com { :title [:h1#title] :content [:div#content] } } }
+                     { :example.com     { :title [:h1#title] :content [:div#content] }
+                       :www.example.com   :example.com } }
                    )
    page-body "<html><body><h1 id='title'>Foo Title</h1><div id='content'>Bar Content</div></body></html>"
-   page-resp { :url "http://example.com/index.html" :body page-body }
+   page-resp { :url "http://www.example.com/index.html" :body page-body }
    article (first (into [] (scraper/scrape scraper-cmpnt) [page-resp])) ]
-  (expect "http://example.com/index.html" (article :url))
+  (expect "http://www.example.com/index.html" (article :url))
   (expect "Foo Title"   (article :title))
   (expect "Bar Content" (article :content))
   )

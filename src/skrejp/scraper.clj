@@ -17,9 +17,11 @@
   "## IScraper
   Defines methods for scraping structure content from web pages.
   *scrape* is a transducer taking a http responses and returning map with extacted values.
+  *get-scraper-def* returns a scraper definition for a url.
   "
 
   (scrape [this])
+  (get-scraper-def [this url])
   )
 
 ;; ScraperComponent implements a component LifeCycle.
@@ -44,13 +46,23 @@
     (println ";; Stopping Scraper")
     this)
 
+  (get-scraper-def [this url]
+    (let
+      [scraper-def-entry ((:scraper-defs this) (classify-url-source url))]
+      (if (coll? scraper-def-entry)
+        scraper-def-entry
+        ((:scraper-defs this) scraper-def-entry)
+        )
+      )
+    )
+
   (scrape [this]
     (fn [xf]
       (fn ([] (xf))
         ([result] (xf result))
         ([result http-resp]
          (let
-           [scraper-def ((:scraper-defs this) (classify-url-source (http-resp :url)))
+           [scraper-def (get-scraper-def this (http-resp :url))
             scraped-doc (into {}
                               (map
                                 (fn [[attr sel]]

@@ -3098,9 +3098,11 @@ net.brehaut.ClojureTools = (function (SH) {
   (-&gt; (extract-sel body sel) first html/text) )</pre></td></tr><tr><td class="docs"><h2>IScraper</h2>
 
 <p>  Defines methods for scraping structure content from web pages.
-  <em>scrape</em> is a transducer taking a http responses and returning map with extacted values.</p>
+  <em>scrape</em> is a transducer taking a http responses and returning map with extacted values.
+  <em>get-scraper-def</em> returns a scraper definition for a url.</p>
 </td><td class="codes"><pre class="brush: clojure">(defprotocol IScraper
-  (scrape [this]))</pre></td></tr><tr><td class="docs"><p>ScraperComponent implements a component LifeCycle.
+  (scrape [this])
+  (get-scraper-def [this url]))</pre></td></tr><tr><td class="docs"><p>ScraperComponent implements a component LifeCycle.
 It depends on the page-retrieval, storage and error-handling components.
 scraper-defs contains the scraper definitions.
 url-c is a channel for the urls to process.
@@ -3118,13 +3120,19 @@ doc-c of the storage component.</p>
   (stop [this]
     (println &quot;;; Stopping Scraper&quot;)
     this)
+  (get-scraper-def [this url]
+    (let
+      [scraper-def-entry ((:scraper-defs this) (classify-url-source url))]
+      (if (coll? scraper-def-entry)
+        scraper-def-entry
+        ((:scraper-defs this) scraper-def-entry))))
   (scrape [this]
     (fn [xf]
       (fn ([] (xf))
         ([result] (xf result))
         ([result http-resp]
          (let
-           [scraper-def ((:scraper-defs this) (classify-url-source (http-resp :url)))
+           [scraper-def (get-scraper-def this (http-resp :url))
             scraped-doc (into {}
                               (map
                                 (fn [[attr sel]]
