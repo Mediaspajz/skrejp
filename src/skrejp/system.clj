@@ -5,7 +5,7 @@
   (:require [skrejp.storage              :as storage])
   (:require [skrejp.error-handling       :as error-handling])
   (:require [skrejp.crawl-planner        :as crawl-planner])
-  (:require [skrejp.scraper-verification :as scraper-verification]) )
+  (:require [skrejp.scraper-verification :as scraper-verification]))
 
 (defn build-scraper-system
   "Build a scraper system."
@@ -18,14 +18,11 @@
       :page-retrieval (retrieval/build-component config-options)
       :crawl-planner  (component/using
                         (crawl-planner/build-component)
-                        [:page-retrieval :error-handling :scraper]
-                        )
+                        [:page-retrieval :error-handling :scraper])
       :scraper        (component/using
                         (scraper/build-component scraper-defs)
-                        [:page-retrieval :storage :error-handling]
-                        )
+                        [:page-retrieval :storage :error-handling])
       :scraper-verification
                       (component/using
                         (scraper-verification/build-component)
-                        [:storage :page-retrieval :error-handling]
-                        ) ) ) )
+                        [:storage :page-retrieval :error-handling]))))

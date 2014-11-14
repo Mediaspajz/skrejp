@@ -26,5 +26,5 @@
 
 (defn build-component
   "Build a CrawlPlanner component."
-  []
-  (map->CrawlPlannerComponent {}) )
+  [config-opts]
+  (map->CrawlPlannerComponent (select-keys config-opts [:feeds])) )

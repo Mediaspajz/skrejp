@@ -7,7 +7,7 @@
 
 (def http-req-opts {:timeout    10 ; ms
                     :user-agent "User-Agent-string"
-                    :headers    {"X-Header" "Value"} } )
+                    :headers    {"X-Header" "Value"}})
 
 (with-fake-http
   [ "http://example.com/p1" "foo"
@@ -46,4 +46,4 @@
       (expect (-> feed :entries count))
       (expect (-> entries first  :title) "Foo")
       (expect (-> entries second :link)   "http://example.com/bar.html")
-      ) ) )
+      )))

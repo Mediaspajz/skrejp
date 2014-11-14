@@ -14,4 +14,4 @@
   (expect "http://example.com/foo.html" (-> scrape-reqs first  :url))
   (expect "http://example.com/bar.html" (-> scrape-reqs second :url))
   (expect "Foo" (-> scrape-reqs first  :title))
-  (expect "Bar" (-> scrape-reqs second :title)) )
+  (expect "Bar" (-> scrape-reqs second :title)))
