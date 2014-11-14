@@ -70,12 +70,7 @@
                                 scraper-def)
                               ) ]
            (xf result (assoc scraped-doc :url (http-resp :url)))
-          )
-         )
-        )
-      )
-    )
-  )
+          ))))))
 
 (defn build-component
   "Build a Scraper component."
