@@ -1,7 +1,6 @@
 (ns skrejp.crawl-planner-test
   (:require [skrejp.crawl-planner :as crawler])
-  (:require [expectations :refer :all])
-  )
+  (:require [expectations :refer :all]))
 
 (let
   [crawler-cmpnt (crawler/build-component)
@@ -15,5 +14,4 @@
   (expect "http://example.com/foo.html" (-> scrape-reqs first  :url))
   (expect "http://example.com/bar.html" (-> scrape-reqs second :url))
   (expect "Foo" (-> scrape-reqs first  :title))
-  (expect "Bar" (-> scrape-reqs second :title))
-  )
+  (expect "Bar" (-> scrape-reqs second :title)) )

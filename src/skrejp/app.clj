@@ -1,7 +1,6 @@
 (ns skrejp.app
   (:require [com.stuartsierra.component :as component])
-  (:require [skrejp.system :as system])
-  )
+  (:require [skrejp.system :as system]) )
 
 
 (def config-options
@@ -21,25 +20,20 @@
       "www.hirek.sk"     {:title   [:span.tcikkcim]
                           :summary [:span#tcikkintro]
                           :content [:div#tcikktext]}
-      "vasarnap.ujszo.com" "ujszo.com"
-      }
+      "vasarnap.ujszo.com" "ujszo.com"}
    :http-req-opts
      {:timeout    200 ; ms
       :user-agent "User-Agent-string"
-      :headers    {"X-Header" "Value"}}
-   }
-  )
+      :headers    {"X-Header" "Value"}}})
 
 (def scraper-system (system/build-scraper-system config-options))
 
 (defn start-scraper-system
   "starts the scraper system."
   []
-  (alter-var-root (var scraper-system) component/start)
-  )
+  (alter-var-root (var scraper-system) component/start))
 
 (defn stop-scraper-system
   "Stops the passed in system"
   []
-  (alter-var-root (var scraper-system) component/stop)
-  )
+  (alter-var-root (var scraper-system) component/stop))

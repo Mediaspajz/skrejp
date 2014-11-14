@@ -3,8 +3,7 @@
   (:require [expectations :refer :all])
   (:require [org.httpkit.client :as http])
   (:use     org.httpkit.fake)
-  (:require [clojure.core.async :refer [go <! >! <!!] :as async])
-  )
+  (:require [clojure.core.async :refer [go <! >! <!!] :as async]))
 
 (def http-req-opts {:timeout    10 ; ms
                     :user-agent "User-Agent-string"
@@ -20,9 +19,7 @@
     (<!! (async/timeout (http-req-opts :timeout)))
     (expect "foo" (:body (<!! c)))
     (expect "bar" (:body (<!! c)))
-    (async/close! c)
-    )
-  )
+    (async/close! c) ) )
 
 (with-fake-http
   [ "http://example.com/rss.xml"
@@ -49,6 +46,4 @@
       (expect (-> feed :entries count))
       (expect (-> entries first  :title) "Foo")
       (expect (-> entries second :link)   "http://example.com/bar.html")
-      )
-    )
-  )
+      ) ) )

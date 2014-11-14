@@ -1,7 +1,6 @@
 (ns skrejp.scraper-test
   (:require [skrejp.scraper :as scraper])
-  (:require [expectations :refer :all])
-  )
+  (:require [expectations :refer :all]))
 
 (expect :bumm.sk
         (scraper/classify-url-source "http://bumm.sk/index.php?show=97202"))
@@ -19,6 +18,5 @@
    article (first (into [] (scraper/scrape scraper-cmpnt) [page-resp])) ]
   (expect "http://www.example.com/index.html" (article :url))
   (expect "Foo Title"   (article :title))
-  (expect "Bar Content" (article :content))
-  )
+  (expect "Bar Content" (article :content)))
 

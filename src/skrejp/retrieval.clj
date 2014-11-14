@@ -2,15 +2,12 @@
   (:require [com.stuartsierra.component :as component])
   (:require [org.httpkit.client :as http])
   (:require [feedparser-clj.core :as feeds])
-  (:import  [java.io ByteArrayInputStream])
-  )
+  (:import  [java.io ByteArrayInputStream]) )
 
 (defn parse-feed-str [feed-s]
   (let
     [input-stream (ByteArrayInputStream. (.getBytes feed-s "UTF-8"))]
-    (feeds/parse-feed input-stream)
-    )
-  )
+    (feeds/parse-feed input-stream) ) )
 
 (defprotocol IRetrieval
   "## IRetrieval
@@ -19,8 +16,7 @@
   It expects the URL of the resource and it is pushing the fetch page to the channel it is applied on.
   If the error-fn is passed, it calls the error-fn function in case of an error."
   (fetch-page [this] [this error-fn])
-  (fetch-feed [this])
-  )
+  (fetch-feed [this]) )
 
 (defrecord RetrievalComponent [http-opts]
   component/Lifecycle
@@ -42,10 +38,8 @@
          (http/get url (:http-opts this)
                    (fn [{:keys [error] :as resp}]
                      (if-not error
-                       (xf result resp)
-                       )))
-         result)
-        )))
+                       (xf result resp) )))
+         result) )))
 
   (fetch-feed [this]
     (fn [xf]
@@ -54,12 +48,9 @@
          (let
            [resp @(http/get url (:http-opts this))]
            (xf result (-> resp :body parse-feed-str))
-           ))
-         )))
-  )
+           )) ))) )
 
 (defn build-component
   "Build a PageRetrieval component."
   [config-options]
-  (map->RetrievalComponent (select-keys config-options [:http-req-opts]))
-  )
+  (map->RetrievalComponent (select-keys config-options [:http-req-opts])) )

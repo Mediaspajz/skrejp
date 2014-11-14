@@ -1,6 +1,5 @@
 (ns skrejp.error-handling
-  (:require [com.stuartsierra.component :as component])
-  )
+  (:require [com.stuartsierra.component :as component]) )
 
 (defrecord ErrorHandlingComponent []
   component/Lifecycle
@@ -16,5 +15,4 @@
 (defn build-component
   "build an ErrorHandling component."
   []
-  (map->ErrorHandlingComponent {})
-  )
+  (map->ErrorHandlingComponent {}) )

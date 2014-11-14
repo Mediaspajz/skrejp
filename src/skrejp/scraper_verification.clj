@@ -1,6 +1,5 @@
 (ns skrejp.scraper-verification
-  (:require [com.stuartsierra.component :as component])
-  )
+  (:require [com.stuartsierra.component :as component]))
 
 (defrecord ScraperVerificationComponent [storage page-retrieval error-handling]
   component/Lifecycle
@@ -11,11 +10,9 @@
 
   (stop [this]
     (println ";; Stopping ScraperVerification")
-    this)
-  )
+    this))
 
 (defn build-component
   "Build a ScraperVerification component."
   []
-  (map->ScraperVerificationComponent {})
-  )
+  (map->ScraperVerificationComponent {}))

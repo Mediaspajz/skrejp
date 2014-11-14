@@ -2,8 +2,7 @@
   (:require [com.stuartsierra.component :as component])
   (:require [clojurewerkz.urly.core :as urly])
   (:require [clojure.core.async     :refer [go chan put! >!]])
-  (:require [net.cgrand.enlive-html :as html])
-  )
+  (:require [net.cgrand.enlive-html :as html]) )
 
 (defn classify-url-source [url] (keyword (urly/host-of (urly/url-like url))) )
 
@@ -17,12 +16,10 @@
   "## IScraper
   Defines methods for scraping structure content from web pages.
   *scrape* is a transducer taking a http responses and returning map with extacted values.
-  *get-scraper-def* returns a scraper definition for a url.
-  "
+  *get-scraper-def* returns a scraper definition for a url."
 
   (scrape [this])
-  (get-scraper-def [this url])
-  )
+  (get-scraper-def [this url]))
 
 ;; ScraperComponent implements a component LifeCycle.
 ;; It depends on the page-retrieval, storage and error-handling components.
@@ -39,8 +36,7 @@
 
   (start [this]
     (println ";; Starting Scraper")
-    (assoc this :url-c (chan 512))
-    )
+    (assoc this :url-c (chan 512)) )
 
   (stop [this]
     (println ";; Stopping Scraper")
@@ -51,15 +47,11 @@
       [scraper-def-entry ((:scraper-defs this) (classify-url-source url))]
       (if (coll? scraper-def-entry)
         scraper-def-entry
-        ((:scraper-defs this) scraper-def-entry)
-        )
-      )
-    )
+        ((:scraper-defs this) scraper-def-entry) ) ) )
 
   (scrape [this]
     (fn [xf]
-      (fn ([] (xf))
-        ([result] (xf result))
+      (fn ([] (xf)) ([result] (xf result))
         ([result http-resp]
          (let
            [scraper-def (get-scraper-def this (http-resp :url))
@@ -75,5 +67,4 @@
 (defn build-component
   "Build a Scraper component."
   [config-options]
-  (map->ScraperComponent (select-keys config-options [:scraper-defs ]))
-  )
+  (map->ScraperComponent (select-keys config-options [:scraper-defs ])) )
