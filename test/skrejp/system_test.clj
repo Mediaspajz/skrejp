@@ -13,7 +13,8 @@
                                   :headers    {"X-Header" "Value"} }
                   :scraper-defs {:example.com {:title   [:h3#title]
                                                :content [:div.content] }
-                                 :usa.example.com :example.com} } )
+                                 :usa.example.com :example.com}
+                  :feeds ["http://example.com/rss.xml"]} )
 
 (def test-system (sys/build-scraper-system config-opts))
 
@@ -47,7 +48,6 @@
   (let
     []
     (alter-var-root (var test-system) component/start)
-    (println test-system)
     (alter-var-root (var test-system) component/stop)
     )
   )

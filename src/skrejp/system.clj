@@ -10,19 +10,17 @@
 (defn build-scraper-system
   "Build a scraper system."
   [config-options]
-  (let
-    [{:keys [scraper-defs]} config-options]
-    (component/system-map
-      :storage        (storage/build-component)
-      :error-handling (error-handling/build-component)
-      :page-retrieval (retrieval/build-component config-options)
-      :crawl-planner  (component/using
-                        (crawl-planner/build-component)
-                        [:page-retrieval :error-handling :scraper])
-      :scraper        (component/using
-                        (scraper/build-component scraper-defs)
-                        [:page-retrieval :storage :error-handling])
-      :scraper-verification
-                      (component/using
-                        (scraper-verification/build-component)
-                        [:storage :page-retrieval :error-handling]))))
+  (component/system-map
+    :storage        (storage/build-component)
+    :error-handling (error-handling/build-component)
+    :page-retrieval (retrieval/build-component config-options)
+    :crawl-planner  (component/using
+                      (crawl-planner/build-component config-options)
+                      [:page-retrieval :error-handling :scraper])
+    :scraper        (component/using
+                      (scraper/build-component config-options)
+                      [:page-retrieval :storage :error-handling])
+    :scraper-verification
+    (component/using
+      (scraper-verification/build-component)
+      [:storage :page-retrieval :error-handling])))

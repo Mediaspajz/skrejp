@@ -3,7 +3,7 @@
   (:require [expectations :refer :all])
   (:require [org.httpkit.client :as http])
   (:use     org.httpkit.fake)
-  (:require [clojure.core.async :refer [go <! >! <!!] :as async]))
+  (:require [clojure.core.async :refer [chan go <! >! <!!] :as async]))
 
 (def http-req-opts {:timeout    10 ; ms
                     :user-agent "User-Agent-string"
@@ -14,12 +14,14 @@
     "http://example.com/p2" "bar" ]
   (let
     [ret-cmpnt (retrieval/build-component {:http-req-opts http-req-opts})
-     c (async/chan 2 (retrieval/fetch-page ret-cmpnt)) ]
-    (go (>! c "http://example.com/p1") (>! c "http://example.com/p2") )
+     in-c  (async/chan 2)
+     out-c (async/chan 2)]
+    (async/pipeline-async 2 out-c (retrieval/fetch-page ret-cmpnt) in-c)
+    (go (>! in-c {:url "http://example.com/p1"}) (>! in-c {:url "http://example.com/p2"}))
     (<!! (async/timeout (http-req-opts :timeout)))
-    (expect "foo" (:body (<!! c)))
-    (expect "bar" (:body (<!! c)))
-    (async/close! c) ) )
+    (expect "foo" (:http-payload (<!! out-c)))
+    (expect "bar" (:http-payload (<!! out-c)))
+    (async/close! out-c) ) )
 
 (with-fake-http
   [ "http://example.com/rss.xml"
@@ -35,15 +37,13 @@
          <link>http://example.com/bar.html</link>
          </item>
        </channel>
-     </rss>"
-   ]
+     </rss>" ]
   (let
     [ret-cmpnt (retrieval/build-component {:http-req-opts http-req-opts})
-     c (async/chan 1 (retrieval/fetch-feed ret-cmpnt))  ]
+     c (async/chan 1 (retrieval/fetch-feed ret-cmpnt))]
     (go (>! c "http://example.com/rss.xml"))
     (let
       [feed (<!! c) entries (:entries feed)]
       (expect (-> feed :entries count))
       (expect (-> entries first  :title) "Foo")
-      (expect (-> entries second :link)   "http://example.com/bar.html")
-      )))
+      (expect (-> entries second :link)   "http://example.com/bar.html"))))

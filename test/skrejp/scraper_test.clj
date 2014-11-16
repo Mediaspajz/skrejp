@@ -14,7 +14,7 @@
                        :www.example.com   :example.com } }
                    )
    page-body "<html><body><h1 id='title'>Foo Title</h1><div id='content'>Bar Content</div></body></html>"
-   page-resp { :url "http://www.example.com/index.html" :body page-body }
+   page-resp { :url "http://www.example.com/index.html" :http-payload page-body }
    article (first (into [] (scraper/scrape scraper-cmpnt) [page-resp])) ]
   (expect "http://www.example.com/index.html" (article :url))
   (expect "Foo Title"   (article :title))

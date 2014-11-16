@@ -1,7 +1,8 @@
 (ns skrejp.retrieval
   (:require [com.stuartsierra.component :as component])
   (:require [org.httpkit.client :as http])
-  (:require [feedparser-clj.core :as feeds])
+  (:require [feedparser-clj.core :as feeds]
+            [clojure.core.async :as async])
   (:import  [java.io ByteArrayInputStream]) )
 
 (defn parse-feed-str [feed-s]
@@ -32,14 +33,12 @@
   IRetrieval
 
   (fetch-page [this]
-    (fn [xf]
-      (fn ([] (xf)) ([result] (xf result))
-        ([result url]
-         (http/get url (:http-opts this)
-                   (fn [{:keys [error] :as resp}]
-                     (if-not error
-                       (xf result resp) )))
-         result) )))
+    (fn [doc c]
+      (http/get (doc :url) (:http-opts this)
+                (fn [{:keys [error] :as resp}]
+                  (if-not error
+                    (async/put! c (assoc doc :http-payload (resp :body))))
+                  (async/close! c)))))
 
   (fetch-feed [this]
     (fn [xf]
@@ -48,7 +47,7 @@
          (let
            [resp @(http/get url (:http-opts this))]
            (xf result (-> resp :body parse-feed-str))
-           )) ))) )
+           ))))))
 
 (defn build-component
   "Build a PageRetrieval component."
