@@ -1,18 +1,19 @@
 (ns skrejp.storage
+  (:require [skrejp.logger :as logger])
   (:require [com.stuartsierra.component :as component]) )
 
 (defrecord Storage []
   component/Lifecycle
 
   (start [this]
-    (println ";; Starting the Storage")
+    (logger/info (:logger this) "Starting Storage")
     this)
 
   (stop [this]
-    (println ";; Stopping the Storage")
+    (logger/info (:logger this) "Stopping Storage")
     this))
 
 (defn build-component
   "Build a new storage."
-  []
-  (map->Storage {}))
+  [conf-opts]
+  (map->Storage (select-keys conf-opts [])))

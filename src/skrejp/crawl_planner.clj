@@ -1,4 +1,5 @@
 (ns skrejp.crawl-planner
+  (:require [skrejp.logger :as logger])
   (:require [skrejp.retrieval :as ret])
   (:require [clojure.core.async :as async :refer [go chan put! >!]])
   (:require [com.stuartsierra.component :as component])
@@ -11,7 +12,7 @@
   component/Lifecycle
 
   (start [this]
-    (println ";; Starting CrawlPlanner")
+    (logger/info (:logger this) "Starting CrawlPlanner")
     (let
       [docs (into []
                   (comp (-> (:page-retrieval this) ret/fetch-feed)
@@ -21,7 +22,7 @@
     this)
 
   (stop [this]
-    (println ";; Stopping CrawlPlanner")
+    (logger/info (:logger this) "Stopping CrawlPlanner")
     this)
 
   ICrawlPlanner

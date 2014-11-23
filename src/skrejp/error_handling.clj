@@ -1,18 +1,19 @@
 (ns skrejp.error-handling
-  (:require [com.stuartsierra.component :as component]) )
+  (:require [skrejp.logger :as logger])
+  (:require [com.stuartsierra.component :as component]))
 
 (defrecord ErrorHandlingComponent []
   component/Lifecycle
 
   (start [this]
-    (println ";; Starting ErrorHandling")
+    (logger/info (:logger this) "Starting ErrorHandling")
     this)
 
   (stop [this]
-    (println ";; Stopping ErrorHanding")
+    (logger/info (:logger this) "Stopping ErrorHandling")
     this))
 
 (defn build-component
   "build an ErrorHandling component."
-  []
-  (map->ErrorHandlingComponent {}) )
+  [conf-opts]
+  (map->ErrorHandlingComponent (select-keys conf-opts [])))

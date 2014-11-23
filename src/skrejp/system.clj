@@ -4,23 +4,31 @@
   (:require [skrejp.scraper              :as scraper])
   (:require [skrejp.storage              :as storage])
   (:require [skrejp.error-handling       :as error-handling])
+  (:require [skrejp.logger               :as logger])
   (:require [skrejp.crawl-planner        :as crawl-planner])
   (:require [skrejp.scraper-verification :as scraper-verification]))
 
 (defn build-scraper-system
   "Build a scraper system."
-  [config-options]
+  [conf-opts]
   (component/system-map
-    :storage        (storage/build-component)
-    :error-handling (error-handling/build-component)
-    :page-retrieval (retrieval/build-component config-options)
+    :logger         (logger/build-component conf-opts)
+    :storage        (component/using
+                      (storage/build-component conf-opts)
+                      [:logger])
+    :error-handling (component/using
+                      (error-handling/build-component conf-opts)
+                      [:logger])
+    :page-retrieval (component/using
+                      (retrieval/build-component conf-opts)
+                      [:logger])
     :crawl-planner  (component/using
-                      (crawl-planner/build-component config-options)
-                      [:page-retrieval :error-handling :scraper])
+                      (crawl-planner/build-component conf-opts)
+                      [:logger :page-retrieval :error-handling :scraper])
     :scraper        (component/using
-                      (scraper/build-component config-options)
-                      [:page-retrieval :storage :error-handling])
+                      (scraper/build-component conf-opts)
+                      [:logger :page-retrieval :storage :error-handling])
     :scraper-verification
-    (component/using
-      (scraper-verification/build-component)
-      [:storage :page-retrieval :error-handling])))
+                    (component/using
+                      (scraper-verification/build-component conf-opts)
+                      [:logger :storage :page-retrieval :error-handling])))

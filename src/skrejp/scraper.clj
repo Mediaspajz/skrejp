@@ -1,14 +1,15 @@
 (ns skrejp.scraper
+  (:require [skrejp.logger :as logger])
   (:require [com.stuartsierra.component :as component])
   (:require [skrejp.retrieval :as ret])
   (:require [clojurewerkz.urly.core :as urly])
   (:require [clojure.core.async :as async :refer [go go-loop chan <! >!]])
-  (:require [net.cgrand.enlive-html :as html]) )
+  (:require [net.cgrand.enlive-html :as html]))
 
-(defn classify-url-source [url] (keyword (urly/host-of (urly/url-like url))) )
+(defn classify-url-source [url] (keyword (urly/host-of (urly/url-like url))))
 
 (defn extract-sel [body sel]
-  (-> (java.io.StringReader. body) html/html-resource (html/select sel)) )
+  (-> (java.io.StringReader. body) html/html-resource (html/select sel)))
 
 (defn extract-tag [body sel]
   (-> (extract-sel body sel) first html/text) )
@@ -33,7 +34,7 @@
   component/Lifecycle
 
   (start [this]
-    (println ";; Starting Scraper")
+    (logger/info (:logger this) "Starting Scraper")
     (let
       [doc-c    (chan 512)
        fetch-c  (chan 512)
@@ -41,11 +42,13 @@
        component-setup (assoc this :doc-c doc-c)]
       (async/pipeline-async 20 fetch-c (-> this :page-retrieval ret/fetch-page) doc-c)
       (async/pipeline 20 scrape-c (scrape this) fetch-c)
-      (go (<! (async/timeout 1000)) (println (<! scrape-c)) (println (<! scrape-c)))
+      (go (<! (async/timeout 1000))
+          (println (:logger this) (<! scrape-c))
+          (println (:logger this) (<! scrape-c)))
       component-setup))
 
   (stop [this]
-    (println ";; Stopping Scraper")
+    (logger/info (:logger this) "Stopping Scraper")
     this)
 
   IScraper

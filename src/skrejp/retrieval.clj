@@ -1,9 +1,10 @@
 (ns skrejp.retrieval
+  (:require [skrejp.logger :as logger])
   (:require [com.stuartsierra.component :as component])
   (:require [org.httpkit.client :as http])
   (:require [feedparser-clj.core :as feeds]
             [clojure.core.async :as async])
-  (:import  [java.io ByteArrayInputStream]) )
+  (:import  [java.io ByteArrayInputStream]))
 
 (defn parse-feed-str [feed-s]
   (let
@@ -23,11 +24,11 @@
   component/Lifecycle
 
   (start [this]
-    (println ";; Starting PageContentRetrieval")
+    (logger/info (:logger this) "Starting PageContentRetrieval")
     this)
 
   (stop [this]
-    (println ";; Stopping PageContentRetrieval")
+    (logger/info (:logger this) "Stopping PageContentRetrieval")
     this)
 
   IRetrieval
@@ -46,8 +47,7 @@
         ([result url]
          (let
            [resp @(http/get url (:http-opts this))]
-           (xf result (-> resp :body parse-feed-str))
-           ))))))
+           (xf result (-> resp :body parse-feed-str))))))))
 
 (defn build-component
   "Build a PageRetrieval component."

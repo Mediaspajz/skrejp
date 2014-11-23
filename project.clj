@@ -17,6 +17,8 @@
                  [expectations      "2.0.6"]
                  [http-kit.fake     "0.2.1"]
 
+                 [com.taoensso/timbre "3.3.1"]
+
                  [clojurewerkz/elastisch  "2.0.0"]
                  [org.clojars.scsibug/feedparser-clj "0.4.0"]]
   :main          clj-scrapers.archives)
