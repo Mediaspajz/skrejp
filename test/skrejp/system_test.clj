@@ -1,4 +1,5 @@
 (ns skrejp.system-test
+  (:require [skrejp.logger :as logger])
   (:require [com.stuartsierra.component :as component])
   (:require [expectations :refer :all])
   (:require [skrejp.system :as sys])
@@ -16,7 +17,12 @@
                                  :usa.example.com :example.com}
                   :feeds ["http://example.com/rss.xml"]} )
 
-(def test-system (sys/build-scraper-system config-opts))
+(def fake-logger
+  (reify
+    logger/ILogger
+    (info [this msg])))
+
+(def test-system (sys/build-scraper-system config-opts {:logger fake-logger}))
 
 (with-fake-http
   [ "http://example.com/rss.xml"
@@ -48,6 +54,4 @@
   (let
     []
     (alter-var-root (var test-system) component/start)
-    (alter-var-root (var test-system) component/stop)
-    )
-  )
+    (alter-var-root (var test-system) component/stop)))
