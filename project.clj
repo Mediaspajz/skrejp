@@ -6,19 +6,26 @@
   :plugins      [[lein-expectations "0.0.7"]
                  [lein-marginalia   "0.8.0"]]
   :core.typed    {:check [clj-scrapers.scraper]}
-  :dependencies [[org.clojure/clojure     "1.7.0-alpha3"]
+  :dependencies [[org.clojure/clojure     "1.7.0-alpha4"]
                  [org.clojure/core.async  "0.1.319.0-6b1aca-alpha"]
-                 [prismatic/schema        "0.2.6"]
+                 [prismatic/schema        "0.3.3"]
                  [com.stuartsierra/component "0.2.2"]
 
-                 [http-kit          "2.1.16"]
+                 ;; crawling, parsing, scraping
+                 [org.clojars.scsibug/feedparser-clj "0.4.0"]
+                 [http-kit          "2.1.19"]
                  [clojurewerkz/urly "1.0.0"]
                  [enlive            "1.1.5"]
-                 [expectations      "2.0.6"]
-                 [http-kit.fake     "0.2.1"]
 
+                 ;; logging, metrics
                  [com.taoensso/timbre "3.3.1"]
+                 ;[analytics-clj       "0.2.2"] ;; segment.io not used - no user actions
+                 [clj-librato         "0.0.5"]
 
-                 [clojurewerkz/elastisch  "2.0.0"]
-                 [org.clojars.scsibug/feedparser-clj "0.4.0"]]
+                 ;; testing
+                 [expectations      "2.0.13"]
+                 [http-kit.fake     "0.2.2"]
+
+                 ;; storage
+                 [clojurewerkz/elastisch  "2.0.0"]]
   :main          clj-scrapers.archives)
