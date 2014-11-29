@@ -8,14 +8,17 @@
   But this component is not dependent on other part of the system. It acts as a bridge between logger libraries and
   the system."
 
-  (info [this msg]))
+  (info [this msg])
+  (debug [this msg]))
 
-(defrecord LoggerComponent
-  []
+(defrecord LoggerComponent []
   ILogger
 
   (info [this msg]
     (println ";;" msg))
+
+  (debug [this msg]
+    (println "..." msg))
 
   component/Lifecycle
 

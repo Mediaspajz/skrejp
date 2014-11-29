@@ -36,15 +36,12 @@
   (start [this]
     (logger/info (:logger this) "Starting Scraper")
     (let
-      [doc-c    (chan 512)
-       fetch-c  (chan 512)
-       scrape-c (chan 512)
+      [doc-c   (chan 512)
+       fetch-c (chan 512)
+       out-c   (-> this :storage :doc-c)
        component-setup (assoc this :doc-c doc-c)]
       (async/pipeline-async 20 fetch-c (-> this :page-retrieval ret/fetch-page) doc-c)
-      (async/pipeline 20 scrape-c (scrape this) fetch-c)
-      (go (<! (async/timeout 1000))
-          (println (:logger this) (<! scrape-c))
-          (println (:logger this) (<! scrape-c)))
+      (async/pipeline       20 out-c   (scrape this) fetch-c)
       component-setup))
 
   (stop [this]

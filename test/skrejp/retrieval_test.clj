@@ -44,6 +44,6 @@
     (go (>! c "http://example.com/rss.xml"))
     (let
       [feed (<!! c) entries (:entries feed)]
-      (expect (-> feed :entries count))
-      (expect (-> entries first  :title) "Foo")
-      (expect (-> entries second :link)   "http://example.com/bar.html"))))
+      (expect 2 (-> feed :entries count))
+      (expect "Foo" (-> entries first  :title) )
+      (expect "http://example.com/bar.html" (-> entries second :link)))))
