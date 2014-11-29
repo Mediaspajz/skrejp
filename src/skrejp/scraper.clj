@@ -9,10 +9,20 @@
 (defn classify-url-source [url] (keyword (urly/host-of (urly/url-like url))))
 
 (defn extract-sel [body sel]
-  (-> (java.io.StringReader. body) html/html-resource (html/select sel)))
+  )
 
-(defn extract-tag [body sel]
-  (-> (extract-sel body sel) first html/text) )
+(defn extract-tag [doc sel]
+  (let
+    [body (:http-payload doc)
+     selection (-> (java.io.StringReader. body)
+                   html/html-resource (html/select sel))]
+    (-> selection first html/text)))
+
+(defn compute-sel [doc sel]
+  (cond
+    (vector? sel) (extract-tag doc sel)
+    (fn?     sel) (sel doc)
+    :else (class sel)))
 
 (defprotocol IScraper
   "## IScraper
@@ -66,7 +76,7 @@
             scraped-doc (into {}
                               (map
                                 (fn [[attr sel]]
-                                  [attr (extract-tag (:http-payload doc) sel)])
+                                  [attr (compute-sel doc sel)])
                                 scraper-def))]
            (xf result (merge doc scraped-doc))))))))
 
