@@ -1,4 +1,5 @@
 (ns skrejp.retrieval
+  (:require [clojure.core.async :as async :refer [chan]])
   (:require [skrejp.logger :as logger])
   (:require [com.stuartsierra.component :as component])
   (:require [org.httpkit.client :as http])
@@ -20,12 +21,17 @@
   (fetch-page [this] [this error-fn])
   (fetch-feed [this]) )
 
-(defrecord RetrievalComponent [http-opts]
+(defrecord RetrievalComponent [http-opts inp-doc-c out-doc-c]
   component/Lifecycle
 
   (start [this]
     (logger/info (:logger this) "Starting PageContentRetrieval")
-    this)
+    (let
+      [inp-doc-c  (chan 512)
+       out-doc-c  (chan 512)
+       comp-setup (assoc this :inp-doc-c inp-doc-c :out-doc-c out-doc-c)]
+      (async/pipeline-async 20 out-doc-c (fetch-page this) inp-doc-c)
+      comp-setup))
 
   (stop [this]
     (logger/info (:logger this) "Stopping PageContentRetrieval")

@@ -8,9 +8,6 @@
 
 (defn classify-url-source [url] (keyword (urly/host-of (urly/url-like url))))
 
-(defn extract-sel [body sel]
-  )
-
 (defn extract-tag [doc sel]
   (let
     [body (:http-payload doc)
@@ -46,12 +43,13 @@
   (start [this]
     (logger/info (:logger this) "Starting Scraper")
     (let
-      [doc-c   (chan 512)
-       fetch-c (chan 512)
-       out-c   (-> this :storage :doc-c)
+      [doc-c (chan 512)
+       out-c (-> this :storage :doc-c)
+       retr-inp-c (-> this :page-retrieval :inp-doc-c)
+       retr-out-c (-> this :page-retrieval :out-doc-c)
        component-setup (assoc this :doc-c doc-c)]
-      (async/pipeline-async 20 fetch-c (-> this :page-retrieval ret/fetch-page) doc-c)
-      (async/pipeline       20 out-c   (scrape this) fetch-c)
+      (async/pipe doc-c retr-inp-c)
+      (async/pipeline 20 out-c (scrape this) retr-out-c)
       component-setup))
 
   (stop [this]
