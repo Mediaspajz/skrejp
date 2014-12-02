@@ -1,19 +1,17 @@
 (ns skrejp.scraper
   (:require [skrejp.logger :as logger])
   (:require [com.stuartsierra.component :as component])
-  (:require [skrejp.retrieval :as ret])
+  (:require [clojure.string :as str])
   (:require [clojurewerkz.urly.core :as urly])
   (:require [clojure.core.async :as async :refer [go go-loop chan <! >!]])
   (:require [net.cgrand.enlive-html :as html]))
-
-(defn classify-url-source [url] (keyword (urly/host-of (urly/url-like url))))
 
 (defn extract-tag [doc sel]
   (let
     [body (:http-payload doc)
      selection (-> (java.io.StringReader. body)
                    html/html-resource (html/select sel))]
-    (-> selection first html/text)))
+    (-> selection first html/text str/trim)))
 
 (defn compute-sel [doc sel]
   (cond
@@ -60,10 +58,14 @@
 
   (get-scraper-def [this url]
     (let
-      [scraper-def-entry ((:scraper-defs this) (classify-url-source url))]
-      (if (coll? scraper-def-entry)
-        scraper-def-entry
-        ((:scraper-defs this) scraper-def-entry))))
+      [url-host (urly/host-of (urly/url-like url))
+       scraper-def-entry ((:scraper-defs this) url-host)]
+      (cond
+        (coll?   scraper-def-entry) scraper-def-entry
+        (string? scraper-def-entry) ((:scraper-defs this) scraper-def-entry)
+        (fn?     scraper-def-entry) ((:scraper-defs this) scraper-def-entry)
+        :else
+        (throw (Exception. (format "Missing scraper definition for host %s" url-host))))))
 
   (scrape [this]
     (fn [xf]
@@ -72,10 +74,12 @@
          (let
            [scraper-def (get-scraper-def this (doc :url))
             scraped-doc (into {}
-                              (map
-                                (fn [[attr sel]]
-                                  [attr (compute-sel doc sel)])
-                                scraper-def))]
+                              (remove
+                                #(-> % second empty?)
+                                (map
+                                  (fn [[attr sel]]
+                                    [attr (compute-sel doc sel)])
+                                  scraper-def)))]
            (xf result (merge doc scraped-doc))))))))
 
 (defn build-component

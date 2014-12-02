@@ -11,10 +11,10 @@
                     :headers    {"X-Header" "Value"} } )
 
 (def config-opts {:http-req-opts http-req-opts
-                  :scraper-defs  {:example.com {:title   [:h3#title]
-                                                :content [:div.content] }
-                                  :usa.example.com :example.com}
-                  :feeds ["http://example.com/rss.xml"]} )
+                  :scraper-defs  {"example.com" {:title   [:h3#title]
+                                                 :content [:div.content]}
+                                  "usa.example.com" "example.com"}
+                  :feeds ["http://example.com/rss.xml"]})
 
 (def out-c (chan 2))
 

@@ -1,10 +1,13 @@
 (ns skrejp.app
   (:require [com.stuartsierra.component :as component])
+  (:require [clojure.core.async :as async :refer [<!!]])
   (:require [skrejp.system :as system]) )
 
 
 (def config-options
-  {:scraper-defs
+  {:feeds
+     ["http://ujszo.com/rss.xml"]
+   :scraper-defs
      {"www.bumm.sk"      {:title   [:div#content :div#article_detail_title]
                           :summary [:div#content :div#article_detail_lead]
                           :content [:div#content :div#article_detail_text]}
@@ -37,3 +40,7 @@
   "Stops the passed in system"
   []
   (alter-var-root (var scraper-system) component/stop))
+
+(defn -main []
+  (start-scraper-system)
+  (<!! (async/timeout 10000)))

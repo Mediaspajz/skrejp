@@ -28,4 +28,4 @@
 
                  ;; storage
                  [clojurewerkz/elastisch  "2.0.0"]]
-  :main          clj-scrapers.archives)
+  :main          skrejp.app)

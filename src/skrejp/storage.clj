@@ -32,7 +32,7 @@
   IStorage
 
   (store [this doc]
-    (logger/debug (:logger this) doc)))
+    (logger/debug (:logger this) (dissoc doc :http-payload))))
 
 (defn build-component
   "Build a new storage."
