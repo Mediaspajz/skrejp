@@ -78,13 +78,11 @@
         ([result doc]
          (let
            [scraper-def (get-scraper-def this (doc :url))
-            scraped-doc (into {}
-                              (filter
-                                #(-> % second present?)
-                                (map
-                                  (fn [[attr sel]]
-                                    [attr (compute-sel doc sel)])
-                                  scraper-def)))]
+            scraped-doc (reduce
+                          (fn [doc-accu [attr sel]]
+                            (let [val (compute-sel doc-accu sel)]
+                              (if (present? val) (assoc doc-accu attr val) doc-accu)))
+                          doc scraper-def)]
            (xf result (merge doc scraped-doc))))))))
 
 (defn build-component

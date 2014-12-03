@@ -12,7 +12,8 @@
 
 (def config-opts {:http-req-opts http-req-opts
                   :scraper-defs  {"example.com" {:title   [:h3#title]
-                                                 :content [:div.content]}
+                                                 :content [:div.content]
+                                                 :title_length (fn [doc] (count (doc :title)))}
                                   "usa.example.com" "example.com"}
                   :feeds ["http://example.com/rss.xml"]})
 
@@ -56,6 +57,7 @@
       [[res1 res2] (<!! (async/into [] out-c))]
       (expect "Foo Title" (:title res1))
       (expect "Bar Title" (:title res2))
+      (expect 9 (:title_length res2))
       (expect "http://example.com/foo.html"     (:url res1))
       (expect "http://usa.example.com/bar.html" (:url res2))
     (alter-var-root (var test-system) component/stop))))
