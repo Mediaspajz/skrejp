@@ -10,6 +10,7 @@
                  [org.clojure/core.async  "0.1.319.0-6b1aca-alpha"]
                  [prismatic/schema        "0.3.3"]
                  [com.stuartsierra/component "0.2.2"]
+                 [clj-time "0.8.0"]
 
                  ;; crawling, parsing, scraping
                  [org.clojars.scsibug/feedparser-clj "0.4.0"]

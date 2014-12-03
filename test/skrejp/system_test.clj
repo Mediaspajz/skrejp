@@ -56,6 +56,6 @@
       [[res1 res2] (<!! (async/into [] out-c))]
       (expect "Foo Title" (:title res1))
       (expect "Bar Title" (:title res2))
-      (expect  "http://example.com/foo.html"     (:url res1))
-      (expect  "http://usa.example.com/bar.html" (:url res2))
+      (expect "http://example.com/foo.html"     (:url res1))
+      (expect "http://usa.example.com/bar.html" (:url res2))
     (alter-var-root (var test-system) component/stop))))

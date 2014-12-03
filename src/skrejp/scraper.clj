@@ -19,6 +19,11 @@
     (fn?     sel) (sel doc)
     :else (class sel)))
 
+(defn present? [val]
+  (not (cond
+         (seq? val) (empty? val)
+         :else      (nil?   val))))
+
 (defprotocol IScraper
   "## IScraper
   Defines methods for scraping structure content from web pages.
@@ -74,8 +79,8 @@
          (let
            [scraper-def (get-scraper-def this (doc :url))
             scraped-doc (into {}
-                              (remove
-                                #(-> % second empty?)
+                              (filter
+                                #(-> % second present?)
                                 (map
                                   (fn [[attr sel]]
                                     [attr (compute-sel doc sel)])

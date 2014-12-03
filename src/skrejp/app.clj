@@ -1,8 +1,11 @@
 (ns skrejp.app
   (:require [com.stuartsierra.component :as component])
   (:require [clojure.core.async :as async :refer [<!!]])
+  (:require [clj-time.core :as t])
   (:require [skrejp.system :as system]) )
 
+(defn parse-int [s]
+  (Integer/parseInt s))
 
 (def config-options
   {:feeds
@@ -16,7 +19,11 @@
       "ujszo.com"        {:title   [:div.node.node-article :h1]
                           :loc     [:div.node.node-article :div.field-name-field-lead :span.place]
                           :summary [:div.node.node-article :div.field-name-field-lead :p]
-                          :content [:div.node.node-article :div.field-name-body]}
+                          :content [:div.node.node-article :div.field-name-body]
+                          :published_at (fn [doc]
+                                          (let
+                                            [[_ year month day] (re-find #"/(\d+)/(\d+)/(\d+)" (doc :url))]
+                                            (apply t/date-time (map parse-int [year month day]))))}
       "www.parameter.sk" {:title   [:div#page_container :div#content :h1]
                           :summary [:div#content :div.field-name-field-lead :p]
                           :content [:div#content :div.node-content]}
