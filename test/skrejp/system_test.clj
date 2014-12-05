@@ -10,6 +10,11 @@
                     :user-agent "User-Agent-string"
                     :headers    {"X-Header" "Value"} } )
 
+;; # :scraper-defs
+;; The strings keys refer to the host domain name. In the value the scraping rules are defined.
+;;
+;; - If it is a _map_ rule definitions are inside. For every attribute a selector is given. Alternatively a function.
+;; - A _string_ value is taken as a reference to other definition. It has to refer to a key with map value.
 (def config-opts {:http-req-opts http-req-opts
                   :scraper-defs  {"example.com" {:title   [:h3#title]
                                                  :content [:div.content]
@@ -19,45 +24,57 @@
 
 (def out-c (chan 2))
 
-(def test-system
-  (sys/build-scraper-system
-    config-opts {:logger  (reify logger/ILogger (info [_ _])),
-                 :storage {:doc-c out-c}}))
-
 (with-fake-http
-  [ "http://example.com/rss.xml"
-    "<?xml version=\"1.0\" encoding=\"utf-8\" ?>
-     <rss version=\"2.0\" xml:base=\"http://example.com/rss.xml\">
-       <channel>
-         <item>
-         <title>Foo</title>
-         <link>http://example.com/foo.html</link>
-         </item>
-         <item>
-         <title>Bar</title>
-         <link>http://usa.example.com/bar.html</link>
-         </item>
-       </channel>
-     </rss>"
+  ["http://example.com/rss.xml"
+   "<?xml version=\"1.0\" encoding=\"utf-8\" ?>
+    <rss version=\"2.0\" xml:base=\"http://example.com/rss.xml\">
+      <channel>
+        <item>
+        <title>Foo</title>
+        <link>http://example.com/foo.html</link>
+        </item>
+        <item>
+        <title>Bar</title>
+        <link>http://usa.example.com/bar.html</link>
+        </item>
+      </channel>
+    </rss>"
 
-     "http://example.com/foo.html"
-     "<body>
-        <h3 id='title'>Foo Title</h3>
-        <div class='content'>Foo Content</div>
-      </body>"
+   "http://example.com/foo.html"
+   "<body>
+      <h3 id='title'>Foo Title</h3>
+      <div class='content'>Foo Content</div>
+    </body>"
 
-     "http://usa.example.com/bar.html"
-     "<body>
-        <h3 id='title'>Bar Title</h3>
-        <div class='content'>Bar Content</div>
-      </body>" ]
-  (do
-    (alter-var-root (var test-system) component/start)
-    (let
-      [[res1 res2] (<!! (async/into [] out-c))]
-      (expect "Foo Title" (:title res1))
-      (expect "Bar Title" (:title res2))
-      (expect 9 (:title_length res2))
-      (expect "http://example.com/foo.html"     (:url res1))
-      (expect "http://usa.example.com/bar.html" (:url res2))
-    (alter-var-root (var test-system) component/stop))))
+   "http://usa.example.com/bar.html"
+   "<body>
+      <h3 id='title'></h3>
+      <div class='content'>Bar Content</div>
+    </body>"]
+  (def test-system
+    (sys/build-scraper-system
+      config-opts {:logger  (reify logger/ILogger (info [_ _])),
+                   :storage {:doc-c out-c}}))
+  (alter-var-root (var test-system) component/start)
+  (def results (<!! (async/into [] out-c)))
+  (def result1 (first  results))
+  (def result2 (second results))
+  (alter-var-root (var test-system) component/stop))
+
+;; ## Scraping attribute by a selector
+;;
+;; - When the retrieved web page has the selector defined the value from the web page is used.
+;; - Otherwise for undefined or empty value for the selector the value already defined (likely to be from the seed) is kept.
+(expect "Foo Title" (:title result1))
+(expect "Bar" (:title result2))
+
+;; ## Scraping attribute by a function
+;; The attribute scraping function takes the _doc_ with the already scraped attributes and is supposed to return
+;; the value for the new attribute.
+;; The title in the seed was `"Foo"` overriden to `"Foo Title"`,
+;; so the `:title_len` is expected to be taken from the new value
+(expect 9 (:title_length result1))
+
+;; ## URL attribute
+(expect "http://example.com/foo.html"     (:url result1))
+(expect "http://usa.example.com/bar.html" (:url result2))

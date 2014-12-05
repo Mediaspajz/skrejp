@@ -9,7 +9,7 @@
 
 (def config-options
   {:feeds
-     ["http://ujszo.com/rss.xml"]
+     ["http://ujszo.com/rss.xml", "http://www.bumm.sk/rss/rss.xml"]
    :scraper-defs
      {"www.bumm.sk"      {:title   [:div#content :div#article_detail_title]
                           :summary [:div#content :div#article_detail_lead]

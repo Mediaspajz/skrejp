@@ -21,8 +21,8 @@
 
 (defn present? [val]
   (not (cond
-         (seq? val) (empty? val)
-         :else      (nil?   val))))
+         (string? val) (empty? val)
+         :else         (nil?   val))))
 
 (defprotocol IScraper
   "## IScraper
