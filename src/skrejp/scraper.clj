@@ -66,9 +66,8 @@
       [url-host (urly/host-of (urly/url-like url))
        scraper-def-entry ((:scraper-defs this) url-host)]
       (cond
-        (coll?   scraper-def-entry) scraper-def-entry
-        (string? scraper-def-entry) ((:scraper-defs this) scraper-def-entry)
-        (fn?     scraper-def-entry) ((:scraper-defs this) scraper-def-entry)
+        (map?    scraper-def-entry) (merge scraper-def-entry (-> this :scraper-defs :shared))
+        (string? scraper-def-entry) (get-scraper-def this scraper-def-entry)
         :else
         (throw (Exception. (format "Missing scraper definition for host %s" url-host))))))
 

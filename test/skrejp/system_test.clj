@@ -4,6 +4,7 @@
   (:require [com.stuartsierra.component :as component])
   (:require [expectations :refer :all])
   (:require [skrejp.system :as sys])
+  (:require [clojurewerkz.urly.core :as urly])
   (:use     org.httpkit.fake))
 
 (def http-req-opts {:timeout    10 ; ms
@@ -15,8 +16,11 @@
 ;;
 ;; - If it is a _map_ rule definitions are inside. For every attribute a selector is given. Alternatively a function.
 ;; - A _string_ value is taken as a reference to other definition. It has to refer to a key with map value.
+;;
+;; Define rules used for every site under the `:shared` key.
 (def config-opts {:http-req-opts http-req-opts
-                  :scraper-defs  {"example.com" {:title   [:h3#title]
+                  :scraper-defs  {:shared       {:host    (fn [doc] (-> doc :url urly/url-like urly/host-of))}
+                                  "example.com" {:title   [:h3#title]
                                                  :content [:div.content]
                                                  :title_length (fn [doc] (count (doc :title)))}
                                   "usa.example.com" "example.com"}
@@ -75,6 +79,12 @@
 ;; so the `:title_len` is expected to be taken from the new value
 (expect 9 (:title_length result1))
 
+;; ## Scraping shared attributes
+;; Shared attributes are used in scraping every site.
+(expect "example.com"     (:host result1))
+(expect "usa.example.com" (:host result2))
+
 ;; ## URL attribute
+;; URL is must have defined attribute for every `doc` for scraping, it's kept under `:url`.
 (expect "http://example.com/foo.html"     (:url result1))
 (expect "http://usa.example.com/bar.html" (:url result2))
