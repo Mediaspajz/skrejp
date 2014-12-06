@@ -2866,51 +2866,64 @@ net.brehaut.ClojureTools = (function (SH) {
   };
 })(SyntaxHighlighter);
 </script><title>clj-scrapers -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name"><a href="http://example.com/FIXME">clj-scrapers</a></h1><h2 class="project-version">0.1.0-SNAPSHOT</h2><br /><p>FIXME: write description</p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.7.0-alpha4</td></tr><tr><td class="dep-name">org.clojure/core.async</td><td class="dotted"><hr /></td><td class="dep-version">0.1.319.0-6b1aca-alpha</td></tr><tr><td class="dep-name">prismatic/schema</td><td class="dotted"><hr /></td><td class="dep-version">0.3.3</td></tr><tr><td class="dep-name">com.stuartsierra/component</td><td class="dotted"><hr /></td><td class="dep-version">0.2.2</td></tr><tr><td class="dep-name">clj-time</td><td class="dotted"><hr /></td><td class="dep-version">0.8.0</td></tr><tr><td class="dep-name">org.clojars.scsibug/feedparser-clj</td><td class="dotted"><hr /></td><td class="dep-version">0.4.0</td></tr><tr><td class="dep-name">http-kit</td><td class="dotted"><hr /></td><td class="dep-version">2.1.19</td></tr><tr><td class="dep-name">clojurewerkz/urly</td><td class="dotted"><hr /></td><td class="dep-version">1.0.0</td></tr><tr><td class="dep-name">enlive</td><td class="dotted"><hr /></td><td class="dep-version">1.1.5</td></tr><tr><td class="dep-name">com.taoensso/timbre</td><td class="dotted"><hr /></td><td class="dep-version">3.3.1</td></tr><tr><td class="dep-name">clj-librato</td><td class="dotted"><hr /></td><td class="dep-version">0.0.5</td></tr><tr><td class="dep-name">expectations</td><td class="dotted"><hr /></td><td class="dep-version">2.0.13</td></tr><tr><td class="dep-name">http-kit.fake</td><td class="dotted"><hr /></td><td class="dep-version">0.2.2</td></tr><tr><td class="dep-name">clojurewerkz/elastisch</td><td class="dotted"><hr /></td><td class="dep-version">2.0.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#skrejp.app">skrejp.app</a></li><li><a href="#skrejp.crawl-planner">skrejp.crawl-planner</a></li><li><a href="#skrejp.error-handling">skrejp.error-handling</a></li><li><a href="#skrejp.logger">skrejp.logger</a></li><li><a href="#skrejp.retrieval">skrejp.retrieval</a></li><li><a href="#skrejp.scraper">skrejp.scraper</a></li><li><a href="#skrejp.scraper-verification">skrejp.scraper-verification</a></li><li><a href="#skrejp.storage">skrejp.storage</a></li><li><a href="#skrejp.system">skrejp.system</a></li><li><a href="#skrejp.crawl-planner-test">skrejp.crawl-planner-test</a></li><li><a href="#skrejp.retrieval-test">skrejp.retrieval-test</a></li><li><a href="#skrejp.scraper-test">skrejp.scraper-test</a></li><li><a href="#skrejp.system-test">skrejp.system-test</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#skrejp.app" name="skrejp.app"><h1 class="project-name">skrejp.app</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.7.0-alpha4</td></tr><tr><td class="dep-name">org.clojure/core.async</td><td class="dotted"><hr /></td><td class="dep-version">0.1.319.0-6b1aca-alpha</td></tr><tr><td class="dep-name">prismatic/schema</td><td class="dotted"><hr /></td><td class="dep-version">0.3.3</td></tr><tr><td class="dep-name">com.stuartsierra/component</td><td class="dotted"><hr /></td><td class="dep-version">0.2.2</td></tr><tr><td class="dep-name">clj-time</td><td class="dotted"><hr /></td><td class="dep-version">0.8.0</td></tr><tr><td class="dep-name">org.clojars.scsibug/feedparser-clj</td><td class="dotted"><hr /></td><td class="dep-version">0.4.0</td></tr><tr><td class="dep-name">http-kit</td><td class="dotted"><hr /></td><td class="dep-version">2.1.19</td></tr><tr><td class="dep-name">clojurewerkz/urly</td><td class="dotted"><hr /></td><td class="dep-version">1.0.0</td></tr><tr><td class="dep-name">enlive</td><td class="dotted"><hr /></td><td class="dep-version">1.1.5</td></tr><tr><td class="dep-name">com.taoensso/timbre</td><td class="dotted"><hr /></td><td class="dep-version">3.3.1</td></tr><tr><td class="dep-name">clj-librato</td><td class="dotted"><hr /></td><td class="dep-version">0.0.5</td></tr><tr><td class="dep-name">expectations</td><td class="dotted"><hr /></td><td class="dep-version">2.0.13</td></tr><tr><td class="dep-name">http-kit.fake</td><td class="dotted"><hr /></td><td class="dep-version">0.2.2</td></tr><tr><td class="dep-name">clojurewerkz/elastisch</td><td class="dotted"><hr /></td><td class="dep-version">2.0.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#skrejp.app">skrejp.app</a></li><li><a href="#skrejp.crawl-planner">skrejp.crawl-planner</a></li><li><a href="#skrejp.error-handling">skrejp.error-handling</a></li><li><a href="#skrejp.logger">skrejp.logger</a></li><li><a href="#skrejp.retrieval">skrejp.retrieval</a></li><li><a href="#skrejp.scraper">skrejp.scraper</a></li><li><a href="#skrejp.scraper-verification">skrejp.scraper-verification</a></li><li><a href="#skrejp.storage">skrejp.storage</a></li><li><a href="#skrejp.system">skrejp.system</a></li><li><a href="#skrejp.app-test">skrejp.app-test</a></li><li><a href="#skrejp.crawl-planner-test">skrejp.crawl-planner-test</a></li><li><a href="#skrejp.retrieval-test">skrejp.retrieval-test</a></li><li><a href="#skrejp.scraper-test">skrejp.scraper-test</a></li><li><a href="#skrejp.system-test">skrejp.system-test</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#skrejp.app" name="skrejp.app"><h1 class="project-name">skrejp.app</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns skrejp.app
+  (:require [skrejp.scraper :as scraper])
+  (:require [clojurewerkz.urly.core :as urly])
   (:require [com.stuartsierra.component :as component])
   (:require [clojure.core.async :as async :refer [&lt;!!]])
+  (:require [clojure.string :refer [lower-case]])
   (:require [clj-time.core :as t])
   (:require [skrejp.system :as system]) )</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn parse-int [s]
-  (Integer/parseInt s))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn find-date-in-url [doc]
-  (let
-    [[_ year month day] (re-find #&quot;/(\d+)/(\d+)/(\d+)&quot; (doc :url))]
-    (apply t/date-time (map parse-int [year month day]))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn parse-int [s] (Integer/parseInt s))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(def month-signs {&quot;jan&quot; 1 &quot;feb&quot; 2 &quot;már&quot; 3 &quot;ápr&quot;  4 &quot;máj&quot;  5 &quot;jún&quot;  6
+                  &quot;júl&quot; 7 &quot;aug&quot; 8 &quot;sze&quot; 9 &quot;okt&quot; 10 &quot;nov&quot; 11 &quot;dec&quot; 12})</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn parse-time-str [str]
+  (try
+    (let
+      [[_ xy xmo xd _ xh xmi]
+       (re-find #&quot;(\d{4})\. (\w{3})\w+ (\d{1,2})\.([^\d]+(\d{1,2}):(\d{1,2}))?&quot; str)
+       [y d h mi] (map parse-int (take-while (complement nil?) [xy xd xh xmi]))
+       mo (-&gt; xmo lower-case month-signs)
+       time-params (take-while (complement nil?) [y mo d h mi])]
+      (when (&gt;= (count time-params) 3)
+        (apply t/date-time time-params)))
+    (catch Exception _ nil)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def config-options
   {:feeds
      [&quot;http://ujszo.com/rss.xml&quot;
-      &quot;http://vasarnap.ujszo.com/rss.xml&quot;
-      &quot;http://www.bumm.sk/rss/rss.xml&quot;
-      &quot;http://www.felvidek.ma/?format=feed&amp;type=rss&quot;
-      &quot;http://www.parameter.sk/rss.xml&quot;
-      &quot;http://www.hirek.sk/rss/hirek.xml&quot;]
+     &quot;http://vasarnap.ujszo.com/rss.xml&quot;
+     &quot;http://www.bumm.sk/rss/rss.xml&quot;
+     &quot;http://www.felvidek.ma/?format=feed&amp;type=rss&quot;
+     &quot;http://www.parameter.sk/rss.xml&quot;
+     &quot;http://www.hirek.sk/rss/hirek.xml&quot;]
    :scraper-defs
-     {&quot;www.bumm.sk&quot;      {:title   [:h2#page_title]
+     {:shared            {:source  #(-&gt; % :url urly/url-like urly/host-of)}
+      &quot;www.bumm.sk&quot;      {:title   [:h2#page_title]
                           :summary [:div.page_lead]
                           :content [:div.page_body]
-                          :published_at find-date-in-url}
+                          :published_at
+                          #(-&gt; % (scraper/extract-tag [:div.page_public_date]) parse-time-str)}
       &quot;felvidek.ma&quot;      {:title   [:article :header.article-header :h1.article-title :a]
-                          :content [:section.article-content]}
+                          :content [:section.article-content]
+                          :published_at
+                          #(-&gt; % (scraper/extract-tag [:dd.create]) parse-time-str)}
       &quot;ujszo.com&quot;        {:title   [:div.node.node-article :h1]
                           :loc     [:div.node.node-article :div.field-name-field-lead :span.place]
                           :summary [:div.node.node-article :div.field-name-field-lead :p]
                           :content [:div.node.node-article :div.field-name-body]
-                          :published_at find-date-in-url}
+                          :published_at
+                          #(-&gt; % (scraper/extract-tag [:div.article-header]) parse-time-str)}
       &quot;www.parameter.sk&quot; {:title   [:div#content :h1]
                           :summary [:div#content :div#field-name-field-lead]
                           :content [:div#content :div#field-name-body]
-                          :published_at find-date-in-url}
+                          :published_at
+                          #(-&gt; % (scraper/extract-tag [:div.article-header]) parse-time-str)}
       &quot;www.hirek.sk&quot;     {:title   [:span.tcikkcim]
                           :summary [:span#tcikkintro]
                           :content [:div#tcikktext]
-                          :published_at (fn [doc]
-                                          (let
-                                            [[_ y mo d h mi s]
-                                             (re-find #&quot;/(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})&quot; (doc :url))]
-                                            (apply t/date-time
-                                                   (map parse-int [y mo d h mi s]))))}
+                          :published_at
+                          #(-&gt; % (scraper/extract-tag [:span.tcikkinfo]) parse-time-str)}
       &quot;vasarnap.ujszo.com&quot; &quot;ujszo.com&quot;}
    :http-req-opts
      {:timeout    200 ; ms
@@ -3202,7 +3215,21 @@ doc-c of the storage component.</p>
       :scraper-verification
                       (component/using
                         (scraper-verification/build-component conf-opts)
-                        [:logger :storage :page-retrieval :error-handling]))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#skrejp.crawl-planner-test" name="skrejp.crawl-planner-test"><h1 class="project-name">skrejp.crawl-planner-test</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+                        [:logger :storage :page-retrieval :error-handling]))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#skrejp.app-test" name="skrejp.app-test"><h1 class="project-name">skrejp.app-test</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(ns skrejp.app-test
+  (:require [skrejp.app :as app])
+  (:require [clj-time.core :as t])
+  (:require [expectations :refer :all]))</pre></td></tr><tr><td class="docs"><h1>skrejp.app/parse-time-str</h1>
+
+<p>It parses <code>bumm.sk</code>'s time label.</p>
+</td><td class="codes"><pre class="brush: clojure">(expect (t/date-time 2014 12 6 14 29) (app/parse-time-str &quot;2014. december 6. szombat - 14:29&quot;))</pre></td></tr><tr><td class="docs"><p>It parases <code>ujszo.com</code>'s time label.</p>
+</td><td class="codes"><pre class="brush: clojure">(expect (t/date-time 2014 12 6 18 24) (app/parse-time-str &quot;2014. december 6., szombat 18:24&quot;))</pre></td></tr><tr><td class="docs"><p>It parses <code>www.felvidek.ma</code>'s time label.</p>
+</td><td class="codes"><pre class="brush: clojure">(expect (t/date-time 2014 12 6) (app/parse-time-str &quot;2014. DECEMBER 06.&quot;))</pre></td></tr><tr><td class="docs"><p>It parses <code>www.hirek.sk</code>'s time label.</p>
+</td><td class="codes"><pre class="brush: clojure">(expect (t/date-time 2014 12 6 15 27)
+        (app/parse-time-str &quot;2014. december 06., szombat  15:27 | Hírek.sk  | Forrás: TASR&quot;))</pre></td></tr><tr><td class="docs"><p>It parses <code>www.parameter.sk</code>'s time label.</p>
+</td><td class="codes"><pre class="brush: clojure">(expect (t/date-time 2014 12 6 18 44) (app/parse-time-str &quot;2014. december 6. - 18:44&quot;))</pre></td></tr><tr><td class="docs"><p>Returns <code>nil</code> when the string is not parsable</p>
+</td><td class="codes"><pre class="brush: clojure">(expect nil (app/parse-time-str &quot;this can not be parsed&quot;))</pre></td></tr><tr><td class="docs"><p>At least year, month and day has to be provided otherwise it returns <code>nil</code>.</p>
+</td><td class="codes"><pre class="brush: clojure">(expect nil (app/parse-time-str &quot;2014. DECEMBER&quot;))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#skrejp.crawl-planner-test" name="skrejp.crawl-planner-test"><h1 class="project-name">skrejp.crawl-planner-test</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns skrejp.crawl-planner-test
   (:require [skrejp.crawl-planner :as crawler])
   (:require [expectations :refer :all]))</pre></td></tr><tr><td class="docs">
@@ -3292,7 +3319,7 @@ doc-c of the storage component.</p>
   (:require [expectations :refer :all])
   (:require [skrejp.system :as sys])
   (:require [clojurewerkz.urly.core :as urly])
-  (:use     org.httpkit.fake))</pre></td></tr><tr><td class="docs">
+  (:require [org.httpkit.fake :refer :all]))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def http-req-opts {:timeout    10 ; ms
                     :user-agent &quot;User-Agent-string&quot;
                     :headers    {&quot;X-Header&quot; &quot;Value&quot;} } )</pre></td></tr><tr><td class="docs"><h1>:scraper-defs</h1>
@@ -3306,7 +3333,7 @@ doc-c of the storage component.</p>
 
 <p>Define rules used for every site under the <code>:shared</code> key.</p>
 </td><td class="codes"><pre class="brush: clojure">(def config-opts {:http-req-opts http-req-opts
-                  :scraper-defs  {:shared       {:host    (fn [doc] (-&gt; doc :url urly/url-like urly/host-of))}
+                  :scraper-defs  {:shared       {:host    #(-&gt; % :url urly/url-like urly/host-of)}
                                   &quot;example.com&quot; {:title   [:h3#title]
                                                  :content [:div.content]
                                                  :title_length (fn [doc] (count (doc :title)))}
@@ -3367,7 +3394,7 @@ so the <code>:title_len</code> is expected to be taken from the new value</p>
 
 <p>URL is must have defined attribute for every <code>doc</code> for scraping, it's kept under <code>:url</code>.</p>
 </td><td class="codes"><pre class="brush: clojure">(expect &quot;http://example.com/foo.html&quot;     (:url result1))
-(expect &quot;http://usa.example.com/bar.html&quot; (:url result2))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/gdeer81/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a><div id="floating-toc"><ul><li class="floating-toc-li" id="floating-toc_skrejp.app">skrejp.app</li><li class="floating-toc-li" id="floating-toc_skrejp.crawl-planner">skrejp.crawl-planner</li><li class="floating-toc-li" id="floating-toc_skrejp.error-handling">skrejp.error-handling</li><li class="floating-toc-li" id="floating-toc_skrejp.logger">skrejp.logger</li><li class="floating-toc-li" id="floating-toc_skrejp.retrieval">skrejp.retrieval</li><li class="floating-toc-li" id="floating-toc_skrejp.scraper">skrejp.scraper</li><li class="floating-toc-li" id="floating-toc_skrejp.scraper-verification">skrejp.scraper-verification</li><li class="floating-toc-li" id="floating-toc_skrejp.storage">skrejp.storage</li><li class="floating-toc-li" id="floating-toc_skrejp.system">skrejp.system</li><li class="floating-toc-li" id="floating-toc_skrejp.crawl-planner-test">skrejp.crawl-planner-test</li><li class="floating-toc-li" id="floating-toc_skrejp.retrieval-test">skrejp.retrieval-test</li><li class="floating-toc-li" id="floating-toc_skrejp.scraper-test">skrejp.scraper-test</li><li class="floating-toc-li" id="floating-toc_skrejp.system-test">skrejp.system-test</li></ul></div></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
+(expect &quot;http://usa.example.com/bar.html&quot; (:url result2))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/gdeer81/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a><div id="floating-toc"><ul><li class="floating-toc-li" id="floating-toc_skrejp.app">skrejp.app</li><li class="floating-toc-li" id="floating-toc_skrejp.crawl-planner">skrejp.crawl-planner</li><li class="floating-toc-li" id="floating-toc_skrejp.error-handling">skrejp.error-handling</li><li class="floating-toc-li" id="floating-toc_skrejp.logger">skrejp.logger</li><li class="floating-toc-li" id="floating-toc_skrejp.retrieval">skrejp.retrieval</li><li class="floating-toc-li" id="floating-toc_skrejp.scraper">skrejp.scraper</li><li class="floating-toc-li" id="floating-toc_skrejp.scraper-verification">skrejp.scraper-verification</li><li class="floating-toc-li" id="floating-toc_skrejp.storage">skrejp.storage</li><li class="floating-toc-li" id="floating-toc_skrejp.system">skrejp.system</li><li class="floating-toc-li" id="floating-toc_skrejp.app-test">skrejp.app-test</li><li class="floating-toc-li" id="floating-toc_skrejp.crawl-planner-test">skrejp.crawl-planner-test</li><li class="floating-toc-li" id="floating-toc_skrejp.retrieval-test">skrejp.retrieval-test</li><li class="floating-toc-li" id="floating-toc_skrejp.scraper-test">skrejp.scraper-test</li><li class="floating-toc-li" id="floating-toc_skrejp.system-test">skrejp.system-test</li></ul></div></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
 SyntaxHighlighter.all();
 
 // hackity hack

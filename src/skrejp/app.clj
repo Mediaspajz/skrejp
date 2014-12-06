@@ -1,50 +1,64 @@
 (ns skrejp.app
+  (:require [skrejp.scraper :as scraper])
+  (:require [clojurewerkz.urly.core :as urly])
   (:require [com.stuartsierra.component :as component])
   (:require [clojure.core.async :as async :refer [<!!]])
+  (:require [clojure.string :refer [lower-case]])
   (:require [clj-time.core :as t])
   (:require [skrejp.system :as system]) )
 
-(defn parse-int [s]
-  (Integer/parseInt s))
+(defn parse-int [s] (Integer/parseInt s))
 
-(defn find-date-in-url [doc]
-  (let
-    [[_ year month day] (re-find #"/(\d+)/(\d+)/(\d+)" (doc :url))]
-    (apply t/date-time (map parse-int [year month day]))))
+(def month-signs {"jan" 1 "feb" 2 "már" 3 "ápr"  4 "máj"  5 "jún"  6
+                  "júl" 7 "aug" 8 "sze" 9 "okt" 10 "nov" 11 "dec" 12})
+
+(defn parse-time-str [str]
+  (try
+    (let
+      [[_ xy xmo xd _ xh xmi]
+       (re-find #"(\d{4})\. (\w{3})\w+ (\d{1,2})\.([^\d]+(\d{1,2}):(\d{1,2}))?" str)
+       [y d h mi] (map parse-int (take-while (complement nil?) [xy xd xh xmi]))
+       mo (-> xmo lower-case month-signs)
+       time-params (take-while (complement nil?) [y mo d h mi])]
+      (when (>= (count time-params) 3)
+        (apply t/date-time time-params)))
+    (catch Exception _ nil)))
 
 (def config-options
   {:feeds
      ["http://ujszo.com/rss.xml"
-      "http://vasarnap.ujszo.com/rss.xml"
-      "http://www.bumm.sk/rss/rss.xml"
-      "http://www.felvidek.ma/?format=feed&type=rss"
-      "http://www.parameter.sk/rss.xml"
-      "http://www.hirek.sk/rss/hirek.xml"]
+     "http://vasarnap.ujszo.com/rss.xml"
+     "http://www.bumm.sk/rss/rss.xml"
+     "http://www.felvidek.ma/?format=feed&type=rss"
+     "http://www.parameter.sk/rss.xml"
+     "http://www.hirek.sk/rss/hirek.xml"]
    :scraper-defs
-     {"www.bumm.sk"      {:title   [:h2#page_title]
+     {:shared            {:source  #(-> % :url urly/url-like urly/host-of)}
+      "www.bumm.sk"      {:title   [:h2#page_title]
                           :summary [:div.page_lead]
                           :content [:div.page_body]
-                          :published_at find-date-in-url}
+                          :published_at
+                          #(-> % (scraper/extract-tag [:div.page_public_date]) parse-time-str)}
       "felvidek.ma"      {:title   [:article :header.article-header :h1.article-title :a]
-                          :content [:section.article-content]}
+                          :content [:section.article-content]
+                          :published_at
+                          #(-> % (scraper/extract-tag [:dd.create]) parse-time-str)}
       "ujszo.com"        {:title   [:div.node.node-article :h1]
                           :loc     [:div.node.node-article :div.field-name-field-lead :span.place]
                           :summary [:div.node.node-article :div.field-name-field-lead :p]
                           :content [:div.node.node-article :div.field-name-body]
-                          :published_at find-date-in-url}
+                          :published_at
+                          #(-> % (scraper/extract-tag [:div.article-header]) parse-time-str)}
       "www.parameter.sk" {:title   [:div#content :h1]
                           :summary [:div#content :div#field-name-field-lead]
                           :content [:div#content :div#field-name-body]
-                          :published_at find-date-in-url}
+                          :published_at
+                          #(-> % (scraper/extract-tag [:div.article-header]) parse-time-str)}
       "www.hirek.sk"     {:title   [:span.tcikkcim]
                           :summary [:span#tcikkintro]
                           :content [:div#tcikktext]
-                          :published_at (fn [doc]
-                                          (let
-                                            [[_ y mo d h mi s]
-                                             (re-find #"/(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})" (doc :url))]
-                                            (apply t/date-time
-                                                   (map parse-int [y mo d h mi s]))))}
+                          :published_at
+                          #(-> % (scraper/extract-tag [:span.tcikkinfo]) parse-time-str)}
       "vasarnap.ujszo.com" "ujszo.com"}
    :http-req-opts
      {:timeout    200 ; ms

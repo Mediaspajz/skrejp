@@ -5,7 +5,7 @@
   (:require [expectations :refer :all])
   (:require [skrejp.system :as sys])
   (:require [clojurewerkz.urly.core :as urly])
-  (:use     org.httpkit.fake))
+  (:require [org.httpkit.fake :refer :all]))
 
 (def http-req-opts {:timeout    10 ; ms
                     :user-agent "User-Agent-string"
@@ -19,7 +19,7 @@
 ;;
 ;; Define rules used for every site under the `:shared` key.
 (def config-opts {:http-req-opts http-req-opts
-                  :scraper-defs  {:shared       {:host    (fn [doc] (-> doc :url urly/url-like urly/host-of))}
+                  :scraper-defs  {:shared       {:host    #(-> % :url urly/url-like urly/host-of)}
                                   "example.com" {:title   [:h3#title]
                                                  :content [:div.content]
                                                  :title_length (fn [doc] (count (doc :title)))}
