@@ -63,7 +63,10 @@
    :http-req-opts
      {:timeout    200 ; ms
       :user-agent "User-Agent-string"
-      :headers    {"X-Header" "Value"}}})
+      :headers    {"X-Header" "Value"}}
+   :storage {:es {:host "0.0.0.0"
+                  :post  9200
+                  :index "mediaspajz_development_articles"}}})
 
 (def scraper-system (system/build-scraper-system config-options))
 

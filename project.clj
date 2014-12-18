@@ -20,6 +20,7 @@
 
                  ;; logging, metrics
                  [com.taoensso/timbre "3.3.1"]
+                 [commons-logging     "1.2"]
                  ;[analytics-clj       "0.2.2"] ;; segment.io not used - no user actions
                  [clj-librato         "0.0.5"]
 
@@ -28,5 +29,5 @@
                  [http-kit.fake     "0.2.2"]
 
                  ;; storage
-                 [clojurewerkz/elastisch  "2.0.0"]]
+                 [clojurewerkz/elastisch "2.1.0-rc1"]]
   :main          skrejp.app)
