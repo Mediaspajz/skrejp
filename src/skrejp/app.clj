@@ -27,11 +27,11 @@
 (def config-options
   {:feeds
      ["http://ujszo.com/rss.xml"
-     "http://vasarnap.ujszo.com/rss.xml"
-     "http://www.bumm.sk/rss/rss.xml"
-     "http://www.felvidek.ma/?format=feed&type=rss"
-     "http://www.parameter.sk/rss.xml"
-     "http://www.hirek.sk/rss/hirek.xml"]
+      "http://vasarnap.ujszo.com/rss.xml"
+      "http://www.bumm.sk/rss/rss.xml"
+      "http://www.felvidek.ma/?format=feed&type=rss"
+      "http://www.parameter.sk/rss.xml"
+      "http://www.hirek.sk/rss/hirek.xml"]
    :scraper-defs
      {:shared            {:source  #(-> % :url urly/url-like urly/host-of)}
       "www.bumm.sk"      {:title   [:h2#page_title]
@@ -64,9 +64,9 @@
      {:timeout    200 ; ms
       :user-agent "User-Agent-string"
       :headers    {"X-Header" "Value"}}
-   :storage {:es {:host "0.0.0.0"
-                  :post  9200
-                  :index "mediaspajz_development_articles"}}})
+   :storage {:es {:url         "http://localhost:9200"
+                  :index-name  "mediaspajz_development_articles" ; "mediaspajz_test"
+                  :entity-name "article"}}})
 
 (def scraper-system (system/build-scraper-system config-options))
 

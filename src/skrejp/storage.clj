@@ -19,7 +19,7 @@
   (start [this]
     (logger/info (:logger this) "Starting Storage")
     (let [doc-c    (chan 512)
-          es-conn  (es/connect "http://localhost:9200") ; [(map [:host :port] #(get-in this [:es %]))]
+          es-conn  (es/connect (get-in this [:es :url]))
           setup    (assoc this
                           :doc-c    doc-c
                           :es-conn  es-conn)]
@@ -28,7 +28,7 @@
         (if (nil? doc)
           (logger/info (:logger this) "Storage input channel closed")
           (do
-            (store this doc)
+            (store setup doc)
             (recur (<! doc-c)))))
       setup)
     )
@@ -40,10 +40,11 @@
   IStorage
 
   (store [this doc]
+    (logger/info (:logger this) (dissoc doc :http-payload))
     (esd/create (:es-conn this)
                 (get-in this [:es :index-name])
                 (get-in this [:es :entity-name])
-                doc))
+                (dissoc doc :http-payload :published_at)))
 
   (get-doc [this doc-id]
     (let [response (esd/get (:es-conn this)
