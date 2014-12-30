@@ -72,7 +72,7 @@
 (def scraper-system (system/build-scraper-system config-options))
 
 (defn start-scraper-system
-  "starts the scraper system."
+  "Starts the scraper system."
   []
   (alter-var-root (var scraper-system) component/start))
 

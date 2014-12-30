@@ -30,5 +30,6 @@
                  [http-kit.fake     "0.2.2"]
 
                  ;; storage
+                 [clj-http "1.0.1"]
                  [clojurewerkz/elastisch "2.1.0-rc1"]]
   :main          skrejp.app)
