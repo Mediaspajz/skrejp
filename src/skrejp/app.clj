@@ -5,7 +5,8 @@
   (:require [clojure.core.async :as async :refer [<!!]])
   (:require [clojure.string :refer [lower-case]])
   (:require [clj-time.core :as t])
-  (:require [skrejp.system :as system]) )
+  (:require [skrejp.system :as system])
+  (:require [clojure.tools.cli :refer [cli]]))
 
 (defn parse-int [s] (Integer/parseInt s))
 
@@ -80,6 +81,14 @@
   []
   (alter-var-root (var scraper-system) component/stop))
 
-(defn -main []
-  (start-scraper-system)
-  (<!! (async/timeout 10000)))
+(defn -main [& args]
+  (let [[opts args banner]
+        (cli args
+             ["-h" "--help" "Print this help"                :default false :flag true]
+             ["-e" "--exec" "Runs retrieval for <n> seconds" :default false :parse-fn #(Integer. %)])]
+    (when (:help opts)
+      (println banner))
+    (when (:exec opts)
+      (start-scraper-system)
+      (<!! (async/timeout (* (:exec opts) 1000)))
+      (stop-scraper-system))))

@@ -11,6 +11,7 @@
                  [prismatic/schema        "0.3.3"]
                  [com.stuartsierra/component "0.2.2"]
                  [clj-time "0.8.0"]
+                 [org.clojure/tools.cli "0.2.4"]
 
                  ;; crawling, parsing, scraping
                  [org.clojars.scsibug/feedparser-clj "0.4.0"]
