@@ -4,7 +4,8 @@
   (:require [com.stuartsierra.component :as component])
   (:require [clojurewerkz.elastisch.rest :as es]
             [clojurewerkz.elastisch.rest.index :as esi]
-            [clojurewerkz.elastisch.rest.document :as esd]))
+            [clojurewerkz.elastisch.rest.document :as esd])
+  (:require [clojurewerkz.support.json]))
 
 (defprotocol IStorage
   "## IStorage
@@ -44,7 +45,7 @@
     (esd/create (:es-conn this)
                 (get-in this [:es :index-name])
                 (get-in this [:es :entity-name])
-                (dissoc doc :http-payload :published_at)))
+                (dissoc doc :http-payload)))
 
   (get-doc [this doc-id]
     (let [response (esd/get (:es-conn this)
