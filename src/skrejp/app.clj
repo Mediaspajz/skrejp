@@ -6,7 +6,9 @@
   (:require [clojure.string :refer [lower-case]])
   (:require [clj-time.core :as t])
   (:require [skrejp.system :as system])
-  (:require [clojure.tools.cli :refer [cli]]))
+  (:require [clojure.tools.cli :refer [cli]])
+  (:import  [org.apache.commons.daemon Daemon DaemonContext])
+  (:gen-class :implements [org.apache.commons.daemon.Daemon]))
 
 (defn parse-int [s] (Integer/parseInt s))
 
@@ -81,14 +83,44 @@
   []
   (alter-var-root (var scraper-system) component/stop))
 
+(def state (atom {}))
+
+(defn init [args]
+  (swap! state assoc :running true))
+
+(defn start []
+  (while (:running @state)
+    (println "tick")
+    (Thread/sleep 2000)))
+
+(defn stop []
+  (swap! state assoc :running false))
+
+;; Daemon implementation
+
+(defn -init [this ^DaemonContext context]
+  (init (.getArguments context)))
+
+(defn -start [this]
+  (future (start)))
+
+(defn -stop [this]
+  (stop))
+
+(defn -destroy [this])
+
 (defn -main [& args]
   (let [[opts args banner]
         (cli args
-             ["-h" "--help" "Print this help"                :default false :flag true]
-             ["-e" "--exec" "Runs retrieval for <n> seconds" :default false :parse-fn #(Integer. %)])]
+             ["-h" "--help"   "Print this help"                :default false :flag true]
+             ["-e" "--exec"   "Runs retrieval for <n> seconds" :default false :parse-fn #(Integer. %)]
+             ["-d" "--daemon" "Execute in background"          :default false :flag true])]
     (when (:help opts)
       (println banner))
     (when (:exec opts)
       (start-scraper-system)
       (<!! (async/timeout (* (:exec opts) 1000)))
-      (stop-scraper-system))))
+      (stop-scraper-system))
+    (when (:daemon opts)
+      (init args)
+      (start))))
