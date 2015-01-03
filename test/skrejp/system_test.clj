@@ -57,13 +57,16 @@
     </body>"]
   (def test-system
     (sys/build-scraper-system
-      config-opts {:logger  (reify logger/ILogger (info [_ _])),
+      config-opts {:logger  (reify logger/ILogger (info [_ msg] (println msg))),
                    :storage {:doc-c out-c}}))
   (alter-var-root (var test-system) component/start)
-  (def results (<!! (async/into [] out-c)))
+  (def results (sort (<!! (async/into [] out-c))))
   (def result1 (first  results))
   (def result2 (second results))
   (alter-var-root (var test-system) component/stop))
+
+;; Two results articles should be found
+(expect 2 (count results))
 
 ;; ## Scraping attribute by a selector
 ;;
