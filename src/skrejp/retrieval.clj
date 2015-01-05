@@ -41,16 +41,10 @@
       (go-loop [doc (<! inp-doc-c) host-chans {}]
         (when-not (nil? doc)
           (let
-            [host     (urly/host-of (urly/url-like (doc :url)))
-             next-doc (<! inp-doc-c)]
-            (if (nil? next-doc)
-              (do
-                (<!! (async/timeout 10000))
-                (for [host-c (vals host-chans)] (async/close! host-c))
-                (async/close! out-doc-c))
-              (let [host-c (get-host-c comp-setup host-chans host)]
-                (>! host-c next-doc)
-                (recur next-doc (assoc host-chans host host-c)))))))
+            [host (urly/host-of (urly/url-like (doc :url)))
+             host-c (get-host-c comp-setup host-chans host)]
+            (>! host-c doc)
+            (recur (<! inp-doc-c) (assoc host-chans host host-c)))))
       comp-setup))
 
   (stop [this]

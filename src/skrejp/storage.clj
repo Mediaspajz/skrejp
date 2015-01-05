@@ -41,7 +41,7 @@
   IStorage
 
   (store [this doc]
-    (logger/info (:logger this) (dissoc doc :http-payload))
+    (logger/info (:logger this) (dissoc doc :http-payload :content))
     (esd/create (:es-conn this)
                 (get-in this [:es :index-name])
                 (get-in this [:es :entity-name])

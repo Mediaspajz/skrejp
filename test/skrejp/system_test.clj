@@ -1,6 +1,6 @@
 (ns skrejp.system-test
   (:require [skrejp.logger :as logger])
-  (:require [clojure.core.async :as async :refer [go go-loop chan <! <!! >!]])
+  (:require [clojure.core.async :refer [go chan <! <!! >! alts!!]])
   (:require [com.stuartsierra.component :as component])
   (:require [expectations :refer :all])
   (:require [skrejp.system :as sys])
@@ -57,16 +57,12 @@
     </body>"]
   (def test-system
     (sys/build-scraper-system
-      config-opts {:logger  (reify logger/ILogger (info [_ msg] (println msg))),
+      config-opts {:logger  (reify logger/ILogger (info [_ _]))
                    :storage {:doc-c out-c}}))
   (alter-var-root (var test-system) component/start)
-  (def results (sort (<!! (async/into [] out-c))))
-  (def result1 (first  results))
-  (def result2 (second results))
+  (def result1 (<!! out-c))
+  (def result2 (<!! out-c))
   (alter-var-root (var test-system) component/stop))
-
-;; Two results articles should be found
-(expect 2 (count results))
 
 ;; ## Scraping attribute by a selector
 ;;

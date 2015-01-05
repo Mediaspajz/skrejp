@@ -53,8 +53,8 @@
                           :published_at
                           #(-> % (scraper/extract-tag [:div.article-header]) parse-time-str)}
       "www.parameter.sk" {:title   [:div#content :h1]
-                          :summary [:div#content :div#field-name-field-lead]
-                          :content [:div#content :div#field-name-body]
+                          :summary [:div#content :div.field-name-field-lead]
+                          :content [:div#content :div.field-name-body]
                           :published_at
                           #(-> % (scraper/extract-tag [:div.article-header]) parse-time-str)}
       "www.hirek.sk"     {:title   [:span.tcikkcim]
