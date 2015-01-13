@@ -12,7 +12,8 @@
   Defines methods for storing documents scraped by the system. Storage component is independent from other parts of
   the system. The _scraper component_ uses it for storing the scraped documents."
   (store   [this doc])
-  (get-doc [this doc-id]))
+  (get-doc [this doc-id])
+  (contains-doc? [this doc-id]))
 
 (defrecord Storage [logger doc-c]
   component/Lifecycle
@@ -31,8 +32,7 @@
           (do
             (store setup doc)
             (recur (<! doc-c)))))
-      setup)
-    )
+      setup))
 
   (stop [this]
     (logger/info (:logger this) "Stopping Storage")
@@ -41,18 +41,25 @@
   IStorage
 
   (store [this doc]
-    (logger/info (:logger this) (dissoc doc :http-payload :content))
+    (logger/info (:logger this) (dissoc doc :url :http-payload :content))
     (esd/create (:es-conn this)
                 (get-in this [:es :index-name])
                 (get-in this [:es :entity-name])
-                (dissoc doc :http-payload)))
+                (dissoc doc :id :http-payload)
+                :id (doc :id)))
 
   (get-doc [this doc-id]
     (let [response (esd/get (:es-conn this)
                             (get-in this [:es :index-name])
                             (get-in this [:es :entity-name])
                             doc-id)]
-      (response :_source))))
+      (when-not (nil? response) (response :_source))))
+
+  (contains-doc? [this doc]
+    (let [doc-id (doc :id)]
+      (and
+        (not (nil? doc-id))
+        (not (nil? (get-doc this (doc :id))))))))
 
 (defn build-component
   "Build a new storage."

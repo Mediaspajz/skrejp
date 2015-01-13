@@ -22,7 +22,7 @@
                         [:logger])
       :page-retrieval (component/using
                         (retrieval/build-component conf-opts)
-                        [:logger])
+                        [:logger :storage])
       :crawl-planner  (component/using
                         (crawl-planner/build-component conf-opts)
                         [:logger :page-retrieval :error-handling :scraper])

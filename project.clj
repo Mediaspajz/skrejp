@@ -7,7 +7,7 @@
                  [lein-marginalia   "0.8.0"]]
   :profiles      {:uberjar {:aot :all}}
   :core.typed    {:check [clj-scrapers.scraper]}
-  :dependencies [[org.clojure/clojure     "1.7.0-alpha4"]
+  :dependencies [[org.clojure/clojure     "1.7.0-alpha5"]
                  [org.clojure/core.async  "0.1.319.0-6b1aca-alpha"]
                  [prismatic/schema        "0.3.3"]
                  [com.stuartsierra/component "0.2.2"]

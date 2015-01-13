@@ -13,11 +13,12 @@
                                               :index-name  "mediaspajz_test"
                                               :entity-name "article"}}})
                             :logger (reify logger/ILogger (info [_ _]) (debug [_ _]))))
-   doc     (storage/store cmpnt {:title "Foo" :body "Bar" :http-payload "page body"})
-   doc-id  (:_id doc)
+   doc-id  "http://example.com/foobar.html"
+   _doc    (storage/store cmpnt {:id doc-id :title "Foo" :body "Bar" :http-payload "page body"})
    ret-doc (do (esi/flush (:es-conn cmpnt))
                (storage/get-doc cmpnt doc-id))]
   (expect "Foo" (ret-doc :title))
   (expect "Bar" (ret-doc :body))
+  (expect false (contains? ret-doc :id))
   (expect false (contains? ret-doc :http-payload)))
 ; TODO: drop the testing index

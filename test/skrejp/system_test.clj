@@ -5,7 +5,8 @@
   (:require [expectations :refer :all])
   (:require [skrejp.system :as sys])
   (:require [clojurewerkz.urly.core :as urly])
-  (:require [org.httpkit.fake :refer :all]))
+  (:require [org.httpkit.fake :refer :all]
+            [skrejp.storage :as storage]))
 
 (def http-req-opts {:timeout    10 ; ms
                     :user-agent "User-Agent-string"
@@ -34,15 +35,22 @@
     <rss version=\"2.0\" xml:base=\"http://example.com/rss.xml\">
       <channel>
         <item>
-        <title>Foo</title>
-        <link>http://example.com/foo.html</link>
+          <title>Already Stored Doc</title>
+          <link>http://europe.example.com/alreadystored.html</link>
         </item>
         <item>
-        <title>Bar</title>
-        <link>http://usa.example.com/bar.html</link>
+          <title>Foo</title>
+          <link>http://example.com/foo.html</link>
+        </item>
+        <item>
+          <title>Bar</title>
+          <link>http://usa.example.com/bar.html</link>
         </item>
       </channel>
     </rss>"
+
+   "http://europe.example.com/alreadystored.html"
+   "<body>Already Stored Content</body>"
 
    "http://example.com/foo.html"
    "<body>
@@ -55,13 +63,23 @@
       <h3 id='title'></h3>
       <div class='content'>Bar Content</div>
     </body>"]
+
+  (defrecord TestStorage [doc-c]
+    storage/IStorage
+
+    (contains-doc? [_ doc]
+      (= (doc :id) "http://europe.example.com/alreadystored.html")))
+
+  (def test-storage (map->TestStorage {:doc-c out-c}))
+
   (def test-system
-    (sys/build-scraper-system
-      config-opts {:logger  (reify logger/ILogger (info [_ _]))
-                   :storage {:doc-c out-c}}))
+    (sys/build-scraper-system config-opts {:logger  (reify logger/ILogger (info [_ _]))
+                                           :storage test-storage}))
+
   (alter-var-root (var test-system) component/start)
-  (def result1 (<!! out-c))
-  (def result2 (<!! out-c))
+  (def results (list (<!! out-c) (<!! out-c)))
+  (def result1 (first  results))
+  (def result2 (second results))
   (alter-var-root (var test-system) component/stop))
 
 ;; ## Scraping attribute by a selector
