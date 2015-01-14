@@ -14,6 +14,7 @@
                  [clj-time "0.9.0"]
                  [org.clojure/tools.cli "0.3.1"]
                  [org.apache.commons/commons-daemon "1.0.9"]
+                 [clojurewerkz/quartzite "2.0.0"]
 
                  ;; crawling, parsing, scraping
                  [org.clojars.scsibug/feedparser-clj "0.4.0"]
