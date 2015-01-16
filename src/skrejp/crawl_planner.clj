@@ -11,14 +11,14 @@
                  :url (or (entry :link) (entry :uri)))))))
 
 (defprotocol ICrawlPlanner
-  (plan-feeds [this]))
+  (plan-feeds [this])
+  (schedule-crawls [this]))
 
 (defrecord CrawlPlannerComponent [page-retrieval scraper error-handling feeds]
   component/Lifecycle
 
   (start [this]
     (logger/info (:logger this) "Starting CrawlPlanner")
-    (plan-feeds this)
     this)
 
   (stop [this]
@@ -32,7 +32,9 @@
       [docs (into []
                   (comp (-> (:page-retrieval this) ret/fetch-feed) mapcat-feed-to-docs)
                   (:feeds this))]
-      (async/onto-chan (-> this :scraper :doc-c) docs))))
+      (async/onto-chan (-> this :scraper :doc-c) docs)))
+
+  (schedule-crawls [this]))
 
 (defn build-component
   "Build a CrawlPlanner component."

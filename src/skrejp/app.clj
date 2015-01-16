@@ -6,6 +6,7 @@
   (:require [clojure.string :refer [lower-case]])
   (:require [clj-time.core :as t])
   (:require [skrejp.system :as system])
+  (:require [skrejp.crawl-planner :as planner])
   (:require [clojure.tools.cli :refer [cli]])
   (:import  [org.apache.commons.daemon Daemon DaemonContext])
   (:gen-class :implements [org.apache.commons.daemon.Daemon]))
@@ -83,29 +84,32 @@
   []
   (alter-var-root (var scraper-system) component/stop))
 
-(def state (atom {}))
+(def daemon-state (atom {}))
 
-(defn init [args]
-  (swap! state assoc :running true))
+(defn init-daemon [args]
+  (swap! daemon-state assoc :running true))
 
-(defn start []
-  (while (:running @state)
-    (println "tick")
-    (Thread/sleep 2000)))
+(defn start-daemon []
+  (let
+    [planner (:crawl-planner scraper-system)]
+    (planner/schedule-crawls planner)
+    (while (:running @daemon-state)
+      (println "tick")
+      (Thread/sleep 2000))))
 
-(defn stop []
-  (swap! state assoc :running false))
+(defn stop-daemon []
+  (swap! daemon-state assoc :running false))
 
 ;; Daemon implementation
 
 (defn -init [this ^DaemonContext context]
-  (init (.getArguments context)))
+  (init-daemon (.getArguments context)))
 
 (defn -start [this]
-  (future (start)))
+  (future (start-daemon)))
 
 (defn -stop [this]
-  (stop))
+  (stop-daemon))
 
 (defn -destroy [this])
 
@@ -114,13 +118,15 @@
         (cli args
              ["-h" "--help"   "Print this help"                :default false :flag true]
              ["-e" "--exec"   "Runs retrieval for <n> seconds" :default false :parse-fn #(Integer. %)]
-             ["-d" "--daemon" "Execute in background"          :default false :flag true])]
+             ["-d" "--daemon" "Execute in background"          :default false :flag true])
+        planner (:crawl-planner scraper-system)]
     (when (:help opts)
       (println banner))
     (when (:exec opts)
       (start-scraper-system)
+      (planner/plan-feeds planner)
       (<!! (async/timeout (* (:exec opts) 1000)))
       (stop-scraper-system))
     (when (:daemon opts)
-      (init args)
-      (start))))
+      (init-daemon args)
+      (start-daemon))))
