@@ -72,17 +72,15 @@
                   :index-name  "mediaspajz_development_articles" ; "mediaspajz_test"
                   :entity-name "article"}}})
 
-(def scraper-system (system/build-scraper-system config-options))
-
 (defn start-scraper-system
   "Starts the scraper system."
-  []
-  (alter-var-root (var scraper-system) component/start))
+  [scraper-system]
+  (component/start scraper-system))
 
 (defn stop-scraper-system
   "Stops the passed in system"
-  []
-  (alter-var-root (var scraper-system) component/stop))
+  [scraper-system]
+  (component/stop scraper-system))
 
 (def daemon-state (atom {}))
 
@@ -90,12 +88,9 @@
   (swap! daemon-state assoc :running true))
 
 (defn start-daemon []
-  (let
-    [planner (:crawl-planner scraper-system)]
-    (planner/schedule-crawls planner)
-    (while (:running @daemon-state)
-      (println "tick")
-      (Thread/sleep 2000))))
+  (while (:running @daemon-state)
+    (println "tick")
+    (Thread/sleep 2000)))
 
 (defn stop-daemon []
   (swap! daemon-state assoc :running false))
@@ -113,20 +108,27 @@
 
 (defn -destroy [this])
 
+(defn plan-feeds
+  [system opts]
+  (let
+    [planner (:crawl-planner system)]
+    (planner/plan-feeds planner)
+    (<!! (async/timeout (* (:exec opts) 1000)))
+    system))
+
 (defn -main [& args]
   (let [[opts args banner]
         (cli args
              ["-h" "--help"   "Print this help"                :default false :flag true]
              ["-e" "--exec"   "Runs retrieval for <n> seconds" :default false :parse-fn #(Integer. %)]
-             ["-d" "--daemon" "Execute in background"          :default false :flag true])
-        planner (:crawl-planner scraper-system)]
+             ["-d" "--daemon" "Execute in background"          :default false :flag true])]
     (when (:help opts)
       (println banner))
     (when (:exec opts)
-      (start-scraper-system)
-      (planner/plan-feeds planner)
-      (<!! (async/timeout (* (:exec opts) 1000)))
-      (stop-scraper-system))
+        (-> (system/build-scraper-system config-options)
+            (start-scraper-system)
+            (plan-feeds opts)
+            (stop-scraper-system)))
     (when (:daemon opts)
       (init-daemon args)
       (start-daemon))))
