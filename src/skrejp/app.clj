@@ -2,7 +2,7 @@
   (:require [skrejp.scraper :as scraper])
   (:require [clojurewerkz.urly.core :as urly])
   (:require [com.stuartsierra.component :as component])
-  (:require [clojure.core.async :as async :refer [<!!]])
+  (:require [clojure.core.async :as async :refer [<!! >!!]])
   (:require [clojure.string :refer [lower-case]])
   (:require [clj-time.core :as t])
   (:require [skrejp.system :as system])
@@ -28,7 +28,7 @@
         (apply t/date-time time-params)))
     (catch Exception _ nil)))
 
-(def config-options
+(def conf-opts
   {:feeds
      ["http://ujszo.com/rss.xml"
       "http://vasarnap.ujszo.com/rss.xml"
@@ -87,10 +87,16 @@
 (defn init-daemon [args]
   (swap! daemon-state assoc :running true))
 
+;;TODO: move that to crawl-planner component, initialize by planner-schedules
 (defn start-daemon []
-  (while (:running @daemon-state)
-    (println "tick")
-    (Thread/sleep 2000)))
+  (let
+    [sys (-> (system/build-scraper-system
+               (assoc conf-opts :planner-cmds [:plan-feeds]))
+             (start-scraper-system))]
+    (while (:running @daemon-state)
+      (>!! (-> sys :crawl-planner :cmd-c) :plan-feeds)
+      (<!! (async/timeout (* 4 60 1000))))
+    (stop-scraper-system sys)))
 
 (defn stop-daemon []
   (swap! daemon-state assoc :running false))
@@ -108,13 +114,9 @@
 
 (defn -destroy [this])
 
-(defn plan-feeds
-  [system opts]
-  (let
-    [planner (:crawl-planner system)]
-    (planner/plan-feeds planner)
-    (<!! (async/timeout (* (:exec opts) 1000)))
-    system))
+(defn identity-after-timeout
+  [comp secs]
+  (do (<!! (async/timeout (* secs 1000))) comp))
 
 (defn -main [& args]
   (let [[opts args banner]
@@ -125,10 +127,10 @@
     (when (:help opts)
       (println banner))
     (when (:exec opts)
-        (-> (system/build-scraper-system config-options)
-            (start-scraper-system)
-            (plan-feeds opts)
-            (stop-scraper-system)))
+        (-> (system/build-scraper-system (assoc conf-opts :planner-cmds [:plan-feeds]))
+            start-scraper-system
+            (identity-after-timeout (:exec opts))
+            stop-scraper-system))
     (when (:daemon opts)
       (init-daemon args)
       (start-daemon))))

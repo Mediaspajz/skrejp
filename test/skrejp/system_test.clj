@@ -3,14 +3,10 @@
   (:require [clojure.core.async :refer [go chan <! <!! >! alts!!]])
   (:require [com.stuartsierra.component :as component])
   (:require [expectations :refer :all])
-  (:require [skrejp.system :as sys])
   (:require [clojurewerkz.urly.core :as urly])
   (:require [org.httpkit.fake :refer :all]
-            [skrejp.storage :as storage]))
-
-(def http-req-opts {:timeout    10 ; ms
-                    :user-agent "User-Agent-string"
-                    :headers    {"X-Header" "Value"} } )
+            [skrejp.storage :as storage]
+            [skrejp.system :as system]))
 
 ;; # :scraper-defs
 ;; The strings keys refer to the host domain name. In the value the scraping rules are defined.
@@ -19,15 +15,16 @@
 ;; - A _string_ value is taken as a reference to other definition. It has to refer to a key with map value.
 ;;
 ;; Define rules used for every site under the `:shared` key.
-(def config-opts {:http-req-opts http-req-opts
+(def config-opts {:http-req-opts {:timeout    10 ; ms
+                                  :user-agent "User-Agent-string"
+                                  :headers    {"X-Header" "Value"}}
                   :scraper-defs  {:shared       {:host    #(-> % :url urly/url-like urly/host-of)}
                                   "example.com" {:title   [:h3#title]
                                                  :content [:div.content]
                                                  :title_length (fn [doc] (count (doc :title)))}
                                   "usa.example.com" "example.com"}
-                  :feeds ["http://example.com/rss.xml"]})
-
-(def out-c (chan 2))
+                  :feeds ["http://example.com/rss.xml"]
+                  :planner-cmds [:plan-feeds]})
 
 (with-fake-http
   ["http://example.com/rss.xml"
@@ -70,17 +67,19 @@
     (contains-doc? [_ doc]
       (= (doc :id) "http://europe.example.com/alreadystored.html")))
 
-  (def test-storage (map->TestStorage {:doc-c out-c}))
+  (let
+    [out-c (chan 2)
+     test-storage (map->TestStorage {:doc-c out-c})
 
-  (def test-system
-    (sys/build-scraper-system config-opts {:logger  (reify logger/ILogger (info [_ _]))
-                                           :storage test-storage}))
+     test-system (component/start
+                   (system/build-scraper-system config-opts
+                                                {:logger  (reify logger/ILogger (info [_ _]))
+                                                 :storage test-storage}))]
 
-  (alter-var-root (var test-system) component/start)
-  (def results (list (<!! out-c) (<!! out-c)))
-  (def result1 (first  results))
-  (def result2 (second results))
-  (alter-var-root (var test-system) component/stop))
+     (def results (list (<!! out-c) (<!! out-c)))
+     (def result1 (first  results))
+     (def result2 (second results))
+     (component/stop test-system)))
 
 ;; ## Scraping attribute by a selector
 ;;
