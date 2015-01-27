@@ -36,7 +36,7 @@
   (plan-feeds [this]
     (let
       [docs (into []
-                  (comp (-> (:page-retrieval this) ret/fetch-feed) mapcat-feed-to-docs)
+                  (comp (ret/fetch-feed (:page-retrieval this)) mapcat-feed-to-docs)
                   (:feeds this))]
       (async/onto-chan (-> this :scraper :doc-c) docs))))
 

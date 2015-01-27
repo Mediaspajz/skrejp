@@ -90,9 +90,9 @@
 ;;TODO: move that to crawl-planner component, initialize by planner-schedules
 (defn start-daemon []
   (let
-    [sys (-> (system/build-scraper-system
-               (assoc conf-opts :planner-cmds [:plan-feeds]))
-             (start-scraper-system))]
+    [sys (start-scraper-system
+           (system/build-scraper-system
+             (assoc conf-opts :planner-cmds [:plan-feeds])))]
     (while (:running @daemon-state)
       (>!! (-> sys :crawl-planner :cmd-c) :plan-feeds)
       (<!! (async/timeout (* 4 60 1000))))
@@ -127,10 +127,9 @@
     (when (:help opts)
       (println banner))
     (when (:exec opts)
-        (-> (system/build-scraper-system (assoc conf-opts :planner-cmds [:plan-feeds]))
-            start-scraper-system
-            (identity-after-timeout (:exec opts))
-            stop-scraper-system))
+      (start-scraper-system
+        (system/build-scraper-system
+          (assoc conf-opts :planner-cmds [:plan-feeds]))))
     (when (:daemon opts)
       (init-daemon args)
       (start-daemon))))
