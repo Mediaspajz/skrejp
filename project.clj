@@ -1,5 +1,5 @@
 (defproject clj-scrapers "0.1.0-SNAPSHOT"
-  :description   "FIXME: write description"
+  :description   "Scraper library based on core.async"
   :url           "http://example.com/FIXME"
   :license       {:name "Eclipse Public License"
                   :url "http://www.eclipse.org/legal/epl-v10.html"}
@@ -12,7 +12,6 @@
                  [prismatic/schema        "0.3.3"]
                  [com.stuartsierra/component "0.2.2"]
                  [clj-time "0.9.0"]
-                 [org.clojure/tools.cli "0.3.1"]
                  [org.apache.commons/commons-daemon "1.0.9"]
 
                  ;; crawling, parsing, scraping
@@ -33,5 +32,4 @@
 
                  ;; storage
                  [clj-http "1.0.1"]
-                 [clojurewerkz/elastisch "2.1.0"]]
-  :main skrejp.app)
+                 [clojurewerkz/elastisch "2.1.0"]])
