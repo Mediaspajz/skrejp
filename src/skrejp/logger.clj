@@ -1,5 +1,4 @@
 (ns skrejp.logger
-  (:require [taoensso.timbre :as timbre])
   (:require [com.stuartsierra.component :as component]))
 
 (defprotocol ILogger

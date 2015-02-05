@@ -9,22 +9,14 @@
   :core.typed    {:check [clj-scrapers.scraper]}
   :dependencies [[org.clojure/clojure     "1.7.0-alpha5"]
                  [org.clojure/core.async  "0.1.319.0-6b1aca-alpha"]
-                 [prismatic/schema        "0.3.3"]
                  [com.stuartsierra/component "0.2.2"]
-                 [clj-time "0.9.0"]
-                 [org.apache.commons/commons-daemon "1.0.9"]
 
                  ;; crawling, parsing, scraping
                  [org.clojars.scsibug/feedparser-clj "0.4.0"]
                  [http-kit          "2.1.19"]
                  [clojurewerkz/urly "1.0.0"]
                  [enlive            "1.1.5"]
-
-                 ;; logging, metrics
-                 [com.taoensso/timbre "3.3.1"]
-                 [commons-logging     "1.2"]
-                 ;[analytics-clj       "0.2.2"] ;; segment.io not used - no user actions
-                 [clj-librato         "0.0.5"]
+                 [clj-time          "0.9.0"]
 
                  ;; testing
                  [expectations      "2.0.13"]
