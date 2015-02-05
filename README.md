@@ -1,6 +1,6 @@
 # clj-scrapers
 
-A Clojure library designed to ... well, that part is up to you.
+A Clojure library designed to ... well, that part is up to you. See the [documentation](http://infiniteiteration.github.io/skrejp.html).
 
 ## Usage
 
