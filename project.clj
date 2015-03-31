@@ -9,7 +9,7 @@
   :core.typed    {:check [clj-scrapers.scraper]}
   :dependencies [[org.clojure/clojure     "1.7.0-alpha5"]
                  [org.clojure/core.async  "0.1.319.0-6b1aca-alpha"]
-                 [com.stuartsierra/component "0.2.2"]
+                 [com.stuartsierra/component "0.2.3"]
 
                  ;; crawling, parsing, scraping
                  [org.clojars.scsibug/feedparser-clj "0.4.0"]
@@ -19,9 +19,9 @@
                  [clj-time          "0.9.0"]
 
                  ;; testing
-                 [expectations      "2.0.13"]
+                 [expectations      "2.1.0"]
                  [http-kit.fake     "0.2.2"]
 
                  ;; storage
-                 [clj-http "1.0.1"]
+                 [clj-http "1.1.0"]
                  [clojurewerkz/elastisch "2.1.0"]])
