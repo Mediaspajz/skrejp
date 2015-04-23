@@ -22,6 +22,7 @@
       (logger/info (:logger this) "Starting CrawlPlanner")
       (async/onto-chan cmd-c (or (:planner-cmds comp-setup) []) false)
       (go-loop [cmd (<! cmd-c)]
+        (logger/info (:logger this) (format "Planner received: %s" cmd) )
         (case cmd
           :plan-feeds (plan-feeds comp-setup))
         (recur (<! cmd-c)))
