@@ -44,7 +44,7 @@
   component/Lifecycle
 
   (start [this]
-    (logger/info (:logger this) "Starting Scraper")
+    (logger/info (:logger this) "Scraper: Starting")
     (let
       [doc-c (chan 512)
        out-c (-> this :storage :doc-c)
@@ -56,7 +56,7 @@
       component-setup))
 
   (stop [this]
-    (logger/info (:logger this) "Stopping Scraper")
+    (logger/info (:logger this) "Scraper: Stopping")
     this)
 
   IScraper

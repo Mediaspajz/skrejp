@@ -1,4 +1,4 @@
-(defproject clj-scrapers "0.1.2-SNAPSHOT"
+(defproject clj-scrapers "0.1.3-SNAPSHOT"
   :description   "Scraper library based on core.async"
   :url           "http://example.com/FIXME"
   :license       {:name "Eclipse Public License"
@@ -7,7 +7,7 @@
                  [lein-marginalia   "0.8.0"]]
   :profiles      {:uberjar {:aot :all}}
   :core.typed    {:check [clj-scrapers.scraper]}
-  :dependencies [[org.clojure/clojure     "1.7.0-beta1"]
+  :dependencies [[org.clojure/clojure     "1.7.0-beta3"]
                  [org.clojure/core.async  "0.1.319.0-6b1aca-alpha"]
                  [com.stuartsierra/component "0.2.3"]
 
@@ -23,5 +23,5 @@
                  [http-kit.fake     "0.2.2"]
 
                  ;; storage
-                 [clj-http "1.1.0"]
+                 [clj-http "1.1.2"]
                  [clojurewerkz/elastisch "2.2.0-beta3"]])

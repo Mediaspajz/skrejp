@@ -19,7 +19,7 @@
   component/Lifecycle
 
   (start [this]
-    (logger/info (:logger this) "Starting Storage")
+    (logger/info (:logger this) "Storage: Starting")
     (let [doc-c    (chan 512)
           es-conn  (es/connect (get-in this [:es :url]))
           setup    (assoc this
@@ -28,14 +28,14 @@
       (go-loop
         [doc (<! doc-c)]
         (if (nil? doc)
-          (logger/info (:logger this) "Storage input channel closed")
+          (logger/info (:logger this) "Storage: Input channel closed")
           (do
             (store setup doc)
             (recur (<! doc-c)))))
       setup))
 
   (stop [this]
-    (logger/info (:logger this) "Stopping Storage")
+    (logger/info (:logger this) "Storage: Stopping")
     this)
 
   IStorage

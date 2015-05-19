@@ -6,11 +6,11 @@
   component/Lifecycle
 
   (start [this]
-    (logger/info (:logger this) "Starting ErrorHandling")
+    (logger/info (:logger this) "ErrorHandling: Starting")
     this)
 
   (stop [this]
-    (logger/info (:logger this) "Stopping ErrorHandling")
+    (logger/info (:logger this) "ErrorHandling: Stopping")
     this))
 
 (defn build-component

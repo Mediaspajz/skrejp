@@ -6,11 +6,11 @@
   component/Lifecycle
 
   (start [this]
-    (logger/info (:logger this) "Starting ScraperVerification")
+    (logger/info (:logger this) "ScraperVerification: Starting")
     this)
 
   (stop [this]
-    (logger/info (:logger this) "Stopping ScraperVerification")
+    (logger/info (:logger this) "ScraperVerification: Stopping")
     this))
 
 (defn build-component

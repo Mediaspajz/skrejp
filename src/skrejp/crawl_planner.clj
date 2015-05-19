@@ -19,17 +19,17 @@
   (start [this]
     (let
       [cmd-c (chan 16) comp-setup (assoc this :cmd-c cmd-c)]
-      (logger/info (:logger this) "Starting CrawlPlanner")
+      (logger/info (:logger this) "CrawlPlanner: Starting")
       (async/onto-chan cmd-c (or (:planner-cmds comp-setup) []) false)
       (go-loop [cmd (<! cmd-c)]
-        (logger/info (:logger this) (format "Planner received: %s" cmd) )
+        (logger/info (:logger this) (format "CrawlPlanner: Received: %s" cmd) )
         (case cmd
           :plan-feeds (plan-feeds comp-setup))
         (recur (<! cmd-c)))
       comp-setup))
 
   (stop [this]
-    (logger/info (:logger this) "Stopping CrawlPlanner")
+    (logger/info (:logger this) "CrawlPlanner: Stopping")
     this)
 
   ICrawlPlanner

@@ -34,12 +34,13 @@
   component/Lifecycle
 
   (start [this]
-    (logger/info (:logger this) "Starting PageContentRetrieval")
+    (logger/info (:logger this) "PageContentRetrieval: Starting")
     (let
       [inp-doc-c  (chan 512)
        out-doc-c  (chan 512)
        comp-setup (assoc this :inp-doc-c inp-doc-c :out-doc-c out-doc-c)]
       (go-loop [doc (<! inp-doc-c) host-chans {}]
+        (logger/info (:logger this) (format "PageContentRetrieval: Received %s" (doc :url)))
         (when-not (nil? doc)
           (let [doc-w-id (assoc doc :id (doc :url))]
             (if (storage/contains-doc? (:storage comp-setup) doc-w-id)
@@ -52,7 +53,7 @@
       comp-setup))
 
   (stop [this]
-    (logger/info (:logger this) "Stopping PageContentRetrieval")
+    (logger/info (:logger this) "PageContentRetrieval: Stopping")
     this)
 
   IRetrieval
