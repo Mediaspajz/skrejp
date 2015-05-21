@@ -40,8 +40,8 @@
        out-doc-c  (chan 512)
        comp-setup (assoc this :inp-doc-c inp-doc-c :out-doc-c out-doc-c)]
       (go-loop [doc (<! inp-doc-c) host-chans {}]
-        (logger/info (:logger this) (format "PageContentRetrieval: Received %s" (doc :url)))
         (when-not (nil? doc)
+          (logger/info (:logger this) (format "PageContentRetrieval: Received %s" (doc :url)))
           (let [doc-w-id (assoc doc :id (doc :url))]
             (if (storage/contains-doc? (:storage comp-setup) doc-w-id)
               (recur (<! inp-doc-c) host-chans)
