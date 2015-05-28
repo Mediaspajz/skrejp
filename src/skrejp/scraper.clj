@@ -13,6 +13,14 @@
                    html/html-resource (html/select sel))]
     (-> selection first html/text str/trim)))
 
+(defn extract-attr [doc sel attr]
+  (-> (java.io.StringReader. (:http-payload doc))
+      html/html-resource
+      (html/select sel)
+      first
+      (get-in [:attrs attr])))
+
+
 (defn compute-sel [doc sel]
   (cond
     (vector? sel) (extract-tag doc sel)

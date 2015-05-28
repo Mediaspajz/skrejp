@@ -19,3 +19,8 @@
   (expect "Foo Title"   (article :title))
   (expect "Bar Content" (article :content))
   (expect "/index.html" (article :path)))
+
+(def web-page-source
+  "<body><div id='section'><time datetime='2015-05-27T15:11:40+00:00'>2015-05-27</time></div></body>")
+
+(expect "2015-05-27T15:11:40+00:00" (scraper/extract-attr {:http-payload web-page-source} [:div#section :time] :datetime))
