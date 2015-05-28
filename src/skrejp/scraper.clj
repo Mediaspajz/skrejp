@@ -24,19 +24,22 @@
   [doc sel attr]
   (get-in (extract-sel doc sel) [:attrs attr]))
 
-(defn compute-sel [doc sel]
-  (cond
-    (vector? sel) (extract-tag doc sel)
-    (fn?     sel) (sel doc)
-    :else (class sel)))
+(defprotocol IScraper
+  (scrape-attr [this doc] "Scrape the document, the scrape rules are in the vector."))
+
+(extend-protocol IScraper
+  clojure.lang.PersistentVector
+  (scrape-attr [vec doc] (extract-tag doc vec))
+  clojure.lang.Fn
+  (scrape-attr [func doc] (func doc)))
 
 (defn present? [val]
   (not (cond
          (string? val) (empty? val)
          :else         (nil?   val))))
 
-(defprotocol IScraper
-  "## IScraper
+(defprotocol IScraperComp
+  "## IScraperComp
   Defines methods for scraping structure content from web pages.
   *scrape* is a transducer taking a http responses and returning map with extacted values.
   *get-scraper-def* returns a scraper definition for a url."
@@ -70,7 +73,7 @@
     (logger/info (:logger this) "Scraper: Stopping")
     this)
 
-  IScraper
+  IScraperComp
 
   (get-scraper-def [this url]
     (let
@@ -90,7 +93,7 @@
            [scraper-def (get-scraper-def this (doc :url))
             scraped-doc (reduce
                           (fn [doc-accu [attr sel]]
-                            (let [val (compute-sel doc-accu sel)]
+                            (let [val (scrape-attr sel doc-accu)]
                               (if (present? val) (assoc doc-accu attr val) doc-accu)))
                           doc scraper-def)]
            (xf result (merge doc scraped-doc))))))))

@@ -1,4 +1,4 @@
-(defproject clj-scrapers "0.1.6-SNAPSHOT"
+(defproject clj-scrapers "0.1.7-SNAPSHOT"
   :description   "Scraper library based on core.async"
   :url           "http://example.com/FIXME"
   :license       {:name "Eclipse Public License"
