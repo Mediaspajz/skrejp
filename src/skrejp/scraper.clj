@@ -6,20 +6,23 @@
   (:require [clojure.core.async :as async :refer [go go-loop chan <! >!]])
   (:require [net.cgrand.enlive-html :as html]))
 
-(defn extract-tag [doc sel]
-  (let
-    [body (:http-payload doc)
-     selection (-> (java.io.StringReader. body)
-                   html/html-resource (html/select sel))]
-    (-> selection first html/text str/trim)))
-
-(defn extract-attr [doc sel attr]
+(defn extract-sel
+  "Extract the selection, return tag first found tag."
+  [doc sel]
   (-> (java.io.StringReader. (:http-payload doc))
       html/html-resource
       (html/select sel)
-      first
-      (get-in [:attrs attr])))
+      first))
 
+(defn extract-tag
+  "Extract the text content of the first tag specified by the selector."
+  [doc sel]
+  (-> (extract-sel doc sel) html/text str/trim))
+
+(defn extract-attr
+  "Extract the content of the tag's attribute specified by the selector."
+  [doc sel attr]
+  (get-in (extract-sel doc sel) [:attrs attr]))
 
 (defn compute-sel [doc sel]
   (cond
