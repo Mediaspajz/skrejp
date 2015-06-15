@@ -5,7 +5,8 @@
                   :url "http://www.eclipse.org/legal/epl-v10.html"}
   :plugins      [[lein-expectations "0.0.7"]
                  [lein-marginalia   "0.8.0"]]
-  :profiles      {:uberjar {:aot :all}}
+  :profiles      {:uberjar {:aot :all}
+                  :test {:dependencies [[environ "1.0.0"]]}}
   :core.typed    {:check [clj-scrapers.scraper]}
   :dependencies [[org.clojure/clojure     "1.7.0-RC1"]
                  [org.clojure/core.async  "0.1.319.0-6b1aca-alpha"]

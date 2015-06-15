@@ -3,15 +3,16 @@
   (:require [skrejp.logger :as logger])
   (:require [expectations :refer :all])
   (:require [clojurewerkz.elastisch.rest.index :as esi])
-  (:require [com.stuartsierra.component :as component]))
+  (:require [com.stuartsierra.component :as component])
+  (:require [environ.core :refer [env]]))
   ; (:require [skrejp.logger :as logger])
 
 (let
   [cmpnt (component/start (assoc
                             (storage/build-component
-                              {:storage {:es {:url         "http://localhost:9200"
-                                              :index-name  "mediaspajz_test"
-                                              :entity-name "article"}}})
+                              {:storage {:es {:url         (env :es-host)
+                                              :index-name  (env :es-indexname)
+                                              :entity-name (env :es-entityname)}}})
                             :logger (reify logger/ILogger (info [_ _]) (debug [_ _]))))
    doc-id  "http://example.com/foobar.html"
    _doc    (storage/store cmpnt {:id doc-id :title "Foo" :body "Bar" :http-payload "page body"})
