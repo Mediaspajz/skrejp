@@ -1,4 +1,4 @@
-(defproject clj-scrapers "0.1.9-SNAPSHOT"
+(defproject clj-scrapers "0.1.10-SNAPSHOT"
   :description   "Scraper library based on core.async"
   :url           "https://github.com/infiniteiteration/skrejp"
   :license       {:name "Eclipse Public License"
@@ -17,7 +17,7 @@
                  [http-kit          "2.1.19"]
                  [clojurewerkz/urly "1.0.0"]
                  [enlive            "1.1.5"]
-                 [clj-time          "0.9.0"]
+                 [clj-time          "0.10.0"]
 
                  ;; testing
                  [expectations      "2.1.2"]
