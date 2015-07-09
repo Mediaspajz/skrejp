@@ -60,7 +60,7 @@
 
   (fetch-page [this]
     (fn [doc c]
-      (http/get (doc :url) (:http-opts this)
+      (http/get (doc :url) (:http-req-opts this)
                 (fn [{:keys [error] :as resp}]
                   (when-not error
                     (async/put! c (assoc doc :http-payload (resp :body))))
@@ -71,7 +71,7 @@
       (fn ([] (xf)) ([result] (xf result))
         ([result url]
          (let
-           [resp @(http/get url (:http-opts this))]
+           [resp @(http/get url (:http-req-opts this))]
            (xf result (-> resp :body parse-feed-str))))))))
 
 (defn build-component
