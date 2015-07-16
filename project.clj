@@ -16,7 +16,7 @@
                  [org.clojars.scsibug/feedparser-clj "0.4.0"]
                  [http-kit          "2.1.19"]
                  [clojurewerkz/urly "1.0.0"]
-                 [enlive            "1.1.5"]
+                 [enlive            "1.1.6"]
                  [clj-time          "0.10.0"]
 
                  ;; testing
