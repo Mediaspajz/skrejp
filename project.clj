@@ -1,4 +1,4 @@
-(defproject clj-scrapers "0.1.14-SNAPSHOT"
+(defproject clj-scrapers "0.1.15-SNAPSHOT"
   :description   "Scraper library based on core.async"
   :url           "https://github.com/infiniteiteration/skrejp"
   :license       {:name "Eclipse Public License"
@@ -7,7 +7,7 @@
                  [lein-marginalia   "0.8.0"]]
   :profiles      {:uberjar {:aot :all}
                   :test {:dependencies [[environ "1.0.0"]]}}
-  :core.typed    {:check [skrejp.retrieval]}
+  :core.typed    {:check [skrejp.retrieval skrejp.logger]}
   :dependencies [[org.clojure/clojure    "1.7.0"]
                  [org.clojure/core.typed "0.3.9"]
                  [org.clojure/core.async "0.1.319.0-6b1aca-alpha"]

@@ -20,15 +20,15 @@
     [input-stream (ByteArrayInputStream. (.getBytes feed-s "UTF-8"))]
     (feeds/parse-feed input-stream)))
 
-;TODO: type annotations very released here
+;TODO: type annotations very weak here
 (t/defprotocol IRetrieval
   "## IRetrieval
   Defines methods for fetching pages.
   *fetch-page* is a transducer for fetching a page from a url.
   It expects the URL of the resource and it is pushing the fetch page to the channel it is applied on.
   If the error-fn is passed, it calls the error-fn function in case of an error."
-  (fetch-page [this] :- (t/IFn [t/Any t/Any -> t/Any]))
-  (fetch-feed [this] :- (t/IFn [t/Any -> t/Any])))
+  (fetch-page [this :- IRetrieval] :- (t/IFn [t/Any t/Any -> t/Any]))
+  (fetch-feed [this :- IRetrieval] :- (t/IFn [t/Any -> t/Any])))
 
 (t/tc-ignore
   (defn get-host-c [setup host-chans host]
@@ -53,26 +53,25 @@
 
   (start
     [this]
-    (do
-      (t/tc-ignore
-        (logger/info (:logger this) "PageContentRetrieval: Starting")
-        (go-loop [doc (<! inp-doc-c) host-chans {}]
-          (when-not (nil? doc)
-            (logger/info (:logger this) (format "PageContentRetrieval: Received %s" (doc :url)))
-            (let [doc-w-id (assoc doc :id (doc :url))]
-              (if (storage/contains-doc? (:storage this) doc-w-id)
-                (recur (<! inp-doc-c) host-chans)
-                (let
-                  [host (urly/host-of (urly/url-like (doc :url)))
-                   host-c (get-host-c this host-chans host)]
-                  (>! host-c doc-w-id)
-                  (recur (<! inp-doc-c) (assoc host-chans host host-c))))))))
-      this))
+    (t/tc-ignore
+      (logger/info (:logger this) "PageContentRetrieval: Starting")
+      (go-loop [doc (<! inp-doc-c) host-chans {}]
+        (when-not (nil? doc)
+          (logger/info (:logger this) (format "PageContentRetrieval: Received %s" (doc :url)))
+          (let [doc-w-id (assoc doc :id (doc :url))]
+            (if (storage/contains-doc? (:storage this) doc-w-id)
+              (recur (<! inp-doc-c) host-chans)
+              (let
+                [host (urly/host-of (urly/url-like (doc :url)))
+                 host-c (get-host-c this host-chans host)]
+                (>! host-c doc-w-id)
+                (recur (<! inp-doc-c) (assoc host-chans host host-c))))))))
+    this)
 
-    (stop [this]
-      (t/tc-ignore
-        (logger/info (:logger this) "PageContentRetrieval: Stopping"))
-      this)
+  (stop [this]
+    (t/tc-ignore
+      (logger/info (:logger this) "PageContentRetrieval: Stopping"))
+    this)
 
   IRetrieval
 

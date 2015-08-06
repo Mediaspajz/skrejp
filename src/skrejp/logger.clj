@@ -1,23 +1,28 @@
 (ns skrejp.logger
-  (:require [com.stuartsierra.component :as component]))
+  (:require [com.stuartsierra.component :as component])
+  (:require [clojure.core.typed :as t]))
 
-(defprotocol ILogger
+(t/defprotocol ILogger
   "## ILogger
   Defines methods for logging the events of the scraping system. Every other component is supposed to use it.
   But this component is not dependent on other part of the system. It acts as a bridge between logger libraries and
   the system."
 
-  (info [this msg])
-  (debug [this msg]))
+  (info [this :- ILogger msg :- t/Any] :- nil)
+  (debug [this :- ILogger msg :- t/Any] :- nil))
+
+(t/ann-record LoggerComponent [])
 
 (defrecord LoggerComponent []
   ILogger
 
-  (info [this msg]
-    (println ";;" msg))
+  (info [_this msg]
+    (println ";;" msg)
+    nil)
 
-  (debug [this msg]
-    (println "..." msg))
+  (debug [_this msg]
+    (println "..." msg)
+    nil)
 
   component/Lifecycle
 
@@ -29,7 +34,7 @@
     (info this "Stopping Logger")
     this))
 
-(defn build-component
+(t/defn build-component
   "Build a Logger component."
-  [config-options]
-  (map->LoggerComponent (select-keys config-options [])))
+  [_config-options :- (t/HMap :complete? false)] :- LoggerComponent
+  (map->LoggerComponent {}))
