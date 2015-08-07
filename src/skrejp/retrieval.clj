@@ -1,6 +1,6 @@
 (ns skrejp.retrieval
-  (:require [clojure.core.typed :as t]
-            [clojure.core.typed.async :as ta])
+  (:require [skrejp.core :as core])
+  (:require [clojure.core.typed :as t])
   (:require [clojure.core.async :as async :refer [<! >! <!! chan go-loop]])
   (:require [skrejp.logger :as logger]
             [skrejp.storage :as storage])
@@ -38,15 +38,9 @@
         (async/pipeline-async 5 (:out-doc-c setup) (fetch-page setup) new-host-c)
         new-host-c))))
 
-(t/defalias TDoc t/Map)
-
-(t/defalias TDocChan (ta/Chan TDoc))
-
-(t/defalias THttpReqOpts (t/HMap :complete? false))
-
-(t/ann-record RetrievalComponent [http-req-opts :- THttpReqOpts
-                                  inp-doc-c :- TDocChan
-                                  out-doc-c :- TDocChan])
+(t/ann-record RetrievalComponent [http-req-opts :- core/THttpReqOpts
+                                  inp-doc-c :- core/TDocChan
+                                  out-doc-c :- core/TDocChan])
 
 (defrecord RetrievalComponent [http-req-opts inp-doc-c out-doc-c]
   component/Lifecycle
@@ -96,12 +90,12 @@
 
 (t/defn doc-chan
   "Build document channel."
-  [] :- TDocChan
+  [] :- core/TDocChan
   (chan 512))
 
 (t/defn build-component
   "Build a PageRetrieval component."
-  [config-options :- (t/HMap :mandatory {:http-req-opts THttpReqOpts})] :- RetrievalComponent
+  [config-options :- (t/HMap :mandatory {:http-req-opts core/THttpReqOpts})] :- RetrievalComponent
   (map->RetrievalComponent {:http-req-opts (:http-req-opts config-options)
                             :inp-doc-c (doc-chan)
                             :out-doc-c (doc-chan)}))
