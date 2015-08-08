@@ -88,14 +88,9 @@
              (xf result (-> resp :body parse-feed-str))))))))
   )
 
-(t/defn doc-chan
-  "Build document channel."
-  [] :- core/TDocChan
-  (chan 512))
-
 (t/defn build-component
   "Build a PageRetrieval component."
   [config-options :- (t/HMap :mandatory {:http-req-opts core/THttpReqOpts})] :- RetrievalComponent
   (map->RetrievalComponent {:http-req-opts (:http-req-opts config-options)
-                            :inp-doc-c (doc-chan)
-                            :out-doc-c (doc-chan)}))
+                            :inp-doc-c (core/doc-chan)
+                            :out-doc-c (core/doc-chan)}))

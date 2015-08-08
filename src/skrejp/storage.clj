@@ -8,6 +8,8 @@
             [clojurewerkz.elastisch.rest.document :as esd])
   (:require [clojurewerkz.support.json]))
 
+(t/defalias TStorageConf (t/HMap :complete? false))
+
 (t/defprotocol IStorage
   "## IStorage
   Defines methods for storing documents scraped by the system. Storage component is independent from other parts of
@@ -16,55 +18,64 @@
   (get-doc [this :- IStorage doc-id :- t/Str])
   (contains-doc? [this :- IStorage doc-id :- t/Str]))
 
-(t/tc-ignore
-  (defrecord Storage [logger doc-c]
-    component/Lifecycle
+(t/ann-record
+  Storage [logger :- logger/ILogger
+           doc-c :- core/TDocChan
+           es-conn :- t/Any
+           conf :- TStorageConf])
 
-    (start [this]
+(defrecord Storage [logger doc-c es-conn conf]
+  component/Lifecycle
+
+  (start [this]
+    (t/tc-ignore
       (logger/info (:logger this) "Storage: Starting")
-      (let [doc-c (chan 512)
-            es-conn (es/connect (get-in this [:es :url]))
-            setup (assoc this
-                    :doc-c doc-c
-                    :es-conn es-conn)]
-        (go-loop
-          [doc (<! doc-c)]
-          (if (nil? doc)
-            (logger/info (:logger this) "Storage: Input channel closed")
-            (do
-              (store setup doc)
-              (recur (<! doc-c)))))
-        setup))
+      (go-loop
+        [doc (<! (:doc-c this))]
+        (if (nil? doc)
+          (logger/info (:logger this) "Storage: Input channel closed")
+          (do
+            (store this doc)
+            (recur (<! (:doc-c this)))))))
+    this)
 
-    (stop [this]
-      (logger/info (:logger this) "Storage: Stopping")
-      this)
+  (stop [this]
+    (t/tc-ignore
+      (logger/info (:logger this) "Storage: Stopping"))
+    this)
 
-    IStorage
+  IStorage
 
-    (store [this doc]
+  (store [this doc]
+    (t/tc-ignore
       (logger/info (:logger this) (dissoc doc :url :http-payload :content))
       (esd/create (:es-conn this)
-                  (get-in this [:es :index-name])
-                  (get-in this [:es :entity-name])
+                  (get-in this [:conf :es :index-name])
+                  (get-in this [:conf :es :entity-name])
                   (dissoc doc :id :http-payload)
-                  :id (doc :id)))
+                  :id (doc :id))))
 
-    (get-doc [this doc-id]
+  (get-doc [this doc-id]
+    (t/tc-ignore
       (let [response (esd/get (:es-conn this)
-                              (get-in this [:es :index-name])
-                              (get-in this [:es :entity-name])
+                              (get-in this [:conf :es :index-name])
+                              (get-in this [:conf :es :entity-name])
                               doc-id)]
-        (when-not (nil? response) (response :_source))))
+        (when-not (nil? response) (response :_source)))))
 
-    (contains-doc? [this doc]
+  (contains-doc? [this doc]
+    (t/tc-ignore
       (let [doc-id (doc :id)]
         (and
           (not (nil? doc-id))
           (not (nil? (get-doc this (doc :id)))))))))
 
-(t/tc-ignore
-  (defn build-component
-    "Build a new storage."
-    [conf-opts]
-    (map->Storage (conf-opts :storage))))
+(t/ann ^:no-check clojurewerkz.elastisch.rest/connect [t/Any -> t/HMap])
+
+(t/defn build-component
+  "Build a new storage."
+  [conf-opts :- (t/HMap :mandatory {:storage TStorageConf :logger logger/ILogger})] :- Storage
+  (map->Storage {:conf (:storage conf-opts)
+                 :logger (:logger conf-opts)
+                 :doc-c (core/doc-chan)
+                 :es-conn (es/connect (get-in conf-opts [:storage :es :url]))}))
