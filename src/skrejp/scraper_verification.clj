@@ -1,19 +1,28 @@
 (ns skrejp.scraper-verification
+  (:require [clojure.core.typed :as t])
   (:require [skrejp.logger :as logger])
   (:require [com.stuartsierra.component :as component]))
 
-(defrecord ScraperVerificationComponent [storage page-retrieval error-handling]
+(t/defprotocol IScraperVerifier)
+
+(t/ann-record ScraperVerificationComponent [])
+
+(defrecord ScraperVerificationComponent []
   component/Lifecycle
 
   (start [this]
-    (logger/info (:logger this) "ScraperVerification: Starting")
+    (t/tc-ignore
+      (logger/info (:logger this) "ScraperVerification: Starting"))
     this)
 
   (stop [this]
-    (logger/info (:logger this) "ScraperVerification: Stopping")
-    this))
+    (t/tc-ignore
+      (logger/info (:logger this) "ScraperVerification: Stopping"))
+    this)
 
-(defn build-component
+  IScraperVerifier)
+
+(t/defn build-component
   "Build a ScraperVerification component."
-  [conf-opts]
-  (map->ScraperVerificationComponent (select-keys conf-opts [])))
+  [_conf-opts :- (t/HMap :complete? false)] :- IScraperVerifier
+  (map->ScraperVerificationComponent {}))
