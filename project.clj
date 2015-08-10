@@ -8,7 +8,8 @@
   :profiles      {:uberjar {:aot :all}
                   :test {:dependencies [[environ "1.0.0"]]}}
   :core.typed    {:check [skrejp.core skrejp.retrieval skrejp.logger skrejp.storage
-                          skrejp.scraper-verification skrejp.crawl-planner]}
+                          skrejp.scraper-verification skrejp.crawl-planner
+                          skrejp.error-handling]}
   :dependencies [[org.clojure/clojure    "1.7.0"]
                  [org.clojure/core.typed "0.3.9"]
                  [org.clojure/core.async "0.1.319.0-6b1aca-alpha"]
