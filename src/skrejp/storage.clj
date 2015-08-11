@@ -19,12 +19,11 @@
   (contains-doc? [this :- IStorage doc-id :- t/Str]))
 
 (t/ann-record
-  Storage [logger :- logger/ILogger
-           doc-c :- core/TDocChan
+  Storage [doc-c :- core/TDocChan
            es-conn :- t/Any
            conf :- TStorageConf])
 
-(defrecord Storage [logger doc-c es-conn conf]
+(defrecord Storage [doc-c es-conn conf]
   component/Lifecycle
 
   (start [this]
