@@ -73,8 +73,7 @@
 
 (t/defn build-component
   "Build a new storage."
-  [conf-opts :- (t/HMap :mandatory {:storage TStorageConf :logger logger/ILogger})] :- Storage
+  [conf-opts :- (t/HMap :mandatory {:storage TStorageConf})] :- Storage
   (map->Storage {:conf (:storage conf-opts)
-                 :logger (:logger conf-opts)
                  :doc-c (core/doc-chan)
                  :es-conn (es/connect (get-in conf-opts [:storage :es :url]))}))
