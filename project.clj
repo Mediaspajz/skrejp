@@ -20,7 +20,7 @@
                  [http-kit          "2.1.19"]
                  [clojurewerkz/urly "1.0.0"]
                  [enlive            "1.1.6"]
-                 [clj-time          "0.10.0"]
+                 [clj-time          "0.11.0"]
 
                  ;; testing
                  [expectations      "2.1.2"]
