@@ -5,8 +5,7 @@
                   :url "http://www.eclipse.org/legal/epl-v10.html"}
   :plugins      [[lein-expectations "0.0.7"]
                  [lein-marginalia   "0.8.0"]]
-  :profiles      {:uberjar {:aot :all}
-                  :test {:dependencies [[environ "1.0.0"]]}}
+  :profiles      {:uberjar {:aot :all}}
   :core.typed    {:check [skrejp.core skrejp.retrieval skrejp.logger skrejp.storage
                           skrejp.scraper-verification skrejp.crawl-planner
                           skrejp.error-handling skrejp.scraper skrejp.system]}
@@ -23,6 +22,7 @@
                  [clj-time          "0.11.0"]
 
                  ;; testing
+                 [environ           "1.0.0"]
                  [expectations      "2.1.3"]
                  [http-kit.fake     "0.2.2"]
 
