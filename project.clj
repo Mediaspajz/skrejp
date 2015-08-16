@@ -3,9 +3,12 @@
   :url           "https://github.com/infiniteiteration/skrejp"
   :license       {:name "Eclipse Public License"
                   :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :plugins      [[lein-expectations "0.0.7"]
+  :plugins      [[lein-expectations "0.0.8"]
                  [lein-marginalia   "0.8.0"]]
-  :profiles      {:uberjar {:aot :all}}
+  :profiles      {:uberjar {:aot :all}
+                  :dev {:dependencies [[environ       "1.0.0"]
+                                       [expectations  "2.1.3"]
+                                       [http-kit.fake "0.2.2"]]}}
   :core.typed    {:check [skrejp.core skrejp.retrieval skrejp.logger skrejp.storage
                           skrejp.scraper-verification skrejp.crawl-planner
                           skrejp.error-handling skrejp.scraper skrejp.system]}
@@ -20,11 +23,6 @@
                  [clojurewerkz/urly "1.0.0"]
                  [enlive            "1.1.6"]
                  [clj-time          "0.11.0"]
-
-                 ;; testing
-                 [environ           "1.0.0"]
-                 [expectations      "2.1.3"]
-                 [http-kit.fake     "0.2.2"]
 
                  ;; storage
                  [clojurewerkz/elastisch "2.2.0-beta3"]])
