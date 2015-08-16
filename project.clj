@@ -23,7 +23,7 @@
                  [clj-time          "0.11.0"]
 
                  ;; testing
-                 [expectations      "2.1.2"]
+                 [expectations      "2.1.3"]
                  [http-kit.fake     "0.2.2"]
 
                  ;; storage
