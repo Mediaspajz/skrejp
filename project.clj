@@ -4,6 +4,7 @@
   :license       {:name "Eclipse Public License"
                   :url "http://www.eclipse.org/legal/epl-v10.html"}
   :plugins      [[lein-expectations "0.0.8"]
+                 [lein-typed        "0.3.5"]
                  [lein-marginalia   "0.8.0"]]
   :profiles      {:uberjar {:aot :all}
                   :dev {:dependencies [[environ       "1.0.0"]
