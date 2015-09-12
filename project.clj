@@ -7,7 +7,7 @@
                  [lein-typed        "0.3.5"]
                  [lein-marginalia   "0.8.0"]]
   :profiles      {:uberjar {:aot :all}
-                  :dev {:dependencies [[environ       "1.0.0"]
+                  :dev {:dependencies [[environ       "1.0.1"]
                                        [expectations  "2.1.3"]
                                        [http-kit.fake "0.2.2"]]}}
   :core.typed    {:check [skrejp.core skrejp.retrieval skrejp.logger skrejp.storage
