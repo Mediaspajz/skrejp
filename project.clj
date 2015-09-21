@@ -16,7 +16,7 @@
   :dependencies [[org.clojure/clojure    "1.7.0"]
                  [org.clojure/core.typed "0.3.11"]
                  [org.clojure/core.async "0.1.319.0-6b1aca-alpha"]
-                 [com.stuartsierra/component "0.2.3"]
+                 [com.stuartsierra/component "0.3.0"]
                  [org.clojure/tools.reader "0.10.0-alpha1"]
 
                  ;; crawling, parsing, scraping
