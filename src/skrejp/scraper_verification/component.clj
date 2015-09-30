@@ -1,9 +1,8 @@
-(ns skrejp.scraper-verification
+(ns skrejp.scraper-verification.component
+  (:use [skrejp.scraper-verification.ann])
   (:require [clojure.core.typed :as t])
-  (:require [skrejp.logger :as logger])
+  (:require [skrejp.logger.ann :as logger])
   (:require [com.stuartsierra.component :as component]))
-
-(t/defprotocol IScraperVerifier)
 
 (t/ann-record ScraperVerificationComponent [])
 

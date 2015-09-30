@@ -1,6 +1,7 @@
-(ns skrejp.error-handling
+(ns skrejp.error-handling.component
+  (:use [skrejp.error-handling.ann])
   (:require [clojure.core.typed :as t])
-  (:require [skrejp.logger :as logger])
+  (:require [skrejp.logger.ann :as logger])
   (:require [com.stuartsierra.component :as component]))
 
 (t/ann-record ErrorHandlingComponent [])

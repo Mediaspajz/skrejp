@@ -1,24 +1,14 @@
 (ns skrejp.system
+  (:use [skrejp.ann])
   (:require [clojure.core.typed :as t])
-  (:require [com.stuartsierra.component  :as component])
-  (:require [skrejp.core                 :as core])
-  (:require [skrejp.retrieval            :as retrieval])
-  (:require [skrejp.scraper              :as scraper])
-  (:require [skrejp.storage              :as storage])
-  (:require [skrejp.error-handling       :as error-handling])
-  (:require [skrejp.logger               :as logger])
-  (:require [skrejp.crawl-planner.component :as crawl-planner])
-  (:require [skrejp.crawl-planner.ann :as crawl-planner-ann])
-  (:require [skrejp.scraper-verification :as scraper-verification]))
-
-(t/defalias TSystemConf
-  (t/HMap :mandatory {:http-req-opts core/THttpReqOpts
-                      :scraper-defs scraper/TScraperDefs
-                      :feeds crawl-planner-ann/TFeedUrlVec
-                      :planner-cmds crawl-planner-ann/TPlannerCmdVec
-                      :storage storage/TStorageConf}))
-
-(t/defalias TSystemMap t/Any)
+  (:require [com.stuartsierra.component :as component])
+  (:require [skrejp.error-handling.component :as error-handling])
+  (:require [skrejp.scraper-verification.component :as scraper-verification]
+            [skrejp.logger.component :as logger]
+            [skrejp.storage.component :as storage]
+            [skrejp.scraper.component :as scraper]
+            [skrejp.retrieval.component :as retrieval]
+            [skrejp.crawl-planner.component :as crawl-planner]))
 
 (t/ann ^:no-check com.stuartsierra.component/system-map [t/Any * -> TSystemMap])
 (t/ann ^:no-check com.stuartsierra.component/using [t/Any t/Any -> t/Any])

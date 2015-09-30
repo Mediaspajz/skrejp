@@ -1,7 +1,8 @@
-(ns skrejp.scraper
+(ns skrejp.scraper.component
+  (:use [skrejp.scraper.ann])
   (:require [clojure.core.typed :as t])
   (:require [skrejp.core :as core])
-  (:require [skrejp.logger :as logger])
+  (:require [skrejp.logger.ann :as logger])
   (:require [com.stuartsierra.component :as component])
   (:require [clojure.string :as str])
   (:require [clojurewerkz.urly.core :as urly])
@@ -29,10 +30,6 @@
     [doc sel attr]
     (get-in (extract-sel doc sel) [:attrs attr])))
 
-(t/defprotocol IScraper
-  (scrape-attr [this :- IScraper doc :- core/TDoc]
-               "Scrape the document, the scrape rules are in the vector."))
-
 (t/tc-ignore
   (extend-protocol IScraper
     clojure.lang.PersistentVector
@@ -45,17 +42,6 @@
     (not (cond
            (string? val) (empty? val)
            :else (nil? val)))))
-
-(t/defprotocol IScraperComp
-  "## IScraperComp
-  Defines methods for scraping structure content from web pages.
-  *scrape* is a transducer taking a http responses and returning map with extacted values.
-  *get-scraper-def* returns a scraper definition for a url."
-
-  (scrape [this :- IScraperComp] :- t/Any)
-  (get-scraper-def [this :- IScraperComp url :- t/Str] :- t/Any))
-
-(t/defalias TScraperDefs t/Any)
 
 ;; ScraperComponent implements a component LifeCycle.
 ;; It depends on the page-retrieval, storage and error-handling components.

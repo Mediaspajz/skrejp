@@ -1,6 +1,7 @@
 (ns skrejp.storage-test
-  (:require [skrejp.storage :as storage])
-  (:require [skrejp.logger :as logger])
+  (:require [skrejp.storage.component :as storage]
+            [skrejp.storage.ann :as storage-ann])
+  (:require [skrejp.logger.ann :as logger])
   (:require [expectations :refer :all])
   (:require [clojurewerkz.elastisch.rest.index :as esi])
   (:require [com.stuartsierra.component :as component])
@@ -14,9 +15,9 @@
                                               :entity-name (env :es-entityname)}}})
                             :logger (reify logger/ILogger (info [_ _]) (debug [_ _]))))
    doc-id  "http://example.com/foobar.html"
-   _doc    (storage/store cmpnt {:id doc-id :title "Foo" :body "Bar" :http-payload "page body"})
+   _doc    (storage-ann/store cmpnt {:id doc-id :title "Foo" :body "Bar" :http-payload "page body"})
    ret-doc (do (esi/flush (:es-conn cmpnt))
-               (storage/get-doc cmpnt doc-id))]
+               (storage-ann/get-doc cmpnt doc-id))]
   (expect "Foo" (ret-doc :title))
   (expect "Bar" (ret-doc :body))
   (expect false (contains? ret-doc :id))

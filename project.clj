@@ -10,9 +10,9 @@
                   :dev {:dependencies [[environ       "1.0.1"]
                                        [expectations  "2.1.3"]
                                        [http-kit.fake "0.2.2"]]}}
-  :core.typed    {:check [skrejp.core skrejp.retrieval skrejp.logger skrejp.storage
-                          skrejp.scraper-verification skrejp.crawl-planner.component
-                          skrejp.error-handling skrejp.scraper skrejp.system]}
+  :core.typed    {:check [skrejp.core skrejp.retrieval.component skrejp.logger.component skrejp.storage.component
+                          skrejp.scraper-verification.component skrejp.crawl-planner.component
+                          skrejp.error-handling.component skrejp.scraper.component skrejp.system]}
   :dependencies [[org.clojure/clojure    "1.7.0"]
                  [org.clojure/core.typed "0.3.11"]
                  [org.clojure/core.async "0.1.319.0-6b1aca-alpha"]
@@ -27,4 +27,4 @@
                  [clj-time          "0.11.0"]
 
                  ;; storage
-                 [clojurewerkz/elastisch "2.2.0-beta3"]])
+                 [clojurewerkz/elastisch "2.2.0-beta4"]])

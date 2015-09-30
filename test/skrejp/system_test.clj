@@ -1,11 +1,11 @@
 (ns skrejp.system-test
-  (:require [skrejp.logger :as logger])
+  (:require [skrejp.logger.ann :as logger])
   (:require [clojure.core.async :refer [go chan <! <!! >! alts!!]])
   (:require [com.stuartsierra.component :as component])
   (:require [expectations :refer :all])
   (:require [clojurewerkz.urly.core :as urly])
   (:require [org.httpkit.fake :refer :all]
-            [skrejp.storage :as storage]
+            [skrejp.storage.ann :as storage]
             [skrejp.system :as system]))
 
 ;; # :scraper-defs

@@ -1,7 +1,8 @@
 (ns skrejp.retrieval-test
-  (:require [skrejp.retrieval :as retrieval])
-  (:require [expectations :refer :all])
   (:use     org.httpkit.fake)
+  (:require [skrejp.retrieval.ann :as retrieval-ann]
+            [skrejp.retrieval.component :as retrieval])
+  (:require [expectations :refer :all])
   (:require [clojure.core.async :refer [chan go <! >! <!!] :as async]))
 
 (def http-req-opts {:timeout    10 ; ms
@@ -15,7 +16,7 @@
     [ret-cmpnt (retrieval/build-component {:http-req-opts http-req-opts})
      in-c  (async/chan 2)
      out-c (async/chan 2)]
-    (async/pipeline-async 2 out-c (retrieval/fetch-page ret-cmpnt) in-c)
+    (async/pipeline-async 2 out-c (retrieval-ann/fetch-page ret-cmpnt) in-c)
     (go (>! in-c {:url "http://example.com/p1"}) (>! in-c {:url "http://example.com/p2"}))
     (<!! (async/timeout (http-req-opts :timeout)))
     (expect "foo" (:http-payload (<!! out-c)))
@@ -39,7 +40,7 @@
      </rss>" ]
   (let
     [ret-cmpnt (retrieval/build-component {:http-req-opts http-req-opts})
-     c (async/chan 1 (retrieval/fetch-feed ret-cmpnt))]
+     c (async/chan 1 (retrieval-ann/fetch-feed ret-cmpnt))]
     (go (>! c "http://example.com/rss.xml"))
     (let
       [feed (<!! c) entries (:entries feed)]

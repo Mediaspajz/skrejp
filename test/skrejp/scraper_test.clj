@@ -1,5 +1,6 @@
 (ns skrejp.scraper-test
-  (:require [skrejp.scraper :as scraper])
+  (:require [skrejp.scraper.component :as scraper]
+            [skrejp.scraper.ann :as scraper-ann])
   (:require [clojurewerkz.urly.core :as urly])
   (:require [expectations :refer :all]))
 
@@ -14,7 +15,7 @@
                      "www.example.com" "example.com"}})
    page-body "<html><body><h1 id='title'>Foo Title</h1><div id='content'>Bar Content</div></body></html>"
    page-resp { :url "http://www.example.com/index.html" :http-payload page-body }
-   article (first (into [] (scraper/scrape scraper-cmpnt) [page-resp])) ]
+   article (first (into [] (scraper-ann/scrape scraper-cmpnt) [page-resp])) ]
   (expect "http://www.example.com/index.html" (article :url))
   (expect "Foo Title"   (article :title))
   (expect "Bar Content" (article :content))
@@ -27,3 +28,4 @@
 
 (expect "2015-05-27T15:11:40+00:00"
         (scraper/extract-attr {:http-payload page-body} [:div#section :time] :datetime))
+

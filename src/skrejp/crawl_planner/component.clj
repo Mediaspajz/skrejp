@@ -1,7 +1,7 @@
 (ns skrejp.crawl-planner.component
   (:use [skrejp.crawl-planner.ann])
-  (:require [skrejp.logger :as logger])
-  (:require [skrejp.retrieval :as ret])
+  (:require [skrejp.logger.ann :as logger])
+  (:require [skrejp.retrieval.ann :as ret])
   (:require [clojure.core.async :as async :refer [go go-loop chan put! <! >!]])
   (:require [clojure.core.typed :as t])
   (:require [com.stuartsierra.component :as component]))

@@ -1,9 +1,10 @@
-(ns skrejp.retrieval
+(ns skrejp.retrieval.component
+  (:use [skrejp.retrieval.ann])
   (:require [skrejp.core :as core])
   (:require [clojure.core.typed :as t])
   (:require [clojure.core.async :as async :refer [<! >! <!! chan go-loop]])
-  (:require [skrejp.logger :as logger]
-            [skrejp.storage :as storage])
+  (:require [skrejp.logger.ann :as logger]
+            [skrejp.storage.ann :as storage])
   (:require [com.stuartsierra.component :as component])
   (:require [org.httpkit.client :as http])
   (:require [clojure.core.async :as async]
@@ -19,16 +20,6 @@
   (let
     [input-stream (ByteArrayInputStream. (.getBytes feed-s "UTF-8"))]
     (feeds/parse-feed input-stream)))
-
-;TODO: type annotations very weak here
-(t/defprotocol IRetrieval
-  "## IRetrieval
-  Defines methods for fetching pages.
-  *fetch-page* is a transducer for fetching a page from a url.
-  It expects the URL of the resource and it is pushing the fetch page to the channel it is applied on.
-  If the error-fn is passed, it calls the error-fn function in case of an error."
-  (fetch-page [this :- IRetrieval] :- (t/IFn [t/Any t/Any -> t/Any]))
-  (fetch-feed [this :- IRetrieval] :- (t/IFn [t/Any -> t/Any])))
 
 (t/tc-ignore
   (defn get-host-c [setup host-chans host]

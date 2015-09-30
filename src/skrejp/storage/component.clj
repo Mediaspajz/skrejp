@@ -1,5 +1,6 @@
-(ns skrejp.storage
-  (:require [skrejp.logger :as logger]
+(ns skrejp.storage.component
+  (:use [skrejp.storage.ann])
+  (:require [skrejp.logger.ann :as logger]
             [skrejp.core :as core])
   (:require [clojure.core.async :refer [go go-loop chan <! >!]])
   (:require [clojure.core.typed :as t])
@@ -7,16 +8,6 @@
   (:require [clojurewerkz.elastisch.rest :as es]
             [clojurewerkz.elastisch.rest.document :as esd])
   (:require [clojurewerkz.support.json]))
-
-(t/defalias TStorageConf (t/HMap :complete? false))
-
-(t/defprotocol IStorage
-  "## IStorage
-  Defines methods for storing documents scraped by the system. Storage component is independent from other parts of
-  the system. The _scraper component_ uses it for storing the scraped documents."
-  (store   [this :- IStorage doc :- core/TDoc])
-  (get-doc [this :- IStorage doc-id :- t/Str])
-  (contains-doc? [this :- IStorage doc-id :- t/Str]))
 
 (t/ann-record
   Storage [doc-c :- core/TDocChan
