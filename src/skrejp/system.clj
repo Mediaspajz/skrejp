@@ -7,14 +7,15 @@
   (:require [skrejp.storage              :as storage])
   (:require [skrejp.error-handling       :as error-handling])
   (:require [skrejp.logger               :as logger])
-  (:require [skrejp.crawl-planner        :as crawl-planner])
+  (:require [skrejp.crawl-planner.component :as crawl-planner])
+  (:require [skrejp.crawl-planner.ann :as crawl-planner-ann])
   (:require [skrejp.scraper-verification :as scraper-verification]))
 
 (t/defalias TSystemConf
   (t/HMap :mandatory {:http-req-opts core/THttpReqOpts
                       :scraper-defs scraper/TScraperDefs
-                      :feeds crawl-planner/TFeedUrlVec
-                      :planner-cmds crawl-planner/TPlannerCmdVec
+                      :feeds crawl-planner-ann/TFeedUrlVec
+                      :planner-cmds crawl-planner-ann/TPlannerCmdVec
                       :storage storage/TStorageConf}))
 
 (t/defalias TSystemMap t/Any)

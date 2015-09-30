@@ -1,7 +1,6 @@
 (ns skrejp.retrieval-test
   (:require [skrejp.retrieval :as retrieval])
   (:require [expectations :refer :all])
-  (:require [org.httpkit.client :as http])
   (:use     org.httpkit.fake)
   (:require [clojure.core.async :refer [chan go <! >! <!!] :as async]))
 

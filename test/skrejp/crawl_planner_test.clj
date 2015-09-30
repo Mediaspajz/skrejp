@@ -1,5 +1,5 @@
 (ns skrejp.crawl-planner-test
-  (:require [skrejp.crawl-planner :as crawler])
+  (:require [skrejp.crawl-planner.component :as crawler])
   (:require [expectations :refer :all]))
 
 (let

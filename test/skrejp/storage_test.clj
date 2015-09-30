@@ -5,7 +5,6 @@
   (:require [clojurewerkz.elastisch.rest.index :as esi])
   (:require [com.stuartsierra.component :as component])
   (:require [environ.core :refer [env]]))
-  ; (:require [skrejp.logger :as logger])
 
 (let
   [cmpnt (component/start (assoc

@@ -11,7 +11,7 @@
                                        [expectations  "2.1.3"]
                                        [http-kit.fake "0.2.2"]]}}
   :core.typed    {:check [skrejp.core skrejp.retrieval skrejp.logger skrejp.storage
-                          skrejp.scraper-verification skrejp.crawl-planner
+                          skrejp.scraper-verification skrejp.crawl-planner.component
                           skrejp.error-handling skrejp.scraper skrejp.system]}
   :dependencies [[org.clojure/clojure    "1.7.0"]
                  [org.clojure/core.typed "0.3.11"]

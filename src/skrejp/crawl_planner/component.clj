@@ -1,9 +1,9 @@
-(ns skrejp.crawl-planner
+(ns skrejp.crawl-planner.component
+  (:use [skrejp.crawl-planner.ann])
   (:require [skrejp.logger :as logger])
   (:require [skrejp.retrieval :as ret])
   (:require [clojure.core.async :as async :refer [go go-loop chan put! <! >!]])
-  (:require [clojure.core.typed :as t]
-            [clojure.core.typed.async :as ta])
+  (:require [clojure.core.typed :as t])
   (:require [com.stuartsierra.component :as component]))
 
 (t/tc-ignore
@@ -12,16 +12,6 @@
           (map (fn [entry]
                  (assoc (select-keys entry [:title])
                    :url (or (entry :link) (entry :uri))))))))
-
-(t/defprotocol ICrawlPlanner
-  (plan-feeds [this :- ICrawlPlanner] :- nil))
-
-(t/defalias TFeedUrl t/Str)
-(t/defalias TFeedUrlVec (t/Vec TFeedUrl))
-
-(t/defalias TPlannerCmd (t/U ':plan-feeds))
-(t/defalias TPlannerCmdVec (t/Vec TPlannerCmd))
-(t/defalias TPlannerCmdChan (ta/Chan TPlannerCmd))
 
 (t/ann-record CrawlPlannerComponent
               [feeds :- TFeedUrlVec
@@ -69,3 +59,4 @@
   (map->CrawlPlannerComponent {:feeds (:feeds conf-opts)
                                :planner-cmds (:planner-cmds conf-opts)
                                :cmd-c (cmd-chan)}))
+
