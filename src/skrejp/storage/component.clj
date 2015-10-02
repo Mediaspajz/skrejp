@@ -12,7 +12,8 @@
 (t/ann-record
   Storage [doc-c :- core/TDocChan
            es-conn :- t/Any
-           conf :- TStorageConf])
+           conf :- TStorageConf
+           doc-id-fn :- (t/Fn [core/TDoc -> t/Any])])
 
 (defrecord Storage [doc-c es-conn conf]
   component/Lifecycle
@@ -43,7 +44,7 @@
                   (get-in this [:conf :es :index-name])
                   (get-in this [:conf :es :entity-name])
                   (dissoc doc :id :http-payload)
-                  :id (doc :id))))
+                  :id ((:doc-id-fn this) doc))))
 
   (get-doc [this doc-id]
     (t/tc-ignore
@@ -55,16 +56,17 @@
 
   (contains-doc? [this doc]
     (t/tc-ignore
-      (let [doc-id (doc :id)]
+      (let [doc-id ((:doc-id-fn this) doc)]
         (and
           (not (nil? doc-id))
-          (not (nil? (get-doc this (doc :id)))))))))
+          (not (nil? (get-doc this doc-id))))))))
 
 (t/ann ^:no-check clojurewerkz.elastisch.rest/connect [t/Any -> t/HMap])
 
 (t/defn build-component
   "Build a new storage."
   [conf-opts :- (t/HMap :mandatory {:storage TStorageConf})] :- Storage
-  (map->Storage {:conf (:storage conf-opts)
-                 :doc-c (core/doc-chan)
-                 :es-conn (es/connect (get-in conf-opts [:storage :es :url]))}))
+  (map->Storage {:conf      (:storage conf-opts)
+                 :doc-c     (core/doc-chan)
+                 :es-conn   (es/connect (get-in conf-opts [:storage :es :url]))
+                 :doc-id-fn (:doc-id-fn conf-opts)}))

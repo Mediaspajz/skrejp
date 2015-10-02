@@ -12,7 +12,8 @@
                             (storage/build-component
                               {:storage {:es {:url         (env :es-host)
                                               :index-name  (env :es-indexname)
-                                              :entity-name (env :es-entityname)}}})
+                                              :entity-name (env :es-entityname)}}
+                               :doc-id-fn #(% :url)})
                             :logger (reify logger/ILogger (info [_ _]) (debug [_ _]))))
    doc-id  "http://example.com/foobar.html"
    _doc    (storage-ann/store cmpnt {:id doc-id :title "Foo" :body "Bar" :http-payload "page body"})
