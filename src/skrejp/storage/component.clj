@@ -13,9 +13,9 @@
   Storage [doc-c :- core/TDocChan
            es-conn :- t/Any
            conf :- TStorageConf
-           doc-id-fn :- (t/Fn [core/TDoc -> t/Any])])
+           doc-id-fn :- core/TDocIdFn])
 
-(defrecord Storage [doc-c es-conn conf]
+(defrecord Storage [doc-c es-conn conf doc-id-fn]
   component/Lifecycle
 
   (start [this]
@@ -65,7 +65,7 @@
 
 (t/defn build-component
   "Build a new storage."
-  [conf-opts :- (t/HMap :mandatory {:storage TStorageConf})] :- Storage
+  [conf-opts :- (t/HMap :mandatory {:storage TStorageConf :doc-id-fn core/TDocIdFn})] :- Storage
   (map->Storage {:conf      (:storage conf-opts)
                  :doc-c     (core/doc-chan)
                  :es-conn   (es/connect (get-in conf-opts [:storage :es :url]))

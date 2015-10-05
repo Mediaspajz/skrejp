@@ -10,6 +10,7 @@
                       :scraper-defs  scraper/TScraperDefs
                       :feeds         crawl-planner/TFeedUrlVec
                       :planner-cmds  crawl-planner/TPlannerCmdVec
-                      :storage       storage/TStorageConf}))
+                      :storage       storage/TStorageConf
+                      :doc-id-fn     core/TDocIdFn}))
 
 (t/defalias TSystemMap t/Any)

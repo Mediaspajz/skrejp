@@ -9,6 +9,8 @@
 
 (t/defalias TDocChan (ta/Chan TDoc))
 
+(t/defalias TDocIdFn (t/Fn [TDoc -> t/Any]))
+
 (t/defn doc-chan
   "Build document channel."
   [] :- TDocChan
