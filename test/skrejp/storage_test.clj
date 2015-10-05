@@ -4,17 +4,16 @@
   (:require [skrejp.logger.ann :as logger])
   (:require [expectations :refer :all])
   (:require [clojurewerkz.elastisch.rest.index :as esi])
-  (:require [com.stuartsierra.component :as component])
   (:require [environ.core :refer [env]]))
 
 (let
-  [cmpnt (component/start (assoc
-                            (storage/build-component
-                              {:storage {:es {:url         (env :es-host)
-                                              :index-name  (env :es-indexname)
-                                              :entity-name (env :es-entityname)}}
-                               :doc-id-fn #(% :url)})
-                            :logger (reify logger/ILogger (info [_ _]) (debug [_ _]))))
+  [cmpnt  (assoc
+            (storage/build-component
+              {:storage   {:es {:url         (env :es-host)
+                                :index-name  (env :es-indexname)
+                                :entity-name (env :es-entityname)}}
+               :doc-id-fn #(% :url)})
+            :logger (reify logger/ILogger (info [_ _]) (debug [_ _])))
    doc-id  "http://example.com/foobar.html"
    _doc    (storage-ann/store cmpnt {:id doc-id :title "Foo" :body "Bar" :http-payload "page body"})
    ret-doc (do (esi/flush (:es-conn cmpnt))

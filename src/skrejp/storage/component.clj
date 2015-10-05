@@ -10,24 +10,24 @@
   (:require [clojurewerkz.support.json]))
 
 (t/ann-record
-  Storage [doc-c :- core/TDocChan
+  Storage [store-doc-c :- core/TDocChan
            es-conn :- t/Any
            conf :- TStorageConf
            doc-id-fn :- core/TDocIdFn])
 
-(defrecord Storage [doc-c es-conn conf doc-id-fn]
+(defrecord Storage [store-doc-c es-conn conf doc-id-fn]
   component/Lifecycle
 
   (start [this]
     (t/tc-ignore
       (logger/info (:logger this) "Storage: Starting")
       (go-loop
-        [doc (<! (:doc-c this))]
+        [doc (<! (:store-doc-c this))]
         (if (nil? doc)
           (logger/info (:logger this) "Storage: Input channel closed")
           (do
             (store this doc)
-            (recur (<! (:doc-c this)))))))
+            (recur (<! (:store-doc-c this)))))))
     this)
 
   (stop [this]
@@ -65,8 +65,10 @@
 
 (t/defn build-component
   "Build a new storage."
-  [conf-opts :- (t/HMap :mandatory {:storage TStorageConf :doc-id-fn core/TDocIdFn})] :- Storage
+  [conf-opts :- (t/HMap :mandatory {:storage TStorageConf
+                                    :store-doc-c core/TDocChan
+                                    :doc-id-fn core/TDocIdFn})] :- Storage
   (map->Storage {:conf      (:storage conf-opts)
-                 :doc-c     (core/doc-chan)
+                 :store-doc-c (:store-doc-c conf-opts)
                  :es-conn   (es/connect (get-in conf-opts [:storage :es :url]))
                  :doc-id-fn (:doc-id-fn conf-opts)}))

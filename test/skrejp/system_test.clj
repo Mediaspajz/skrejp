@@ -69,10 +69,10 @@
 
   (let
     [out-c (chan 2)
-     test-storage (map->TestStorage {:doc-c out-c})
+     test-storage (map->TestStorage {:store-doc-c out-c})
 
      test-system (component/start
-                   (system/build-scraper-system config-opts
+                   (system/build-scraper-system (assoc config-opts :store-doc-c out-c)
                                                 {:logger  (reify logger/ILogger (info [_ _]))
                                                  :storage test-storage}))]
 

@@ -61,7 +61,7 @@
     (t/tc-ignore
       (logger/info (:logger this) "Scraper: Starting")
       (let
-        [out-c (-> this :storage :doc-c)
+        [out-c (:out-doc-c this)
          retr-inp-c (-> this :page-retrieval :inp-doc-c)
          retr-out-c (-> this :page-retrieval :out-doc-c)]
         (async/pipe (:inp-doc-c this) retr-inp-c)
@@ -102,6 +102,10 @@
 
 (t/defn build-component
   "Build a Scraper component."
-  [conf-opts :- (t/HMap :mandatory {:scraper-defs TScraperDefs :inp-doc-c core/TDocChan})] :- ScraperComponent
+  [conf-opts :- (t/HMap :mandatory {:scraper-defs TScraperDefs
+                                    :inp-doc-c core/TDocChan
+                                    :out-doc-c core/TDocChan
+                                    })] :- ScraperComponent
   (map->ScraperComponent {:scraper-defs (:scraper-defs conf-opts)
-                          :inp-doc-c (:inp-doc-c conf-opts)}))
+                          :inp-doc-c (:inp-doc-c conf-opts)
+                          :out-doc-c (:out-doc-c conf-opts)}))

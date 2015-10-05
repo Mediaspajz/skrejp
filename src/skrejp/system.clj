@@ -21,12 +21,16 @@
   "Build a scraper system."
   ([conf-opts] (build-scraper-system conf-opts {}))
   ([conf-opts comps]
-   (let [scraper-inp-c (core/doc-chan)]
+   (let [scraper-inp-c (core/doc-chan)
+         store-doc-c (get conf-opts :store-doc-c (core/doc-chan))]
      (component/system-map
        :logger (or (:logger comps) (logger/build-component conf-opts))
-       :storage (or (:storage comps) (component/using
-                                       (storage/build-component conf-opts)
-                                       [:logger]))
+       :storage (or (:storage comps)
+                    (component/using
+                      (storage/build-component
+                        (assoc conf-opts
+                          :store-doc-c store-doc-c))
+                      [:logger]))
        :error-handling (component/using
                          (error-handling/build-component conf-opts)
                          [:logger])
@@ -43,7 +47,8 @@
                         [:logger :page-retrieval :error-handling :scraper])
        :scraper (component/using
                   (scraper/build-component
-                    (assoc conf-opts :inp-doc-c scraper-inp-c))
+                    (assoc conf-opts :inp-doc-c scraper-inp-c
+                                     :out-doc-c store-doc-c))
                   [:logger :page-retrieval :storage :error-handling])
        :scraper-verification
        (component/using

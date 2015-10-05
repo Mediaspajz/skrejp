@@ -11,6 +11,7 @@
                       :feeds         crawl-planner/TFeedUrlVec
                       :planner-cmds  crawl-planner/TPlannerCmdVec
                       :storage       storage/TStorageConf
-                      :doc-id-fn     core/TDocIdFn}))
+                      :doc-id-fn     core/TDocIdFn}
+          :optional {:store-doc-c core/TDocChan}))
 
 (t/defalias TSystemMap t/Any)
