@@ -31,7 +31,10 @@
                          (error-handling/build-component conf-opts)
                          [:logger])
        :page-retrieval (component/using
-                         (retrieval/build-component conf-opts)
+                         (retrieval/build-component
+                           (assoc conf-opts
+                             :inp-doc-c (core/doc-chan)
+                             :out-doc-c (core/doc-chan)))
                          [:logger :storage])
        :crawl-planner (component/using
                         (crawl-planner/build-component
