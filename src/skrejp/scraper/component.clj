@@ -51,10 +51,10 @@
 ;; doc-c of the storage component.
 (t/ann-record ScraperComponent
               [scraper-defs :- TScraperDefs
-               doc-c :- core/TDocChan])
+               inp-doc-c :- core/TDocChan])
 
 (defrecord ScraperComponent
-  [scraper-defs doc-c]
+  [scraper-defs inp-doc-c]
   component/Lifecycle
 
   (start [this]
@@ -64,7 +64,7 @@
         [out-c (-> this :storage :doc-c)
          retr-inp-c (-> this :page-retrieval :inp-doc-c)
          retr-out-c (-> this :page-retrieval :out-doc-c)]
-        (async/pipe (:doc-c this) retr-inp-c)
+        (async/pipe (:inp-doc-c this) retr-inp-c)
         (async/pipeline 20 out-c (scrape this) retr-out-c)))
     this)
 
@@ -102,6 +102,6 @@
 
 (t/defn build-component
   "Build a Scraper component."
-  [conf-opts :- (t/HMap :mandatory {:scraper-defs TScraperDefs})] :- ScraperComponent
+  [conf-opts :- (t/HMap :mandatory {:scraper-defs TScraperDefs :inp-doc-c core/TDocChan})] :- ScraperComponent
   (map->ScraperComponent {:scraper-defs (:scraper-defs conf-opts)
-                          :doc-c        (core/doc-chan)}))
+                          :inp-doc-c (:inp-doc-c conf-opts)}))

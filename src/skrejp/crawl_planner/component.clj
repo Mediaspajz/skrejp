@@ -45,7 +45,7 @@
         [docs (into []
                     (comp (ret/fetch-feed (:page-retrieval this)) mapcat-feed-to-docs)
                     (:feeds this))]
-        (async/onto-chan (-> this :scraper :doc-c) docs)))
+        (async/onto-chan (-> this :scraper :inp-doc-c) docs)))
     nil))
 
 (t/defn cmd-chan

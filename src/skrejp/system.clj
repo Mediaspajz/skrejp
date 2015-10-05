@@ -8,7 +8,8 @@
             [skrejp.storage.component :as storage]
             [skrejp.scraper.component :as scraper]
             [skrejp.retrieval.component :as retrieval]
-            [skrejp.crawl-planner.component :as crawl-planner]))
+            [skrejp.crawl-planner.component :as crawl-planner]
+            [skrejp.core :as core]))
 
 (t/ann ^:no-check com.stuartsierra.component/system-map [t/Any * -> TSystemMap])
 (t/ann ^:no-check com.stuartsierra.component/using [t/Any t/Any -> t/Any])
@@ -35,7 +36,8 @@
                         (crawl-planner/build-component conf-opts)
                         [:logger :page-retrieval :error-handling :scraper])
       :scraper        (component/using
-                        (scraper/build-component conf-opts)
+                        (scraper/build-component
+                          (assoc conf-opts :inp-doc-c (core/doc-chan)))
                         [:logger :page-retrieval :storage :error-handling])
       :scraper-verification
                       (component/using

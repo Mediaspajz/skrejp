@@ -2,17 +2,19 @@
   (:require [skrejp.scraper.component :as scraper]
             [skrejp.scraper.ann :as scraper-ann])
   (:require [clojurewerkz.urly.core :as urly])
-  (:require [expectations :refer :all]))
+  (:require [expectations :refer :all]
+            [skrejp.core :as core]))
 
 (let
   [scraper-cmpnt (scraper/build-component
                    {:scraper-defs
-                    {"example.com" {:title   [:h1#title]
-                                    :content [:div#content]
-                                    :path    (fn [doc]
-                                               (-> doc :url
-                                                   urly/url-like urly/path-of))}
-                     "www.example.com" "example.com"}})
+                               {"example.com"     {:title   [:h1#title]
+                                                   :content [:div#content]
+                                                   :path    (fn [doc]
+                                                              (-> doc :url
+                                                                  urly/url-like urly/path-of))}
+                                "www.example.com" "example.com"}
+                    :inp-doc-c (core/doc-chan)})
    page-body "<html><body><h1 id='title'>Foo Title</h1><div id='content'>Bar Content</div></body></html>"
    page-resp { :url "http://www.example.com/index.html" :http-payload page-body }
    article (first (into [] (scraper-ann/scrape scraper-cmpnt) [page-resp])) ]
