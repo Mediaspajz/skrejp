@@ -4,7 +4,8 @@
   (:require [skrejp.retrieval.ann :as ret])
   (:require [clojure.core.async :as async :refer [go go-loop chan put! <! >!]])
   (:require [clojure.core.typed :as t])
-  (:require [com.stuartsierra.component :as component]))
+  (:require [com.stuartsierra.component :as component]
+            [skrejp.core :as core]))
 
 (t/tc-ignore
   (def mapcat-feed-to-docs
@@ -16,9 +17,10 @@
 (t/ann-record CrawlPlannerComponent
               [feeds :- TFeedUrlVec
                planner-cmds :- TPlannerCmdVec
-               cmd-c :- TPlannerCmdChan])
+               cmd-c :- TPlannerCmdChan
+               out-doc-c :- core/TDocChan])
 
-(defrecord CrawlPlannerComponent [feeds planner-cmds cmd-c]
+(defrecord CrawlPlannerComponent [feeds planner-cmds cmd-c out-doc-c]
   component/Lifecycle
 
   (start [this]
@@ -48,15 +50,15 @@
         (async/onto-chan (-> this :scraper :inp-doc-c) docs)))
     nil))
 
-(t/defn cmd-chan
-  [] :- TPlannerCmdChan
-  (chan 16))
-
 (t/defn build-component
   "Build a CrawlPlanner component."
-  [conf-opts :- (t/HMap :mandatory {:feeds TFeedUrlVec
-                                    :planner-cmds TPlannerCmdVec} :complete? false)] :- CrawlPlannerComponent
+  [conf-opts :- (t/HMap :mandatory
+                        {:feeds TFeedUrlVec
+                         :planner-cmds TPlannerCmdVec
+                         :cmd-c TPlannerCmdChan
+                         :out-doc-c core/TDocChan} :complete? false)] :- CrawlPlannerComponent
   (map->CrawlPlannerComponent {:feeds (:feeds conf-opts)
                                :planner-cmds (:planner-cmds conf-opts)
-                               :cmd-c (cmd-chan)}))
+                               :cmd-c (:cmd-c conf-opts)
+                               :out-doc-c (:out-doc-c conf-opts)}))
 
