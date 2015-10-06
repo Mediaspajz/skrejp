@@ -84,5 +84,5 @@
                                     :inp-doc-c core/TDocChan
                                     :out-doc-c core/TDocChan})] :- RetrievalComponent
   (map->RetrievalComponent {:http-req-opts (:http-req-opts conf-opts)
-                            :inp-doc-c (:inp-doc-c conf-opts)
-                            :out-doc-c (:out-doc-c conf-opts)}))
+                            :inp-doc-c     (:inp-doc-c conf-opts)
+                            :out-doc-c     (:out-doc-c conf-opts)}))

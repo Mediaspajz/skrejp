@@ -12,6 +12,8 @@
                       :planner-cmds  crawl-planner/TPlannerCmdVec
                       :storage       storage/TStorageConf
                       :doc-id-fn     core/TDocIdFn}
-          :optional {:store-doc-c core/TDocChan}))
+          :optional {:retrieval-inp-c core/TDocChan
+                     :storage-check-c core/TDocChan
+                     :store-doc-c core/TDocChan}))
 
 (t/defalias TSystemMap t/Any)

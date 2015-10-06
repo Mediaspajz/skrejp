@@ -22,7 +22,8 @@
   ([conf-opts] (build-scraper-system conf-opts {}))
   ([conf-opts comps]
    (let [scraper-inp-c (core/doc-chan)
-         retrieval-inp-c (core/doc-chan)
+         retrieval-inp-c (get conf-opts :retrieval-inp-c (core/doc-chan))
+         storage-check-c (get conf-opts :storage-check-c (core/doc-chan))
          store-doc-c (get conf-opts :store-doc-c (core/doc-chan))]
      (component/system-map
        :logger (or (:logger comps) (logger/build-component conf-opts))
@@ -33,7 +34,7 @@
        :crawl-planner (component/using
                         (crawl-planner/build-component
                           (assoc conf-opts :cmd-c (core/cmd-chan)
-                                           :out-doc-c retrieval-inp-c))
+                                           :out-doc-c storage-check-c))
                         [:logger :page-retrieval :error-handling :scraper])
        :page-retrieval (component/using
                          (retrieval/build-component
@@ -50,6 +51,8 @@
                     (component/using
                       (storage/build-component
                         (assoc conf-opts
+                          :storage-check-inp-c storage-check-c
+                          :storage-check-out-c retrieval-inp-c
                           :store-doc-c store-doc-c))
                       [:logger]))
        :scraper-verification (component/using

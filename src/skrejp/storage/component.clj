@@ -2,7 +2,7 @@
   (:use [skrejp.storage.ann])
   (:require [skrejp.logger.ann :as logger]
             [skrejp.core :as core])
-  (:require [clojure.core.async :refer [go go-loop chan <! >!]])
+  (:require [clojure.core.async :refer [pipe go go-loop chan <! >!]])
   (:require [clojure.core.typed :as t])
   (:require [com.stuartsierra.component :as component])
   (:require [clojurewerkz.elastisch.rest :as es]
@@ -10,12 +10,14 @@
   (:require [clojurewerkz.support.json]))
 
 (t/ann-record
-  Storage [store-doc-c :- core/TDocChan
+  Storage [check-inp-c :- core/TDocChan
+           check-out-c :- core/TDocChan
+           store-doc-c :- core/TDocChan
            es-conn :- t/Any
            conf :- TStorageConf
            doc-id-fn :- core/TDocIdFn])
 
-(defrecord Storage [store-doc-c es-conn conf doc-id-fn]
+(defrecord Storage [check-inp-c check-out-c store-doc-c es-conn conf doc-id-fn]
   component/Lifecycle
 
   (start [this]
@@ -27,7 +29,13 @@
           (logger/info (:logger this) "Storage: Input channel closed")
           (do
             (store this doc)
-            (recur (<! (:store-doc-c this)))))))
+            (recur (<! (:store-doc-c this))))))
+      (go-loop
+        [doc (<! (:check-inp-c this))]
+        (do
+          (>! doc (:check-out-c this))
+          (recur (<! (:check-inp-c this)))))
+      (pipe (:check-inp-c this) (:check-out-c this)))
     this)
 
   (stop [this]
@@ -66,9 +74,13 @@
 (t/defn build-component
   "Build a new storage."
   [conf-opts :- (t/HMap :mandatory {:storage TStorageConf
+                                    :storage-check-inp-c core/TDocChan
+                                    :storage-check-out-c core/TDocChan
                                     :store-doc-c core/TDocChan
                                     :doc-id-fn core/TDocIdFn})] :- Storage
-  (map->Storage {:conf      (:storage conf-opts)
+  (map->Storage {:conf        (:storage conf-opts)
+                 :check-inp-c (:storage-check-inp-c conf-opts)
+                 :check-out-c (:storage-check-out-c conf-opts)
                  :store-doc-c (:store-doc-c conf-opts)
-                 :es-conn   (es/connect (get-in conf-opts [:storage :es :url]))
-                 :doc-id-fn (:doc-id-fn conf-opts)}))
+                 :es-conn     (es/connect (get-in conf-opts [:storage :es :url]))
+                 :doc-id-fn   (:doc-id-fn conf-opts)}))

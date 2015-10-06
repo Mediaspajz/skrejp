@@ -1,12 +1,13 @@
 (ns skrejp.system-test
   (:require [skrejp.logger.ann :as logger])
-  (:require [clojure.core.async :refer [go chan <! <!! >! alts!!]])
+  (:require [clojure.core.async :refer [go chan <! <!! >! alts!! pipe]])
   (:require [com.stuartsierra.component :as component])
   (:require [expectations :refer :all])
   (:require [clojurewerkz.urly.core :as urly])
   (:require [org.httpkit.fake :refer :all]
             [skrejp.storage.ann :as storage]
-            [skrejp.system :as system]))
+            [skrejp.system :as system]
+            [skrejp.core :as core]))
 
 ;; # :scraper-defs
 ;; The strings keys refer to the host domain name. In the value the scraping rules are defined.
@@ -15,16 +16,18 @@
 ;; - A _string_ value is taken as a reference to other definition. It has to refer to a key with map value.
 ;;
 ;; Define rules used for every site under the `:shared` key.
-(def config-opts {:http-req-opts {:timeout    10 ; ms
-                                  :user-agent "User-Agent-string"
-                                  :headers    {"X-Header" "Value"}}
-                  :scraper-defs  {:shared       {:host    #(-> % :url urly/url-like urly/host-of)}
-                                  "example.com" {:title   [:h3#title]
-                                                 :content [:div.content]
-                                                 :title_length (fn [doc] (count (doc :title)))}
-                                  "usa.example.com" "example.com"}
-                  :feeds ["http://example.com/rss.xml"]
-                  :planner-cmds [:plan-feeds]})
+(def config-opts {:http-req-opts   {:timeout    10          ; ms
+                                    :user-agent "User-Agent-string"
+                                    :headers    {"X-Header" "Value"}}
+                  :scraper-defs    {:shared           {:host #(-> % :url urly/url-like urly/host-of)}
+                                    "example.com"     {:title        [:h3#title]
+                                                       :content      [:div.content]
+                                                       :title_length (fn [doc] (count (doc :title)))}
+                                    "usa.example.com" "example.com"}
+                  :feeds           ["http://example.com/rss.xml"]
+                  :planner-cmds    [:plan-feeds]
+                  :retrieval-inp-c (core/doc-chan)
+                  :storage-check-c (core/doc-chan)})
 
 (with-fake-http
   ["http://example.com/rss.xml"
@@ -62,6 +65,14 @@
     </body>"]
 
   (defrecord TestStorage [doc-c]
+    component/Lifecycle
+
+    (start [this]
+      (pipe (:check-inp-c this) (:check-out-c this))
+      this)
+
+    (stop [_])
+
     storage/IStorage
 
     (contains-doc? [_ doc]
@@ -69,7 +80,9 @@
 
   (let
     [out-c (chan 2)
-     test-storage (map->TestStorage {:store-doc-c out-c})
+     test-storage (map->TestStorage {:store-doc-c out-c
+                                     :check-inp-c (:storage-check-c config-opts)
+                                     :check-out-c (:retrieval-inp-c config-opts)})
 
      test-system (component/start
                    (system/build-scraper-system (assoc config-opts :store-doc-c out-c)
