@@ -76,8 +76,7 @@
           ([result url]
            (let
              [resp @(http/get url (:http-req-opts this))]
-             (xf result (-> resp :body parse-feed-str))))))))
-  )
+             (xf result (-> resp :body parse-feed-str)))))))))
 
 (t/defn build-component
   "Build a PageRetrieval component."

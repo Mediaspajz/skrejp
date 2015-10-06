@@ -7,7 +7,8 @@
   (:require [clojure.string :as str])
   (:require [clojurewerkz.urly.core :as urly])
   (:require [clojure.core.async :as async :refer [go go-loop chan <! >!]])
-  (:require [net.cgrand.enlive-html :as html]))
+  (:require [net.cgrand.enlive-html :as html])
+  (:import (clojure.lang PersistentVector Fn)))
 
 (t/tc-ignore
   (defn extract-sel
@@ -32,9 +33,9 @@
 
 (t/tc-ignore
   (extend-protocol IScraper
-    clojure.lang.PersistentVector
+    PersistentVector
     (scrape-attr [vec doc] (extract-tag doc vec))
-    clojure.lang.Fn
+    Fn
     (scrape-attr [func doc] (func doc))))
 
 (t/tc-ignore
@@ -61,11 +62,9 @@
     (t/tc-ignore
       (logger/info (:logger this) "Scraper: Starting")
       (let
-        [out-c (:out-doc-c this)
-         retr-inp-c (-> this :page-retrieval :inp-doc-c)
-         retr-out-c (-> this :page-retrieval :out-doc-c)]
-        (async/pipe (:inp-doc-c this) retr-inp-c)
-        (async/pipeline 20 out-c (scrape this) retr-out-c)))
+        [inp-c (:inp-doc-c this)
+         out-c (:out-doc-c this)]
+        (async/pipeline 20 out-c (scrape this) inp-c)))
     this)
 
   (stop [this]
