@@ -2,7 +2,7 @@
   (:use [skrejp.storage.ann])
   (:require [skrejp.logger.ann :as logger]
             [skrejp.core :as core])
-  (:require [clojure.core.async :refer [pipe go go-loop chan <! >!]])
+  (:require [clojure.core.async :as async :refer [go go-loop chan <! >!]])
   (:require [clojure.core.typed :as t])
   (:require [com.stuartsierra.component :as component])
   (:require [clojurewerkz.elastisch.rest :as es]
@@ -29,7 +29,7 @@
             (logger/info (:logger this) (dissoc doc :url :http-payload :content))
             (store (:driver this) doc)
             (recur (<! (:store-doc-c this))))))
-      (pipe (:check-inp-c this) (:check-out-c this)))
+      (async/pipeline 1 (:check-out-c this) (remove  #(contains-doc? (-> this :driver) %)) (:check-inp-c this)))
     this)
 
   (stop [this]

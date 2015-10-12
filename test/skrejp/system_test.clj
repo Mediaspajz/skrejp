@@ -73,7 +73,7 @@
       (>!! (:doc-c this) doc))
 
     (contains-doc? [_ doc]
-      (= (doc :id) "http://europe.example.com/alreadystored.html")))
+      (= (doc :url) "http://europe.example.com/alreadystored.html")))
 
   (let
     [out-c (chan 2)

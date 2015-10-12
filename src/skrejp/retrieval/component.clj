@@ -3,8 +3,7 @@
   (:require [skrejp.core :as core])
   (:require [clojure.core.typed :as t])
   (:require [clojure.core.async :as async :refer [<! >! <!! chan go-loop]])
-  (:require [skrejp.logger.ann :as logger]
-            [skrejp.storage.ann :as storage])
+  (:require [skrejp.logger.ann :as logger])
   (:require [com.stuartsierra.component :as component])
   (:require [org.httpkit.client :as http])
   (:require [clojure.core.async :as async]
@@ -43,14 +42,11 @@
       (go-loop [doc (<! inp-doc-c) host-chans {}]
         (when-not (nil? doc)
           (logger/info (:logger this) (format "PageContentRetrieval: Received %s" (doc :url)))
-          (let [doc-w-id (assoc doc :id (doc :url))]
-            (if (storage/contains-doc? (-> this :storage :driver) doc-w-id)
-              (recur (<! inp-doc-c) host-chans)
-              (let
-                [host (urly/host-of (urly/url-like (doc :url)))
-                 host-c (get-host-c this host-chans host)]
-                (>! host-c doc-w-id)
-                (recur (<! inp-doc-c) (assoc host-chans host host-c))))))))
+          (let
+            [host (urly/host-of (urly/url-like (doc :url)))
+             host-c (get-host-c this host-chans host)]
+            (>! host-c doc)
+            (recur (<! inp-doc-c) (assoc host-chans host host-c))))))
     this)
 
   (stop [this]
