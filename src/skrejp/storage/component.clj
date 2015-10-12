@@ -29,8 +29,7 @@
             (logger/info (:logger this) (dissoc doc :url :http-payload :content))
             (store (:driver this) doc)
             (recur (<! (:store-doc-c this))))))
-      (pipe (:check-inp-c this) (:check-out-c this))
-      )
+      (pipe (:check-inp-c this) (:check-out-c this)))
     this)
 
   (stop [this]
@@ -71,15 +70,6 @@
           (not (nil? (get-doc this doc-id))))))))
 
 (t/ann ^:no-check clojurewerkz.elastisch.rest/connect [t/Any -> t/HMap])
-
-(t/defalias TEngineOpts
-  (t/HMap :mandatory {:storage-check-inp-c core/TDocChan
-                      :storage-check-out-c core/TDocChan
-                      :store-doc-c core/TDocChan}))
-
-(t/defalias TElasticDriverOpts
-  (t/HMap :mandatory {:storage TStorageConf
-                      :doc-id-fn core/TDocIdFn}))
 
 (t/defn build-engine
   "Build a new storage engine."
