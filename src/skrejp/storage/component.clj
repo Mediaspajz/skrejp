@@ -10,14 +10,12 @@
   (:require [clojurewerkz.support.json]))
 
 (t/ann-record
-  Storage [check-inp-c :- core/TDocChan
-           check-out-c :- core/TDocChan
-           store-doc-c :- core/TDocChan
-           es-conn :- t/Any
-           conf :- TStorageConf
-           doc-id-fn :- core/TDocIdFn])
+  StorageEngine [driver :- IStorageDriver
+                 check-inp-c :- core/TDocChan
+                 check-out-c :- core/TDocChan
+                 store-doc-c :- core/TDocChan])
 
-(defrecord Storage [check-inp-c check-out-c store-doc-c es-conn conf doc-id-fn]
+(defrecord StorageEngine [driver check-inp-c check-out-c store-doc-c]
   component/Lifecycle
 
   (start [this]
@@ -28,26 +26,29 @@
         (if (nil? doc)
           (logger/info (:logger this) "Storage: Input channel closed")
           (do
-            (store this doc)
+            (logger/info (:logger this) (dissoc doc :url :http-payload :content))
+            (store (:driver this) doc)
             (recur (<! (:store-doc-c this))))))
-      (go-loop
-        [doc (<! (:check-inp-c this))]
-        (do
-          (>! doc (:check-out-c this))
-          (recur (<! (:check-inp-c this)))))
-      (pipe (:check-inp-c this) (:check-out-c this)))
+      (pipe (:check-inp-c this) (:check-out-c this))
+      )
     this)
 
   (stop [this]
     (t/tc-ignore
       (logger/info (:logger this) "Storage: Stopping"))
-    this)
+    this))
 
-  IStorage
+(t/ann-record
+  ElasticDriver [es-conn :- t/Any
+                 conf :- TStorageConf
+                 doc-id-fn :- core/TDocIdFn])
+
+(defrecord ElasticDriver [es-conn conf doc-id-fn]
+
+  IStorageDriver
 
   (store [this doc]
     (t/tc-ignore
-      (logger/info (:logger this) (dissoc doc :url :http-payload :content))
       (esd/create (:es-conn this)
                   (get-in this [:conf :es :index-name])
                   (get-in this [:conf :es :entity-name])
@@ -71,16 +72,30 @@
 
 (t/ann ^:no-check clojurewerkz.elastisch.rest/connect [t/Any -> t/HMap])
 
-(t/defn build-component
-  "Build a new storage."
-  [conf-opts :- (t/HMap :mandatory {:storage TStorageConf
-                                    :storage-check-inp-c core/TDocChan
-                                    :storage-check-out-c core/TDocChan
-                                    :store-doc-c core/TDocChan
-                                    :doc-id-fn core/TDocIdFn})] :- Storage
-  (map->Storage {:conf        (:storage conf-opts)
-                 :check-inp-c (:storage-check-inp-c conf-opts)
-                 :check-out-c (:storage-check-out-c conf-opts)
-                 :store-doc-c (:store-doc-c conf-opts)
-                 :es-conn     (es/connect (get-in conf-opts [:storage :es :url]))
-                 :doc-id-fn   (:doc-id-fn conf-opts)}))
+(t/defalias TEngineOpts
+  (t/HMap :mandatory {:storage-check-inp-c core/TDocChan
+                      :storage-check-out-c core/TDocChan
+                      :store-doc-c core/TDocChan}))
+
+(t/defalias TElasticDriverOpts
+  (t/HMap :mandatory {:storage TStorageConf
+                      :doc-id-fn core/TDocIdFn}))
+
+(t/defn build-engine
+  "Build a new storage engine."
+  [driver :- IStorageDriver conf-opts :- TEngineOpts] :- StorageEngine
+  (map->StorageEngine {:driver driver
+                       :check-inp-c (:storage-check-inp-c conf-opts)
+                       :check-out-c (:storage-check-out-c conf-opts)
+                       :store-doc-c (:store-doc-c conf-opts)}))
+
+(t/defn build-elastic-driver
+  [conf-opts :- TElasticDriverOpts] :- ElasticDriver
+  (map->ElasticDriver {:conf (:storage conf-opts)
+                       :es-conn (es/connect (get-in conf-opts [:storage :es :url]))
+                       :doc-id-fn (:doc-id-fn conf-opts)}))
+
+(t/defn build-elastic-component
+  "Build a new elastic storage."
+  [conf-opts :- (t/I TEngineOpts TElasticDriverOpts)] :- StorageEngine
+  (build-engine (build-elastic-driver conf-opts) conf-opts))

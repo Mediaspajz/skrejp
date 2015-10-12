@@ -9,7 +9,8 @@
   :profiles      {:uberjar {:aot :all}
                   :dev {:dependencies [[environ       "1.0.1"]
                                        [expectations  "2.1.3"]
-                                       [http-kit.fake "0.2.2"]]}}
+                                       [http-kit.fake "0.2.2"]
+                                       [debugger "0.1.7"]]}}
   :core.typed    {:check [skrejp.core skrejp.retrieval.component skrejp.logger.component skrejp.storage.component
                           skrejp.scraper-verification.component skrejp.crawl-planner.component
                           skrejp.error-handling.component skrejp.scraper.component skrejp.system]}

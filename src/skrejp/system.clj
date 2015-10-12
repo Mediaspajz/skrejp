@@ -49,7 +49,7 @@
                   [:logger :page-retrieval :error-handling])
        :storage (or (:storage comps)
                     (component/using
-                      (storage/build-component
+                      (storage/build-elastic-component
                         (assoc conf-opts
                           :storage-check-inp-c storage-check-c
                           :storage-check-out-c retrieval-inp-c

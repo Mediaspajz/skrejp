@@ -44,7 +44,7 @@
         (when-not (nil? doc)
           (logger/info (:logger this) (format "PageContentRetrieval: Received %s" (doc :url)))
           (let [doc-w-id (assoc doc :id (doc :url))]
-            (if (storage/contains-doc? (:storage this) doc-w-id)
+            (if (storage/contains-doc? (-> this :storage :driver) doc-w-id)
               (recur (<! inp-doc-c) host-chans)
               (let
                 [host (urly/host-of (urly/url-like (doc :url)))

@@ -1,10 +1,11 @@
 (ns skrejp.system-test
   (:require [skrejp.logger.ann :as logger])
-  (:require [clojure.core.async :refer [go chan <! <!! >! alts!! pipe]])
+  (:require [clojure.core.async :refer [go chan <! <!! >! >!!]])
   (:require [com.stuartsierra.component :as component])
   (:require [expectations :refer :all])
   (:require [clojurewerkz.urly.core :as urly])
   (:require [org.httpkit.fake :refer :all]
+            [skrejp.storage.component :as storage-component]
             [skrejp.storage.ann :as storage]
             [skrejp.system :as system]
             [skrejp.core :as core]))
@@ -26,6 +27,7 @@
                                     "usa.example.com" "example.com"}
                   :feeds           ["http://example.com/rss.xml"]
                   :planner-cmds    [:plan-feeds]
+                  :store-doc-c     (chan 2)
                   :retrieval-inp-c (core/doc-chan)
                   :storage-check-c (core/doc-chan)})
 
@@ -64,35 +66,37 @@
       <div class='content'>Bar Content</div>
     </body>"]
 
-  (defrecord TestStorage [doc-c]
-    component/Lifecycle
+  (defrecord TestDriver [doc-c]
+    storage/IStorageDriver
 
-    (start [this]
-      (pipe (:check-inp-c this) (:check-out-c this))
-      this)
-
-    (stop [_])
-
-    storage/IStorage
+    (store [this doc]
+      (>!! (:doc-c this) doc))
 
     (contains-doc? [_ doc]
       (= (doc :id) "http://europe.example.com/alreadystored.html")))
 
   (let
     [out-c (chan 2)
-     test-storage (map->TestStorage {:store-doc-c out-c
-                                     :check-inp-c (:storage-check-c config-opts)
-                                     :check-out-c (:retrieval-inp-c config-opts)})
+     test-logger (reify logger/ILogger (info [_ _]) (debug [_ _]))
 
-     test-system (component/start
-                   (system/build-scraper-system (assoc config-opts :store-doc-c out-c)
-                                                {:logger  (reify logger/ILogger (info [_ _]))
-                                                 :storage test-storage}))]
+     test-storage
+     (assoc
+       (storage-component/build-engine
+         (map->TestDriver {:doc-c out-c})
+         {:store-doc-c         (:store-doc-c config-opts)
+          :storage-check-inp-c (:storage-check-c config-opts)
+          :storage-check-out-c (:retrieval-inp-c config-opts)})
+       :logger test-logger)
 
-     (def results (list (<!! out-c) (<!! out-c)))
-     (def result1 (first  results))
-     (def result2 (second results))
-     (component/stop test-system)))
+     test-system
+     (component/start
+       (system/build-scraper-system config-opts
+                                    {:logger test-logger :storage test-storage}))]
+
+    (def results (list (<!! out-c) (<!! out-c)))
+    (def result1 (first  results))
+    (def result2 (second results))
+    (component/stop test-system)))
 
 ;; ## Scraping attribute by a selector
 ;;
