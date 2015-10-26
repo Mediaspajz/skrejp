@@ -83,9 +83,9 @@
      (assoc
        (storage-component/build-engine
          (map->TestDriver {:doc-c out-c})
-         {:store-doc-c         (:store-doc-c config-opts)
-          :storage-check-inp-c (:storage-check-c config-opts)
-          :storage-check-out-c (:retrieval-inp-c config-opts)})
+         {:store-doc-c (:store-doc-c config-opts)
+          :check-inp-c (:storage-check-c config-opts)
+          :check-out-c (:retrieval-inp-c config-opts)})
        :logger test-logger)
 
      test-system

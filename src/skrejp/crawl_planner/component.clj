@@ -54,11 +54,12 @@
   "Build a CrawlPlanner component."
   [conf-opts :- (t/HMap :mandatory
                         {:feeds TFeedUrlVec
-                         :planner-cmds TPlannerCmdVec
-                         :cmd-c TPlannerCmdChan
+                         :planner-cmds TPlannerCmdVec} :complete? false)
+   chans :- (t/HMap :mandatory
+                        {:cmd-c TPlannerCmdChan
                          :out-doc-c core/TDocChan} :complete? false)] :- CrawlPlannerComponent
-  (map->CrawlPlannerComponent {:feeds (:feeds conf-opts)
+  (map->CrawlPlannerComponent {:feeds        (:feeds conf-opts)
                                :planner-cmds (:planner-cmds conf-opts)
-                               :cmd-c (:cmd-c conf-opts)
-                               :out-doc-c (:out-doc-c conf-opts)}))
+                               :cmd-c        (:cmd-c chans)
+                               :out-doc-c    (:out-doc-c chans)}))
 

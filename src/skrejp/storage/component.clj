@@ -73,10 +73,10 @@
 
 (t/defn build-engine
   "Build a new storage engine."
-  [driver :- IStorageDriver conf-opts :- TEngineOpts] :- StorageEngine
+  [driver :- IStorageDriver conf-opts :- TChanMap] :- StorageEngine
   (map->StorageEngine {:driver driver
-                       :check-inp-c (:storage-check-inp-c conf-opts)
-                       :check-out-c (:storage-check-out-c conf-opts)
+                       :check-inp-c (:check-inp-c conf-opts)
+                       :check-out-c (:check-out-c conf-opts)
                        :store-doc-c (:store-doc-c conf-opts)}))
 
 (t/defn build-elastic-driver
@@ -87,5 +87,6 @@
 
 (t/defn build-elastic-component
   "Build a new elastic storage."
-  [conf-opts :- (t/I TEngineOpts TElasticDriverOpts)] :- StorageEngine
-  (build-engine (build-elastic-driver conf-opts) conf-opts))
+  [conf-opts :- TElasticDriverOpts
+   chans :- TChanMap] :- StorageEngine
+  (build-engine (build-elastic-driver conf-opts) chans))

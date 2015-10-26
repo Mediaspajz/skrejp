@@ -4,9 +4,9 @@
 
 (t/defalias TStorageConf (t/HMap :complete? false))
 
-(t/defalias TEngineOpts
-  (t/HMap :mandatory {:storage-check-inp-c core/TDocChan
-                      :storage-check-out-c core/TDocChan
+(t/defalias TChanMap
+  (t/HMap :mandatory {:check-inp-c core/TDocChan
+                      :check-out-c core/TDocChan
                       :store-doc-c core/TDocChan}))
 
 (t/defalias TElasticDriverOpts

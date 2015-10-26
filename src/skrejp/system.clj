@@ -33,8 +33,8 @@
                          [:logger])
        :crawl-planner (component/using
                         (crawl-planner/build-component
-                          (assoc conf-opts :cmd-c (core/cmd-chan)
-                                           :out-doc-c storage-check-c))
+                          conf-opts
+                          {:cmd-c (core/cmd-chan) :out-doc-c storage-check-c})
                         [:logger :page-retrieval :error-handling :scraper])
        :page-retrieval (component/using
                          (retrieval/build-component
@@ -50,10 +50,10 @@
        :storage (or (:storage comps)
                     (component/using
                       (storage/build-elastic-component
-                        (assoc conf-opts
-                          :storage-check-inp-c storage-check-c
-                          :storage-check-out-c retrieval-inp-c
-                          :store-doc-c store-doc-c))
+                        conf-opts
+                        {:check-inp-c storage-check-c
+                         :check-out-c retrieval-inp-c
+                         :store-doc-c store-doc-c})
                       [:logger]))
        :scraper-verification (component/using
                                (scraper-verification/build-component conf-opts)
