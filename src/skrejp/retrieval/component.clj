@@ -76,9 +76,8 @@
 
 (t/defn build-component
   "Build a PageRetrieval component."
-  [conf-opts :- (t/HMap :mandatory {:http-req-opts core/THttpReqOpts
-                                    :inp-doc-c core/TDocChan
-                                    :out-doc-c core/TDocChan})] :- RetrievalComponent
+  [conf-opts :- (t/HMap :mandatory {:http-req-opts core/THttpReqOpts})
+   chans :- (t/HMap :mandatory {:inp-doc-c core/TDocChan :out-doc-c core/TDocChan})] :- RetrievalComponent
   (map->RetrievalComponent {:http-req-opts (:http-req-opts conf-opts)
-                            :inp-doc-c     (:inp-doc-c conf-opts)
-                            :out-doc-c     (:out-doc-c conf-opts)}))
+                            :inp-doc-c     (:inp-doc-c chans)
+                            :out-doc-c     (:out-doc-c chans)}))

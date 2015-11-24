@@ -12,7 +12,8 @@
     (comp (mapcat :entries)
           (map (fn [entry]
                  (assoc (select-keys entry [:title])
-                   :url (or (entry :link) (entry :uri))))))))
+                   :url (or (entry :link) (entry :uri))
+                   :published_at (org.joda.time.DateTime. (entry :published-date))))))))
 
 (t/ann-record CrawlPlannerComponent
               [feeds :- TFeedUrlVec

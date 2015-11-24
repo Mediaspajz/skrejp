@@ -17,6 +17,12 @@
 (t/ann build-scraper-system [TSystemConf -> TSystemMap])
 (t/ann build-scraper-system [TSystemConf t/Map -> TSystemMap])
 
+(defn build-connector-chan [key]
+  (case key
+    (core/doc-chan)))
+
+(def default-connector-chan (memoize build-connector-chan))
+
 (defn build-scraper-system
   "Build a scraper system."
   ([conf-opts] (build-scraper-system conf-opts {}))
@@ -34,18 +40,19 @@
        :crawl-planner (component/using
                         (crawl-planner/build-component
                           conf-opts
-                          {:cmd-c (core/cmd-chan) :out-doc-c storage-check-c})
+                          {:cmd-c (core/cmd-chan)
+                           :out-doc-c storage-check-c})
                         [:logger :page-retrieval :error-handling :scraper])
        :page-retrieval (component/using
                          (retrieval/build-component
-                           (assoc conf-opts
-                             :inp-doc-c retrieval-inp-c
-                             :out-doc-c scraper-inp-c))
+                           conf-opts
+                           {:inp-doc-c retrieval-inp-c :out-doc-c scraper-inp-c})
                          [:logger :storage])
        :scraper (component/using
                   (scraper/build-component
-                    (assoc conf-opts :inp-doc-c scraper-inp-c
-                                     :out-doc-c store-doc-c))
+                    conf-opts
+                    {:inp-doc-c scraper-inp-c
+                     :out-doc-c store-doc-c})
                   [:logger :page-retrieval :error-handling])
        :storage (or (:storage comps)
                     (component/using

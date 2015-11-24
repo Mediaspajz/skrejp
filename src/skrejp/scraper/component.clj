@@ -101,10 +101,8 @@
 
 (t/defn build-component
   "Build a Scraper component."
-  [conf-opts :- (t/HMap :mandatory {:scraper-defs TScraperDefs
-                                    :inp-doc-c core/TDocChan
-                                    :out-doc-c core/TDocChan
-                                    })] :- ScraperComponent
+  [conf-opts :- (t/HMap :mandatory {:scraper-defs TScraperDefs})
+   chans :- (t/HMap :mandatory {:inp-doc-c core/TDocChan :out-doc-c core/TDocChan})] :- ScraperComponent
   (map->ScraperComponent {:scraper-defs (:scraper-defs conf-opts)
-                          :inp-doc-c (:inp-doc-c conf-opts)
-                          :out-doc-c (:out-doc-c conf-opts)}))
+                          :inp-doc-c (:inp-doc-c chans)
+                          :out-doc-c (:out-doc-c chans)}))

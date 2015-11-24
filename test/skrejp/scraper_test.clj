@@ -6,15 +6,16 @@
             [skrejp.core :as core]))
 
 (let
-  [scraper-cmpnt (scraper/build-component
+  [inp-c (core/doc-chan)
+   out-c (core/doc-chan)
+   scraper-cmpnt (scraper/build-component
                    {:scraper-defs
-                               {"example.com"     {:title   [:h1#title]
-                                                   :content [:div#content]
-                                                   :path    (fn [doc]
-                                                              (-> doc :url
-                                                                  urly/url-like urly/path-of))}
-                                "www.example.com" "example.com"}
-                    :inp-doc-c (core/doc-chan)})
+                    {"example.com"     {:title   [:h1#title]
+                                        :content [:div#content]
+                                        :path    (fn [doc]
+                                                   (-> doc :url urly/url-like urly/path-of))}
+                     "www.example.com" "example.com"}}
+                   {:inp-doc-c inp-c :out-doc-c out-c})
    page-body "<html><body><h1 id='title'>Foo Title</h1><div id='content'>Bar Content</div></body></html>"
    page-resp { :url "http://www.example.com/index.html" :http-payload page-body }
    article (first (into [] (scraper-ann/scrape scraper-cmpnt) [page-resp])) ]
