@@ -17,20 +17,18 @@
 (t/ann build-scraper-system [TSystemConf -> TSystemMap])
 (t/ann build-scraper-system [TSystemConf t/Map -> TSystemMap])
 
-(defn build-connector-chan [key]
-  (case key
-    (core/doc-chan)))
-
-(def default-connector-chan (memoize build-connector-chan))
+(defn build-chan-map
+  ([] (build-chan-map {}))
+  ([opts] (build-chan-map opts (fn [_key] (core/doc-chan))))
+  ([opts build-chan] (memoize (fn [key] (get opts key (build-chan key))))))
 
 (defn build-scraper-system
   "Build a scraper system."
   ([conf-opts] (build-scraper-system conf-opts {}))
   ([conf-opts comps]
-   (let [scraper-inp-c (core/doc-chan)
-         retrieval-inp-c (get conf-opts :retrieval-inp-c (core/doc-chan))
-         storage-check-c (get conf-opts :storage-check-c (core/doc-chan))
-         store-doc-c (get conf-opts :store-doc-c (core/doc-chan))]
+   (let [chan-map (build-chan-map {[:storage :page-retrieval] (get conf-opts :retrieval-inp-c (core/doc-chan))
+                                   [:crawl-planner :storage]  (get conf-opts :storage-check-c (core/doc-chan))
+                                   [:scraper :storage]        (get conf-opts :store-doc-c (core/doc-chan))})]
      (component/system-map
        :logger (or (:logger comps) (logger/build-component conf-opts))
 
@@ -40,27 +38,28 @@
        :crawl-planner (component/using
                         (crawl-planner/build-component
                           conf-opts
-                          {:cmd-c (core/cmd-chan)
-                           :out-doc-c storage-check-c})
+                          {:cmd-c     (core/cmd-chan)
+                           :out-doc-c (chan-map [:crawl-planner :storage])})
                         [:logger :page-retrieval :error-handling :scraper])
        :page-retrieval (component/using
                          (retrieval/build-component
                            conf-opts
-                           {:inp-doc-c retrieval-inp-c :out-doc-c scraper-inp-c})
+                           {:inp-doc-c (chan-map [:storage :page-retrieval])
+                            :out-doc-c (chan-map [:page-retrieval :scraper])})
                          [:logger :storage])
        :scraper (component/using
                   (scraper/build-component
                     conf-opts
-                    {:inp-doc-c scraper-inp-c
-                     :out-doc-c store-doc-c})
+                    {:inp-doc-c (chan-map [:page-retrieval :scraper])
+                     :out-doc-c (chan-map [:scraper :storage])})
                   [:logger :page-retrieval :error-handling])
        :storage (or (:storage comps)
                     (component/using
                       (storage/build-elastic-component
                         conf-opts
-                        {:check-inp-c storage-check-c
-                         :check-out-c retrieval-inp-c
-                         :store-doc-c store-doc-c})
+                        {:check-inp-c (chan-map [:crawl-planner :storage])
+                         :check-out-c (chan-map [:storage :page-retrieval])
+                         :store-doc-c (chan-map [:scraper :storage])})
                       [:logger]))
        :scraper-verification (component/using
                                (scraper-verification/build-component conf-opts)
