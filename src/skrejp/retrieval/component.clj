@@ -23,11 +23,11 @@
 (def ^:private inner-retrieval-chan (chan 512))
 
 (t/tc-ignore
-  (defn get-host-c [retr-cmpnt chan-map key out-c thread-cnts-fn]
-    (if (contains? chan-map key)
-      (chan-map key)
+  (defn get-host-c [retr-cmpnt {:keys [key-chans key out-c thread-cnts-fn url-fn process-fn]}]
+    (if (contains? key-chans key)
+      (key-chans key)
       (let [new-host-c (chan 512)]
-        (async/pipeline-async (thread-cnts-fn key) inner-retrieval-chan (fetch-page retr-cmpnt out-c) new-host-c)
+        (async/pipeline-async (thread-cnts-fn key) inner-retrieval-chan (fetch-page retr-cmpnt {:out-c out-c :url-fn url-fn :process-fn process-fn}) new-host-c)
         (go-loop [res (<! inner-retrieval-chan)]
           (when-not (nil? res)
             (let [[out-c doc] res]
@@ -46,14 +46,16 @@
     [this]
     (t/tc-ignore
       (logger/info (:logger this) "PageContentRetrieval: Starting")
-      (go-loop [doc (<! inp-doc-c) host-chans {}]
-        (when-not (nil? doc)
-          (logger/info (:logger this) (format "PageContentRetrieval: Received %s" (doc :url)))
-          (let
-            [host (urly/host-of (urly/url-like (doc :url)))
-             host-c (get-host-c this host-chans host (:out-doc-c this) (fn [_key] 5))]
-            (>! host-c doc)
-            (recur (<! inp-doc-c) (assoc host-chans host host-c))))))
+
+      (let [key-fn (fn [doc] (urly/host-of (urly/url-like (doc :url))))
+            thread-cnts-fn (fn [_key] 5)
+            process-fn (fn [doc resp] (assoc doc :http-payload (resp :body)))
+            err-fn nil
+            inp-c inp-doc-c
+            out-c out-doc-c]
+
+        (build-retrieval-chan this {:key-fn key-fn :thread-cnts-fn thread-cnts-fn :process-fn process-fn :err-fn err-fn :inp-c inp-c :out-c out-c
+                                    :url-fn :url})))
     this)
 
   (stop [this]
@@ -64,15 +66,22 @@
   IRetrieval
 
   (build-retrieval-chan
-    [key-fn thread-counts-fn process-fn err-fn inp-c out-c])
+    [this {:keys [key-fn thread-cnts-fn process-fn err-fn inp-c out-c url-fn]}]
+    (go-loop [doc (<! inp-c) key-chans {}]
+      (when-not (nil? doc)
+        (let
+          [key (key-fn doc)
+           host-c (get-host-c this {:key-chans key-chans :key key :out-c out-c :thread-cnts-fn thread-cnts-fn :url-fn url-fn :process-fn process-fn})]
+          (>! host-c doc)
+          (recur (<! inp-c) (assoc key-chans key host-c))))))
 
-  (fetch-page [this out-c]
+  (fetch-page [this {:keys [out-c url-fn process-fn]}]
     (fn [doc c]
       (t/tc-ignore
-        (http/get (doc :url) (:http-req-opts this)
+        (http/get (url-fn doc) (:http-req-opts this)
                   (fn [{:keys [error] :as resp}]
                     (when-not error
-                      (async/put! c [out-c (assoc doc :http-payload (resp :body))]))
+                      (async/put! c [out-c (process-fn doc resp)]))
                     (async/close! c))))))
 
   (fetch-feed [this]
