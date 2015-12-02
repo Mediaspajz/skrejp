@@ -9,19 +9,19 @@
                     :user-agent "User-Agent-string"
                     :headers    {"X-Header" "Value"}})
 
-(with-fake-http
-  [ "http://example.com/p1" "foo"
-    "http://example.com/p2" "bar" ]
-  (let
-    [in-c  (async/chan 2)
-     out-c (async/chan 2)
-     ret-cmpnt (retrieval/build-component {:http-req-opts http-req-opts} {:inp-doc-c in-c :out-doc-c out-c})]
-    (async/pipeline-async 2 out-c (retrieval-ann/fetch-page ret-cmpnt) in-c)
-    (go (>! in-c {:url "http://example.com/p1"}) (>! in-c {:url "http://example.com/p2"}))
-    (<!! (async/timeout (http-req-opts :timeout)))
-    (expect "foo" (:http-payload (<!! out-c)))
-    (expect "bar" (:http-payload (<!! out-c)))
-    (async/close! out-c) ) )
+;(with-fake-http
+;  [ "http://example.com/p1" "foo"
+;    "http://example.com/p2" "bar" ]
+;  (let
+;    [in-c  (async/chan 2)
+;     out-c (async/chan 2)
+;     ret-cmpnt (retrieval/build-component {:http-req-opts http-req-opts} {:inp-doc-c in-c :out-doc-c out-c})]
+;    (async/pipeline-async 2 out-c (retrieval-ann/fetch-page ret-cmpnt) in-c)
+;    (go (>! in-c {:url "http://example.com/p1"}) (>! in-c {:url "http://example.com/p2"}))
+;    (<!! (async/timeout (http-req-opts :timeout)))
+;    (expect "foo" (:http-payload (<!! out-c)))
+;    (expect "bar" (:http-payload (<!! out-c)))
+;    (async/close! out-c) ) )
 
 (with-fake-http
   [ "http://example.com/rss.xml"

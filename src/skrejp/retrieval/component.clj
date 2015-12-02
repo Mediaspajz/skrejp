@@ -20,12 +20,19 @@
     [input-stream (ByteArrayInputStream. (.getBytes feed-s "UTF-8"))]
     (feeds/parse-feed input-stream)))
 
+(def ^:private inner-retrieval-chan (chan 512))
+
 (t/tc-ignore
-  (defn get-host-c [setup host-chans host]
-    (if (contains? host-chans host)
-      (host-chans host)
+  (defn get-host-c [retr-cmpnt chan-map key out-c thread-cnts-fn]
+    (if (contains? chan-map key)
+      (chan-map key)
       (let [new-host-c (chan 512)]
-        (async/pipeline-async 5 (:out-doc-c setup) (fetch-page setup) new-host-c)
+        (async/pipeline-async (thread-cnts-fn key) inner-retrieval-chan (fetch-page retr-cmpnt out-c) new-host-c)
+        (go-loop [res (<! inner-retrieval-chan)]
+          (when-not (nil? res)
+            (let [[out-c doc] res]
+              (>! out-c doc)
+              (recur (<! inner-retrieval-chan)))))
         new-host-c))))
 
 (t/ann-record RetrievalComponent [http-req-opts :- core/THttpReqOpts
@@ -44,7 +51,7 @@
           (logger/info (:logger this) (format "PageContentRetrieval: Received %s" (doc :url)))
           (let
             [host (urly/host-of (urly/url-like (doc :url)))
-             host-c (get-host-c this host-chans host)]
+             host-c (get-host-c this host-chans host (:out-doc-c this) (fn [_key] 5))]
             (>! host-c doc)
             (recur (<! inp-doc-c) (assoc host-chans host host-c))))))
     this)
@@ -56,13 +63,16 @@
 
   IRetrieval
 
-  (fetch-page [this]
+  (build-retrieval-chan
+    [key-fn thread-counts-fn process-fn err-fn inp-c out-c])
+
+  (fetch-page [this out-c]
     (fn [doc c]
       (t/tc-ignore
         (http/get (doc :url) (:http-req-opts this)
                   (fn [{:keys [error] :as resp}]
                     (when-not error
-                      (async/put! c (assoc doc :http-payload (resp :body))))
+                      (async/put! c [out-c (assoc doc :http-payload (resp :body))]))
                     (async/close! c))))))
 
   (fetch-feed [this]
