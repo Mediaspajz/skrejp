@@ -47,15 +47,14 @@
     (t/tc-ignore
       (logger/info (:logger this) "PageContentRetrieval: Starting")
 
-      (let [key-fn (fn [doc] (urly/host-of (urly/url-like (doc :url))))
-            thread-cnts-fn (fn [_key] 5)
-            process-fn (fn [doc resp] (assoc doc :http-payload (resp :body)))
-            err-fn nil
-            inp-c inp-doc-c
-            out-c out-doc-c]
-
-        (build-retrieval-chan this {:key-fn key-fn :thread-cnts-fn thread-cnts-fn :process-fn process-fn :err-fn err-fn :inp-c inp-c :out-c out-c
-                                    :url-fn :url})))
+      (build-retrieval-chan this {:key-fn         (fn [doc] (urly/host-of (urly/url-like (doc :url))))
+                                  :thread-cnts-fn (fn [_key] 5)
+                                  :process-fn     (fn [doc resp]
+                                                    (when-not (:error resp)
+                                                      (assoc doc :http-payload (resp :body))))
+                                  :inp-c          inp-doc-c
+                                  :out-c          out-doc-c
+                                  :url-fn         :url}))
     this)
 
   (stop [this]
@@ -66,12 +65,17 @@
   IRetrieval
 
   (build-retrieval-chan
-    [this {:keys [key-fn thread-cnts-fn process-fn err-fn inp-c out-c url-fn]}]
+    [this {:keys [key-fn thread-cnts-fn process-fn inp-c out-c url-fn]}]
     (go-loop [doc (<! inp-c) key-chans {}]
       (when-not (nil? doc)
         (let
           [key (key-fn doc)
-           host-c (get-host-c this {:key-chans key-chans :key key :out-c out-c :thread-cnts-fn thread-cnts-fn :url-fn url-fn :process-fn process-fn})]
+           host-c (get-host-c this {:key-chans key-chans
+                                    :key key
+                                    :out-c out-c
+                                    :thread-cnts-fn thread-cnts-fn
+                                    :url-fn url-fn
+                                    :process-fn process-fn})]
           (>! host-c doc)
           (recur (<! inp-c) (assoc key-chans key host-c))))))
 
@@ -79,9 +83,9 @@
     (fn [doc c]
       (t/tc-ignore
         (http/get (url-fn doc) (:http-req-opts this)
-                  (fn [{:keys [error] :as resp}]
-                    (when-not error
-                      (async/put! c [out-c (process-fn doc resp)]))
+                  (fn [resp]
+                    (let [value (process-fn doc resp)]
+                      (when-not (nil? value) (async/put! c [out-c value])))
                     (async/close! c))))))
 
   (fetch-feed [this]

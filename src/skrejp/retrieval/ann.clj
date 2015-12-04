@@ -10,5 +10,5 @@
   If the error-fn is passed, it calls the error-fn function in case of an error."
   (fetch-page [this :- IRetrieval {:keys [out-c url-fn]}] :- (t/IFn [t/Any t/Any -> t/Any]))
   (fetch-feed [this :- IRetrieval] :- (t/IFn [t/Any -> t/Any]))
-  (build-retrieval-chan [this {:keys [key-fn thread-counts-fn process-fn err-fn inp-c out-c]}]))
+  (build-retrieval-chan [this {:keys [key-fn thread-counts-fn process-fn inp-c out-c]}]))
 
