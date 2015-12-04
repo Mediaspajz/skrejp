@@ -23,27 +23,27 @@
 ;    (expect "bar" (:http-payload (<!! out-c)))
 ;    (async/close! out-c) ) )
 
-(with-fake-http
-  [ "http://example.com/rss.xml"
-    "<?xml version=\"1.0\" encoding=\"utf-8\" ?>
-     <rss version=\"2.0\" xml:base=\"http://example.com/rss.xml\">
-       <channel>
-         <item>
-         <title>Foo</title>
-         <link>http://example.com/foo.html</link>
-         </item>
-         <item>
-         <title>Bar</title>
-         <link>http://example.com/bar.html</link>
-         </item>
-       </channel>
-     </rss>" ]
-  (let
-    [ret-cmpnt (retrieval/build-component {:http-req-opts http-req-opts} {})
-     c (async/chan 1 (retrieval-ann/fetch-feed ret-cmpnt))]
-    (go (>! c "http://example.com/rss.xml"))
-    (let
-      [feed (<!! c) entries (:entries feed)]
-      (expect 2 (-> feed :entries count))
-      (expect "Foo" (-> entries first  :title) )
-      (expect "http://example.com/bar.html" (-> entries second :link)))))
+;(with-fake-http
+;  [ "http://example.com/rss.xml"
+;    "<?xml version=\"1.0\" encoding=\"utf-8\" ?>
+;     <rss version=\"2.0\" xml:base=\"http://example.com/rss.xml\">
+;       <channel>
+;         <item>
+;         <title>Foo</title>
+;         <link>http://example.com/foo.html</link>
+;         </item>
+;         <item>
+;         <title>Bar</title>
+;         <link>http://example.com/bar.html</link>
+;         </item>
+;       </channel>
+;     </rss>" ]
+;  (let
+;    [ret-cmpnt (retrieval/build-component {:http-req-opts http-req-opts} {})
+;     c (async/chan 1 (retrieval-ann/fetch-feed ret-cmpnt))]
+;    (go (>! c "http://example.com/rss.xml"))
+;    (let
+;      [feed (<!! c) entries (:entries feed)]
+;      (expect 2 (-> feed :entries count))
+;      (expect "Foo" (-> entries first  :title) )
+;      (expect "http://example.com/bar.html" (-> entries second :link)))))
