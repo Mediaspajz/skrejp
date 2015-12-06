@@ -22,28 +22,27 @@
 
 (def ^:private inner-retrieval-chan (chan 512))
 
-(defn fetch-page [{:keys [http-req-opts out-c url-fn process-fn]}]
-  (fn [doc c]
-    (t/tc-ignore
-      (http/get (url-fn doc) http-req-opts
-                (fn [resp]
-                  (let [value (process-fn doc resp)]
-                    (when-not (nil? value) (async/put! c [out-c value])))
-                  (async/close! c))))))
+(defn fetch-page [{:keys [http-req-opts]}]
+  (fn [[doc {:keys [url-fn process-fn] :as all-keys}] c]
+    (http/get (url-fn doc) http-req-opts
+              (fn [resp]
+                (let [value (process-fn doc resp)]
+                  (when-not (nil? value) (async/put! c [value all-keys])))
+                (async/close! c)))))
 
-(t/tc-ignore
-  (defn get-host-c [{:keys [http-req-opts key-chans key out-c thread-cnts-fn url-fn process-fn]}]
-    (if (contains? key-chans key)
-      (key-chans key)
-      (let [new-host-c (chan 512)]
-        (async/pipeline-async (thread-cnts-fn key) inner-retrieval-chan
-                              (fetch-page {:http-req-opts http-req-opts :out-c out-c :url-fn url-fn :process-fn process-fn}) new-host-c)
-        (go-loop [res (<! inner-retrieval-chan)]
-          (when-not (nil? res)
-            (let [[out-c doc] res]
-              (>! out-c doc)
-              (recur (<! inner-retrieval-chan)))))
-        new-host-c))))
+(defn get-host-c [{:keys [http-req-opts key-chans key thread-cnts-fn]}]
+  (if (contains? key-chans key)
+    (key-chans key)
+    (let [new-host-c (chan 512)]
+      (async/pipeline-async (thread-cnts-fn key) inner-retrieval-chan
+                            (fetch-page {:http-req-opts http-req-opts})
+                            new-host-c)
+      (go-loop [res (<! inner-retrieval-chan)]
+        (when-not (nil? res)
+          (let [[doc {:keys [out-c]}] res]
+            (>! out-c doc)
+            (recur (<! inner-retrieval-chan)))))
+      new-host-c)))
 
 (defn build-retrieval-chan
   [{:keys [http-req-opts key-fn thread-cnts-fn process-fn inp-c out-c url-fn]}]
@@ -54,11 +53,8 @@
          host-c (get-host-c {:http-req-opts http-req-opts
                              :key-chans key-chans
                              :key key
-                             :out-c out-c
-                             :thread-cnts-fn thread-cnts-fn
-                             :url-fn url-fn
-                             :process-fn process-fn})]
-        (>! host-c doc)
+                             :thread-cnts-fn thread-cnts-fn})]
+        (>! host-c [doc {:out-c out-c :url-fn url-fn :process-fn process-fn}] )
         (recur (<! inp-c) (assoc key-chans key host-c))))))
 
 (t/ann-record RetrievalComponent [http-req-opts :- core/THttpReqOpts
