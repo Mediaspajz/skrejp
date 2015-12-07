@@ -20,8 +20,6 @@
     [input-stream (ByteArrayInputStream. (.getBytes feed-s "UTF-8"))]
     (feeds/parse-feed input-stream)))
 
-(def ^:private inner-retrieval-chan (chan 512))
-
 (defn fetch-page [{:keys [http-req-opts]}]
   (fn [[doc {:keys [url-fn process-fn] :as all-keys}] c]
     (http/get (url-fn doc) http-req-opts
@@ -29,6 +27,8 @@
                 (let [value (process-fn doc resp)]
                   (when-not (nil? value) (async/put! c [value all-keys])))
                 (async/close! c)))))
+
+(def ^:private inner-retrieval-chan (chan 512))
 
 (defn get-host-c [{:keys [http-req-opts key-chans key thread-cnts-fn]}]
   (if (contains? key-chans key)
@@ -46,16 +46,18 @@
 
 (defn build-retrieval-chan
   [{:keys [http-req-opts key-fn thread-cnts-fn process-fn inp-c out-c url-fn]}]
-  (go-loop [doc (<! inp-c) key-chans {}]
-    (when-not (nil? doc)
-      (let
-        [key (key-fn doc)
-         host-c (get-host-c {:http-req-opts http-req-opts
-                             :key-chans key-chans
-                             :key key
-                             :thread-cnts-fn thread-cnts-fn})]
-        (>! host-c [doc {:out-c out-c :url-fn url-fn :process-fn process-fn}] )
-        (recur (<! inp-c) (assoc key-chans key host-c))))))
+  (let [key-chans (atom {})]
+    (go-loop [doc (<! inp-c)]
+      (when-not (nil? doc)
+        (let
+          [key (key-fn doc)
+           host-c (get-host-c {:http-req-opts  http-req-opts
+                               :key-chans      @key-chans
+                               :key            key
+                               :thread-cnts-fn thread-cnts-fn})]
+          (>! host-c [doc {:out-c out-c :url-fn url-fn :process-fn process-fn}])
+          (swap! key-chans assoc key host-c)
+          (recur (<! inp-c)))))))
 
 (t/ann-record RetrievalComponent [http-req-opts :- core/THttpReqOpts
                                   inp-doc-c :- core/TDocChan
