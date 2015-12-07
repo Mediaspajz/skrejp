@@ -28,36 +28,54 @@
                   (when-not (nil? value) (async/put! c [value all-keys])))
                 (async/close! c)))))
 
-(def ^:private inner-retrieval-chan (chan 512))
-
-(defn get-host-c [{:keys [http-req-opts key-chans key thread-cnts-fn]}]
+(defn get-host-c [{:keys [http-req-opts key-chans key thread-cnts-fn result-c]}]
   (if (contains? key-chans key)
     (key-chans key)
     (let [new-host-c (chan 512)]
-      (async/pipeline-async (thread-cnts-fn key) inner-retrieval-chan
+      (async/pipeline-async (thread-cnts-fn key) result-c
                             (fetch-page {:http-req-opts http-req-opts})
                             new-host-c)
-      (go-loop [res (<! inner-retrieval-chan)]
+      (go-loop [res (<! result-c)]
         (when-not (nil? res)
           (let [[doc {:keys [out-c]}] res]
             (>! out-c doc)
-            (recur (<! inner-retrieval-chan)))))
+            (recur (<! result-c)))))
       new-host-c)))
 
-(defn build-retrieval-chan
-  [{:keys [http-req-opts key-fn thread-cnts-fn process-fn inp-c out-c url-fn]}]
-  (let [key-chans (atom {})]
+(defprotocol IRetrievalPipeline
+  (pipeline-retrieval
+    [this {:keys [key-fn process-fn inp-c out-c url-fn key-chans]}]))
+
+(defrecord ConcurrentRetrieval [http-req-opts thread-cnts-fn result-c key-chans]
+
+  IRetrievalPipeline
+
+  (pipeline-retrieval
+    [this {:keys [inp-c out-c key-fn process-fn url-fn]}]
     (go-loop [doc (<! inp-c)]
       (when-not (nil? doc)
         (let
           [key (key-fn doc)
-           host-c (get-host-c {:http-req-opts  http-req-opts
+           host-c (get-host-c {:http-req-opts  (:http-req-opts this)
                                :key-chans      @key-chans
                                :key            key
-                               :thread-cnts-fn thread-cnts-fn})]
+                               :thread-cnts-fn (:thread-cnts-fn this)
+                               :result-c       (:result-c this)})]
           (>! host-c [doc {:out-c out-c :url-fn url-fn :process-fn process-fn}])
-          (swap! key-chans assoc key host-c)
+          (swap! (:key-chans this) assoc key host-c)
           (recur (<! inp-c)))))))
+
+(defn build-retrieval-set [params]
+  (map->ConcurrentRetrieval (assoc params
+                              :result-c (chan 512) :key-chans (atom {}))))
+
+(defn build-retrieval-chan [params]
+  (let [concRetr (build-retrieval-set
+                   (select-keys params [:http-req-opts :thread-cnts-fn]))]
+    (pipeline-retrieval
+      concRetr
+      (select-keys params [:inp-c :out-c :key-fn :process-fn :url-fn]))
+    concRetr))
 
 (t/ann-record RetrievalComponent [http-req-opts :- core/THttpReqOpts
                                   inp-doc-c :- core/TDocChan
