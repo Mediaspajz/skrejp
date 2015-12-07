@@ -42,16 +42,17 @@
             (recur (<! result-c)))))
       new-host-c)))
 
-(defprotocol IRetrievalPipeline
+(defprotocol IRetrievalPipelineBuilder
   (pipeline-retrieval
-    [this {:keys [key-fn process-fn inp-c out-c url-fn key-chans]}]))
+    [this out-c inp-c {:keys [key-fn process-fn url-fn key-chans]}]))
 
-(defrecord ConcurrentRetrieval [http-req-opts thread-cnts-fn result-c key-chans]
+(defrecord RetrievalPlumbing
+  [http-req-opts thread-cnts-fn result-c key-chans]
 
-  IRetrievalPipeline
+  IRetrievalPipelineBuilder
 
   (pipeline-retrieval
-    [this {:keys [inp-c out-c key-fn process-fn url-fn]}]
+    [this out-c inp-c {:keys [key-fn process-fn url-fn]}]
     (go-loop [doc (<! inp-c)]
       (when-not (nil? doc)
         (let
@@ -65,17 +66,20 @@
           (swap! (:key-chans this) assoc key host-c)
           (recur (<! inp-c)))))))
 
-(defn build-retrieval-set [params]
-  (map->ConcurrentRetrieval (assoc params
-                              :result-c (chan 512) :key-chans (atom {}))))
+(defn build-retrieval-plumbing [params]
+  (map->RetrievalPlumbing
+    (assoc params :result-c (chan 512) :key-chans (atom {}))))
 
-(defn build-retrieval-chan [params]
-  (let [concRetr (build-retrieval-set
-                   (select-keys params [:http-req-opts :thread-cnts-fn]))]
-    (pipeline-retrieval
-      concRetr
-      (select-keys params [:inp-c :out-c :key-fn :process-fn :url-fn]))
-    concRetr))
+(defn build-retrieval-pipeline
+  ([plumbing out-c inp-c params]
+   (pipeline-retrieval plumbing out-c inp-c
+                       (select-keys params [:key-fn :process-fn :url-fn]))
+    plumbing)
+  ([out-c inp-c params]
+   (let [plumbing (build-retrieval-plumbing
+                    (select-keys params [:http-req-opts :thread-cnts-fn]))]
+     (build-retrieval-pipeline plumbing out-c inp-c params)
+     plumbing)))
 
 (t/ann-record RetrievalComponent [http-req-opts :- core/THttpReqOpts
                                   inp-doc-c :- core/TDocChan
@@ -89,15 +93,15 @@
     (t/tc-ignore
       (logger/info (:logger this) "PageContentRetrieval: Starting")
 
-      (build-retrieval-chan {:http-req-opts  (:http-req-opts this)
-                             :key-fn         (fn [doc] (urly/host-of (urly/url-like (doc :url))))
-                             :thread-cnts-fn (fn [_key] 5)
-                             :process-fn     (fn [doc resp]
-                                               (when-not (:error resp)
-                                                 (assoc doc :http-payload (resp :body))))
-                             :inp-c          inp-doc-c
-                             :out-c          out-doc-c
-                             :url-fn         :url}))
+      (build-retrieval-pipeline
+        out-doc-c inp-doc-c
+        {:http-req-opts (:http-req-opts this)
+         :key-fn           (fn [doc] (urly/host-of (urly/url-like (doc :url))))
+         :thread-cnts-fn   (fn [_key] 5)
+         :process-fn       (fn [doc resp]
+                             (when-not (:error resp)
+                               (assoc doc :http-payload (resp :body))))
+         :url-fn           :url}))
     this)
 
   (stop [this]
