@@ -58,7 +58,7 @@
         (let
           [key (key-fn doc)
            host-c (get-host-c {:http-req-opts  (:http-req-opts this)
-                               :key-chans      @key-chans
+                               :key-chans      @(:key-chans this)
                                :key            key
                                :thread-cnts-fn (:thread-cnts-fn this)
                                :result-c       (:result-c this)})]

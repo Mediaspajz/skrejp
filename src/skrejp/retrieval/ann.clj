@@ -8,8 +8,5 @@
   *fetch-page* is a transducer for fetching a page from a url.
   It expects the URL of the resource and it is pushing the fetch page to the channel it is applied on.
   If the error-fn is passed, it calls the error-fn function in case of an error."
-  ;(fetch-page [{:keys [http-req-opts out-c url-fn]}] :- (t/IFn [t/Any t/Any -> t/Any]))
-  (fetch-feed [this :- IRetrieval] :- (t/IFn [t/Any -> t/Any]))
-  ;(build-retrieval-chan [{:keys [http-req-opts key-fn thread-counts-fn process-fn inp-c out-c]}])
-  )
+  (fetch-feed [this :- IRetrieval] :- (t/IFn [t/Any -> t/Any])))
 
