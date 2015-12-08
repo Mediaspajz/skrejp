@@ -9,7 +9,8 @@
             [skrejp.scraper.component :as scraper]
             [skrejp.retrieval.component :as retrieval]
             [skrejp.crawl-planner.component :as crawl-planner]
-            [skrejp.core :as core]))
+            [skrejp.core :as core]
+            [clojurewerkz.urly.core :as urly]))
 
 (t/ann ^:no-check com.stuartsierra.component/system-map [t/Any * -> TSystemMap])
 (t/ann ^:no-check com.stuartsierra.component/using [t/Any t/Any -> t/Any])
@@ -26,7 +27,9 @@
   "Build a scraper system."
   ([conf-opts] (build-scraper-system conf-opts {}))
   ([conf-opts comps]
-   (let [chan-map (build-chan-map {[:storage :page-retrieval] (get conf-opts :retrieval-inp-c (core/doc-chan))
+   (let [retrieval-plumbing (retrieval/build-retrieval-plumbing (assoc (select-keys conf-opts [:http-req-opts])
+                                                                   :thread-cnts-fn (constantly 5)))
+         chan-map (build-chan-map {[:storage :page-retrieval] (get conf-opts :retrieval-inp-c (core/doc-chan))
                                    [:crawl-planner :storage]  (get conf-opts :storage-check-c (core/doc-chan))
                                    [:scraper :storage]        (get conf-opts :store-doc-c (core/doc-chan))})]
      (component/system-map
@@ -43,7 +46,11 @@
                         [:logger :page-retrieval :error-handling :scraper])
        :page-retrieval (component/using
                          (retrieval/build-component
-                           conf-opts
+                           retrieval-plumbing
+                           {:http-req-opts (:http-req-opts conf-opts)
+                            :key-fn        (fn [doc] (urly/host-of (urly/url-like (doc :url))))
+                            :process-fn    (fn [doc resp] (when-not (:error resp) (assoc doc :http-payload (resp :body))))
+                            :url-fn        :url}
                            {:inp-doc-c (chan-map [:storage :page-retrieval])
                             :out-doc-c (chan-map [:page-retrieval :scraper])})
                          [:logger :storage])
