@@ -28,4 +28,4 @@
                  [clj-time          "0.11.0"]
 
                  ;; storage
-                 [clojurewerkz/elastisch "2.2.0-beta4"]])
+                 [clojurewerkz/elastisch "2.2.0-beta5"]])
