@@ -1,7 +1,6 @@
 (ns skrejp.crawl-planner.component
   (:use [skrejp.crawl-planner.ann])
   (:require [skrejp.logger.ann :as logger])
-  (:require [skrejp.retrieval.ann :as ret])
   (:require [clojure.core.async :as async :refer [go go-loop chan put! <! >!]])
   (:require [clojure.core.typed :as t])
   (:require [com.stuartsierra.component :as component]
@@ -27,12 +26,12 @@
   (start [this]
     (t/tc-ignore
       (logger/info (:logger this) "CrawlPlanner: Starting")
-      (async/onto-chan (:cmd-c this) (or (:planner-cmds this) []) false)
+      (async/onto-chan (:cmd-c this) (or planner-cmds []) false)
       (go-loop [cmd (<! (:cmd-c this))]
         (logger/info (:logger this) (format "CrawlPlanner: Received: %s" cmd))
         (case cmd
           :plan-feeds (plan-feeds this))
-        (recur (<! (:cmd-c this)))))
+        (recur (<! cmd-c))))
     this)
 
   (stop [this]
@@ -42,13 +41,9 @@
 
   ICrawlPlanner
 
-  (plan-feeds [this]
+  (plan-feeds [_this]
     (t/tc-ignore
-      (let
-        [docs (into []
-                    (comp (ret/fetch-feed (:page-retrieval this)) mapcat-feed-to-docs)
-                    (:feeds this))]
-        (async/onto-chan (:out-doc-c this) docs)))
+      (async/onto-chan out-doc-c feeds false))
     nil))
 
 (t/defn build-component

@@ -93,7 +93,7 @@
        (system/build-scraper-system config-opts
                                     {:logger test-logger :storage test-storage}))]
 
-    (def results (list (<!! out-c) (<!! out-c)))
+    (def results (sort-by :title [(<!! out-c) (<!! out-c)]))
     (def result1 (first  results))
     (def result2 (second results))
     (component/stop test-system)))
@@ -102,22 +102,22 @@
 ;;
 ;; - When the retrieved web page has the selector defined the value from the web page is used.
 ;; - Otherwise for undefined or empty value for the selector the value already defined (likely to be from the seed) is kept.
-(expect "Foo Title" (:title result1))
-(expect "Bar" (:title result2))
+(expect "Bar" (:title result1))
+(expect "Foo Title" (:title result2))
 
 ;; ## Scraping attribute by a function
 ;; The attribute scraping function takes the _doc_ with the already scraped attributes and is supposed to return
 ;; the value for the new attribute.
 ;; The title in the seed was `"Foo"` overriden to `"Foo Title"`,
 ;; so the `:title_len` is expected to be taken from the new value
-(expect 9 (:title_length result1))
+(expect 9 (:title_length result2))
 
 ;; ## Scraping shared attributes
 ;; Shared attributes are used in scraping every site.
-(expect "example.com"     (:host result1))
-(expect "usa.example.com" (:host result2))
+(expect "usa.example.com" (:host result1))
+(expect "example.com"     (:host result2))
 
 ;; ## URL attribute
 ;; URL is must have defined attribute for every `doc` for scraping, it's kept under `:url`.
-(expect "http://example.com/foo.html"     (:url result1))
-(expect "http://usa.example.com/bar.html" (:url result2))
+(expect "http://usa.example.com/bar.html" (:url result1))
+(expect "http://example.com/foo.html"     (:url result2))

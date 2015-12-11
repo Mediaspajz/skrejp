@@ -10,13 +10,33 @@
             [skrejp.retrieval.component :as retrieval]
             [skrejp.crawl-planner.component :as crawl-planner]
             [skrejp.core :as core]
-            [clojurewerkz.urly.core :as urly]))
+            [clojurewerkz.urly.core :as urly]
+            [feedparser-clj.core :as feeds]
+            [clojure.pprint :as pp])
+  (:import (java.io ByteArrayInputStream)))
 
 (t/ann ^:no-check com.stuartsierra.component/system-map [t/Any * -> TSystemMap])
 (t/ann ^:no-check com.stuartsierra.component/using [t/Any t/Any -> t/Any])
 
 (t/ann build-scraper-system [TSystemConf -> TSystemMap])
 (t/ann build-scraper-system [TSystemConf t/Map -> TSystemMap])
+
+(t/ann ^:no-check feedparser-clj.core/parse-feed [(t/U t/Str ByteArrayInputStream) -> t/HMap])
+
+(t/defn parse-feed-str
+  "Parses the feed passed in as a string."
+  [^String feed-s :- t/Str] :- t/HMap
+  (let
+    [input-stream (ByteArrayInputStream. (.getBytes feed-s "UTF-8"))]
+    (feeds/parse-feed input-stream)))
+
+(t/tc-ignore
+  (def mapcat-feed-to-docs
+    (comp (mapcat :entries)
+          (map (fn [entry]
+                 (assoc (select-keys entry [:title])
+                   :url (or (entry :link) (entry :uri))
+                   :published_at (org.joda.time.DateTime. (entry :published-date))))))))
 
 (defn build-chan-map
   ([] (build-chan-map {}))
@@ -30,7 +50,7 @@
    (let [retrieval-plumbing (retrieval/build-retrieval-plumbing (assoc (select-keys conf-opts [:http-req-opts])
                                                                    :thread-cnts-fn (constantly 5)))
          chan-map (build-chan-map {[:storage :page-retrieval] (get conf-opts :retrieval-inp-c (core/doc-chan))
-                                   [:crawl-planner :storage]  (get conf-opts :storage-check-c (core/doc-chan))
+                                   [:feed-retrieval :storage] (get conf-opts :storage-check-c (core/doc-chan))
                                    [:scraper :storage]        (get conf-opts :store-doc-c (core/doc-chan))})]
      (component/system-map
        :logger (or (:logger comps) (logger/build-component conf-opts))
@@ -42,18 +62,37 @@
                         (crawl-planner/build-component
                           conf-opts
                           {:cmd-c     (core/cmd-chan)
-                           :out-doc-c (chan-map [:crawl-planner :storage])})
+                           :out-doc-c (chan-map [:crawl-planner :feed-retrieval])})
                         [:logger :page-retrieval :error-handling :scraper])
+       :feed-retrieval (component/using
+                         (retrieval/build-component
+                           retrieval-plumbing
+                           {:http-req-opts (:http-req-opts conf-opts)
+                            :key-fn        (fn [feed-url]
+                                             (-> feed-url urly/url-like urly/host-of))
+                            :process-fn    (fn [_feed-url resp]
+                                             (when-not (:error resp)
+                                               (map (fn [entry]
+                                                      (assoc (select-keys entry [:title])
+                                                        :url (or (entry :link) (entry :uri))
+                                                        :published_at (org.joda.time.DateTime. (entry :published-date))))
+                                                    (-> resp :body parse-feed-str :entries))))
+                            :url-fn        identity}
+                           {:inp-doc-c (chan-map [:crawl-planner :feed-retrieval])
+                            :out-doc-c (chan-map [:feed-retrieval :storage])})
+                         [:logger])
        :page-retrieval (component/using
                          (retrieval/build-component
                            retrieval-plumbing
                            {:http-req-opts (:http-req-opts conf-opts)
                             :key-fn        (fn [doc] (urly/host-of (urly/url-like (doc :url))))
-                            :process-fn    (fn [doc resp] (when-not (:error resp) (assoc doc :http-payload (resp :body))))
+                            :process-fn    (fn [doc resp]
+                                             (when-not (:error resp)
+                                               (list (assoc doc :http-payload (resp :body)))))
                             :url-fn        :url}
                            {:inp-doc-c (chan-map [:storage :page-retrieval])
                             :out-doc-c (chan-map [:page-retrieval :scraper])})
-                         [:logger :storage])
+                         [:logger])
        :scraper (component/using
                   (scraper/build-component
                     conf-opts
@@ -64,7 +103,7 @@
                     (component/using
                       (storage/build-elastic-component
                         conf-opts
-                        {:check-inp-c (chan-map [:crawl-planner :storage])
+                        {:check-inp-c (chan-map [:feed-retrieval :storage])
                          :check-out-c (chan-map [:storage :page-retrieval])
                          :store-doc-c (chan-map [:scraper :storage])})
                       [:logger]))

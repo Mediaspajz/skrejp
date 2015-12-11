@@ -8,6 +8,7 @@
   (:require [org.httpkit.client :as http])
   (:require [clojure.core.async :as async]
             [feedparser-clj.core :as feeds])
+  (:require [clojure.pprint :as pp])
   (:import (java.io ByteArrayInputStream)))
 
 (t/ann ^:no-check feedparser-clj.core/parse-feed [(t/U t/Str ByteArrayInputStream) -> t/HMap])
@@ -23,9 +24,10 @@
   (fn [[doc {:keys [url-fn process-fn] :as all-keys}] c]
     (http/get (url-fn doc) http-req-opts
               (fn [resp]
-                (let [value (process-fn doc resp)]
-                  (when-not (nil? value) (async/put! c [value all-keys])))
-                (async/close! c)))))
+                (let [values (process-fn doc resp)]
+                  (if (nil? values)
+                    (async/close! c)
+                    (async/onto-chan c (map (fn [value] [value all-keys]) values))))))))
 
 (defn get-host-c [{:keys [http-req-opts key-chans key thread-cnts-fn result-c]}]
   (if (contains? key-chans key)
