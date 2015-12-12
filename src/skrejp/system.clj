@@ -8,12 +8,10 @@
             [skrejp.storage.component :as storage]
             [skrejp.scraper.component :as scraper]
             [skrejp.retrieval.component :as retrieval]
+            [skrejp.retrieval.feeds :as feeds]
+            [skrejp.retrieval.pages :as pages]
             [skrejp.crawl-planner.component :as crawl-planner]
-            [skrejp.core :as core]
-            [clojurewerkz.urly.core :as urly]
-            [feedparser-clj.core :as feeds])
-  (:import (java.io ByteArrayInputStream)
-           (org.joda.time DateTime)))
+            [skrejp.core :as core]))
 
 (t/ann ^:no-check com.stuartsierra.component/system-map [t/Any * -> TSystemMap])
 (t/ann ^:no-check com.stuartsierra.component/using [t/Any t/Any -> t/Any])
@@ -21,49 +19,10 @@
 (t/ann build-scraper-system [TSystemConf -> TSystemMap])
 (t/ann build-scraper-system [TSystemConf t/Map -> TSystemMap])
 
-(t/ann ^:no-check feedparser-clj.core/parse-feed [(t/U t/Str ByteArrayInputStream) -> t/HMap])
-
-(t/defn parse-feed-str
-  "Parses the feed passed in as a string."
-  [^String feed-s :- t/Str] :- t/HMap
-  (let
-    [input-stream (ByteArrayInputStream. (.getBytes feed-s "UTF-8"))]
-    (feeds/parse-feed input-stream)))
-
 (defn build-chan-map
   ([] (build-chan-map {}))
   ([opts] (build-chan-map opts (fn [_key] (core/doc-chan))))
   ([opts build-chan] (memoize (fn [key] (get opts key (build-chan key))))))
-
-(defn build-feed-retrieval-component [retrieval-plumbing chans]
-  (retrieval/build-component
-    retrieval-plumbing
-    {:key-fn     (fn [feed-url]
-                   (-> feed-url urly/url-like urly/host-of))
-
-     :process-fn (fn [_feed-url resp]
-                   (when-not (:error resp)
-                     (map (fn [entry]
-                            (assoc (select-keys entry [:title])
-                              :url (or (entry :link) (entry :uri))
-                              :published_at (DateTime. (entry :published-date))))
-                          (-> resp :body parse-feed-str :entries))))
-
-     :url-fn     identity}
-    chans))
-
-(defn build-page-retrieval-component [retrieval-plumbing chans]
-  (retrieval/build-component
-    retrieval-plumbing
-    {:key-fn     (fn [doc] (urly/host-of (urly/url-like (doc :url))))
-
-     :process-fn (fn [doc resp]
-                   (when-not (:error resp)
-                     (list (assoc doc :http-payload (resp :body)))))
-
-     :url-fn     :url}
-    chans)
-  )
 
 (defn build-scraper-system
   "Build a scraper system."
@@ -89,12 +48,12 @@
        :feed-retrieval (component/using
                          (let [chans {:inp-doc-c (chan-map [:crawl-planner :feed-retrieval])
                                       :out-doc-c (chan-map [:feed-retrieval :storage])}]
-                           (build-feed-retrieval-component retrieval-plumbing chans))
+                           (feeds/build-feed-retrieval-component retrieval-plumbing chans))
                          [:logger])
        :page-retrieval (component/using
                          (let [chans {:inp-doc-c (chan-map [:storage :page-retrieval])
                                       :out-doc-c (chan-map [:page-retrieval :scraper])}]
-                           (build-page-retrieval-component retrieval-plumbing chans))
+                           (pages/build-page-retrieval-component retrieval-plumbing chans))
                          [:logger])
        :scraper (component/using
                   (scraper/build-component
