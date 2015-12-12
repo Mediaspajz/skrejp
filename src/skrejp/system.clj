@@ -11,8 +11,7 @@
             [skrejp.crawl-planner.component :as crawl-planner]
             [skrejp.core :as core]
             [clojurewerkz.urly.core :as urly]
-            [feedparser-clj.core :as feeds]
-            [clojure.pprint :as pp])
+            [feedparser-clj.core :as feeds])
   (:import (java.io ByteArrayInputStream)))
 
 (t/ann ^:no-check com.stuartsierra.component/system-map [t/Any * -> TSystemMap])
@@ -29,14 +28,6 @@
   (let
     [input-stream (ByteArrayInputStream. (.getBytes feed-s "UTF-8"))]
     (feeds/parse-feed input-stream)))
-
-(t/tc-ignore
-  (def mapcat-feed-to-docs
-    (comp (mapcat :entries)
-          (map (fn [entry]
-                 (assoc (select-keys entry [:title])
-                   :url (or (entry :link) (entry :uri))
-                   :published_at (org.joda.time.DateTime. (entry :published-date))))))))
 
 (defn build-chan-map
   ([] (build-chan-map {}))
@@ -67,8 +58,7 @@
        :feed-retrieval (component/using
                          (retrieval/build-component
                            retrieval-plumbing
-                           {:http-req-opts (:http-req-opts conf-opts)
-                            :key-fn        (fn [feed-url]
+                           {:key-fn        (fn [feed-url]
                                              (-> feed-url urly/url-like urly/host-of))
                             :process-fn    (fn [_feed-url resp]
                                              (when-not (:error resp)
@@ -84,8 +74,7 @@
        :page-retrieval (component/using
                          (retrieval/build-component
                            retrieval-plumbing
-                           {:http-req-opts (:http-req-opts conf-opts)
-                            :key-fn        (fn [doc] (urly/host-of (urly/url-like (doc :url))))
+                           {:key-fn        (fn [doc] (urly/host-of (urly/url-like (doc :url))))
                             :process-fn    (fn [doc resp]
                                              (when-not (:error resp)
                                                (list (assoc doc :http-payload (resp :body)))))

@@ -30,21 +30,15 @@
       (go-loop [cmd (<! (:cmd-c this))]
         (logger/info (:logger this) (format "CrawlPlanner: Received: %s" cmd))
         (case cmd
-          :plan-feeds (plan-feeds this))
+          :plan-feeds (async/onto-chan out-doc-c feeds false))
         (recur (<! cmd-c))))
     this)
 
   (stop [this]
     (t/tc-ignore
       (logger/info (:logger this) "CrawlPlanner: Stopping"))
-    this)
-
-  ICrawlPlanner
-
-  (plan-feeds [_this]
-    (t/tc-ignore
-      (async/onto-chan out-doc-c feeds false))
-    nil))
+      (async/close! out-doc-c)
+    this))
 
 (t/defn build-component
   "Build a CrawlPlanner component."

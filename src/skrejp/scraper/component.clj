@@ -52,18 +52,17 @@
 ;; doc-c of the storage component.
 (t/ann-record ScraperComponent
               [scraper-defs :- TScraperDefs
-               inp-doc-c :- core/TDocChan])
+               inp-doc-c :- core/TDocChan
+               out-doc-c :- core/TDocChan])
 
-(defrecord ScraperComponent
-  [scraper-defs inp-doc-c]
+(defrecord ScraperComponent [scraper-defs inp-doc-c out-doc-c]
   component/Lifecycle
 
   (start [this]
     (t/tc-ignore
       (logger/info (:logger this) "Scraper: Starting")
       (let
-        [inp-c (:inp-doc-c this)
-         out-c (:out-doc-c this)]
+        [inp-c inp-doc-c out-c out-doc-c]
         (async/pipeline 20 out-c (scrape this) inp-c)))
     this)
 
@@ -78,9 +77,9 @@
     (t/tc-ignore
       (let
         [url-host (urly/host-of (urly/url-like url))
-         scraper-def-entry ((:scraper-defs this) url-host)]
+         scraper-def-entry (scraper-defs url-host)]
         (cond
-          (map? scraper-def-entry) (merge scraper-def-entry (-> this :scraper-defs :shared))
+          (map? scraper-def-entry) (merge scraper-def-entry (:shared scraper-defs))
           (string? scraper-def-entry) (get-scraper-def this scraper-def-entry)
           :else
           (throw (Exception. (format "Missing scraper definition for host %s" url-host)))))))

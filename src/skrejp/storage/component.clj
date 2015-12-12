@@ -48,15 +48,15 @@
 
   (store [this doc]
     (t/tc-ignore
-      (esd/create (:es-conn this)
+      (esd/create es-conn
                   (get-in this [:conf :es :index-name])
                   (get-in this [:conf :es :entity-name])
                   (dissoc doc :id :http-payload)
-                  :id ((:doc-id-fn this) doc))))
+                  :id (doc-id-fn doc))))
 
   (get-doc [this doc-id]
     (t/tc-ignore
-      (let [response (esd/get (:es-conn this)
+      (let [response (esd/get es-conn
                               (get-in this [:conf :es :index-name])
                               (get-in this [:conf :es :entity-name])
                               doc-id)]
@@ -64,7 +64,7 @@
 
   (contains-doc? [this doc]
     (t/tc-ignore
-      (let [doc-id ((:doc-id-fn this) doc)]
+      (let [doc-id (doc-id-fn doc)]
         (and
           (not (nil? doc-id))
           (not (nil? (get-doc this doc-id))))))))

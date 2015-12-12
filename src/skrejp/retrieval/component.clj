@@ -6,19 +6,10 @@
   (:require [skrejp.logger.ann :as logger])
   (:require [com.stuartsierra.component :as component])
   (:require [org.httpkit.client :as http])
-  (:require [clojure.core.async :as async]
-            [feedparser-clj.core :as feeds])
-  (:require [clojure.pprint :as pp])
+  (:require [clojure.core.async :as async])
   (:import (java.io ByteArrayInputStream)))
 
 (t/ann ^:no-check feedparser-clj.core/parse-feed [(t/U t/Str ByteArrayInputStream) -> t/HMap])
-
-(t/defn parse-feed-str
-  "Parses the feed passed in as a string."
-  [^String feed-s :- t/Str] :- t/HMap
-  (let
-    [input-stream (ByteArrayInputStream. (.getBytes feed-s "UTF-8"))]
-    (feeds/parse-feed input-stream)))
 
 (defn fetch-page [{:keys [http-req-opts]}]
   (fn [[doc {:keys [url-fn process-fn] :as all-keys}] c]
@@ -82,11 +73,11 @@
      (build-retrieval-pipeline plumbing out-c inp-c params)
      plumbing)))
 
-(t/ann-record RetrievalComponent [http-req-opts :- core/THttpReqOpts
-                                  inp-doc-c :- core/TDocChan
+(t/ann-record RetrievalComponent [inp-doc-c :- core/TDocChan
                                   out-doc-c :- core/TDocChan])
 
-(defrecord RetrievalComponent [retrieval-plumbing http-req-opts key-fn process-fn url-fn inp-doc-c out-doc-c]
+(defrecord RetrievalComponent
+  [retrieval-plumbing key-fn process-fn url-fn inp-doc-c out-doc-c]
   component/Lifecycle
 
   (start
@@ -102,18 +93,7 @@
   (stop [this]
     (t/tc-ignore
       (logger/info (:logger this) "PageContentRetrieval: Stopping"))
-    this)
-
-  IRetrieval
-
-  (fetch-feed [_this]
-    (fn [xf]
-      (t/tc-ignore
-        (fn ([] (xf)) ([result] (xf result))
-          ([result url]
-           (let
-             [resp @(http/get url http-req-opts)]
-             (xf result (-> resp :body parse-feed-str)))))))))
+    this))
 
 (t/defn build-component
   "Build a PageRetrieval component."
@@ -121,7 +101,6 @@
    opts
    chans :- (t/HMap :mandatory {:inp-doc-c core/TDocChan :out-doc-c core/TDocChan})] :- RetrievalComponent
   (map->RetrievalComponent {:retrieval-plumbing retrieval-plumbing
-                            :http-req-opts      (:http-req-opts opts)
                             :key-fn             (:key-fn opts)
                             :process-fn         (:process-fn opts)
                             :url-fn             (:url-fn opts)
