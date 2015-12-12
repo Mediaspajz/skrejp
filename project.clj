@@ -1,4 +1,4 @@
-(defproject skrejp "0.1.17-SNAPSHOT"
+(defproject skrejp "0.2.0-SNAPSHOT"
   :description   "Scraper library based on core.async and components"
   :url           "https://github.com/infiniteiteration/skrejp"
   :license       {:name "Eclipse Public License"
