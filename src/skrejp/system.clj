@@ -12,7 +12,8 @@
             [skrejp.core :as core]
             [clojurewerkz.urly.core :as urly]
             [feedparser-clj.core :as feeds])
-  (:import (java.io ByteArrayInputStream)))
+  (:import (java.io ByteArrayInputStream)
+           (org.joda.time DateTime)))
 
 (t/ann ^:no-check com.stuartsierra.component/system-map [t/Any * -> TSystemMap])
 (t/ann ^:no-check com.stuartsierra.component/using [t/Any t/Any -> t/Any])
@@ -33,6 +34,36 @@
   ([] (build-chan-map {}))
   ([opts] (build-chan-map opts (fn [_key] (core/doc-chan))))
   ([opts build-chan] (memoize (fn [key] (get opts key (build-chan key))))))
+
+(defn build-feed-retrieval-component [retrieval-plumbing chans]
+  (retrieval/build-component
+    retrieval-plumbing
+    {:key-fn     (fn [feed-url]
+                   (-> feed-url urly/url-like urly/host-of))
+
+     :process-fn (fn [_feed-url resp]
+                   (when-not (:error resp)
+                     (map (fn [entry]
+                            (assoc (select-keys entry [:title])
+                              :url (or (entry :link) (entry :uri))
+                              :published_at (DateTime. (entry :published-date))))
+                          (-> resp :body parse-feed-str :entries))))
+
+     :url-fn     identity}
+    chans))
+
+(defn build-page-retrieval-component [retrieval-plumbing chans]
+  (retrieval/build-component
+    retrieval-plumbing
+    {:key-fn     (fn [doc] (urly/host-of (urly/url-like (doc :url))))
+
+     :process-fn (fn [doc resp]
+                   (when-not (:error resp)
+                     (list (assoc doc :http-payload (resp :body)))))
+
+     :url-fn     :url}
+    chans)
+  )
 
 (defn build-scraper-system
   "Build a scraper system."
@@ -56,31 +87,14 @@
                            :out-doc-c (chan-map [:crawl-planner :feed-retrieval])})
                         [:logger :page-retrieval :error-handling :scraper])
        :feed-retrieval (component/using
-                         (retrieval/build-component
-                           retrieval-plumbing
-                           {:key-fn        (fn [feed-url]
-                                             (-> feed-url urly/url-like urly/host-of))
-                            :process-fn    (fn [_feed-url resp]
-                                             (when-not (:error resp)
-                                               (map (fn [entry]
-                                                      (assoc (select-keys entry [:title])
-                                                        :url (or (entry :link) (entry :uri))
-                                                        :published_at (org.joda.time.DateTime. (entry :published-date))))
-                                                    (-> resp :body parse-feed-str :entries))))
-                            :url-fn        identity}
-                           {:inp-doc-c (chan-map [:crawl-planner :feed-retrieval])
-                            :out-doc-c (chan-map [:feed-retrieval :storage])})
+                         (let [chans {:inp-doc-c (chan-map [:crawl-planner :feed-retrieval])
+                                      :out-doc-c (chan-map [:feed-retrieval :storage])}]
+                           (build-feed-retrieval-component retrieval-plumbing chans))
                          [:logger])
        :page-retrieval (component/using
-                         (retrieval/build-component
-                           retrieval-plumbing
-                           {:key-fn        (fn [doc] (urly/host-of (urly/url-like (doc :url))))
-                            :process-fn    (fn [doc resp]
-                                             (when-not (:error resp)
-                                               (list (assoc doc :http-payload (resp :body)))))
-                            :url-fn        :url}
-                           {:inp-doc-c (chan-map [:storage :page-retrieval])
-                            :out-doc-c (chan-map [:page-retrieval :scraper])})
+                         (let [chans {:inp-doc-c (chan-map [:storage :page-retrieval])
+                                      :out-doc-c (chan-map [:page-retrieval :scraper])}]
+                           (build-page-retrieval-component retrieval-plumbing chans))
                          [:logger])
        :scraper (component/using
                   (scraper/build-component

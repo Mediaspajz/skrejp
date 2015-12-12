@@ -80,8 +80,7 @@
   [retrieval-plumbing key-fn process-fn url-fn inp-doc-c out-doc-c]
   component/Lifecycle
 
-  (start
-    [this]
+  (start [this]
     (t/tc-ignore
       (logger/info (:logger this) "PageContentRetrieval: Starting")
 
