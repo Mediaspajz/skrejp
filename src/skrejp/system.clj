@@ -5,9 +5,9 @@
   (:require [skrejp.error-handling.component :as error-handling])
   (:require [skrejp.scraper-verification.component :as scraper-verification]
             [skrejp.logger.component :as logger]
+            [skrejp.retrieval.plumbing :as retrieval]
             [skrejp.storage.component :as storage]
             [skrejp.scraper.component :as scraper]
-            [skrejp.retrieval.component :as retrieval]
             [skrejp.retrieval.feeds :as feeds]
             [skrejp.retrieval.pages :as pages]
             [skrejp.crawl-planner.component :as crawl-planner]
@@ -28,11 +28,17 @@
   "Build a scraper system."
   ([conf-opts] (build-scraper-system conf-opts {}))
   ([conf-opts comps]
-   (let [retrieval-plumbing (retrieval/build-retrieval-plumbing (assoc (select-keys conf-opts [:http-req-opts])
-                                                                   :thread-cnts-fn (constantly 5)))
-         chan-map (build-chan-map {[:storage :page-retrieval] (get conf-opts :retrieval-inp-c (core/doc-chan))
-                                   [:feed-retrieval :storage] (get conf-opts :storage-check-c (core/doc-chan))
-                                   [:scraper :storage]        (get conf-opts :store-doc-c (core/doc-chan))})]
+   (let [retrieval-plumbing
+         (retrieval/build-retrieval-plumbing
+           (assoc (select-keys conf-opts [:http-req-opts])
+             :thread-cnts-fn (constantly 5)))
+
+         chan-map
+         (build-chan-map
+           {[:storage :page-retrieval] (get conf-opts :retrieval-inp-c (core/doc-chan))
+            [:feed-retrieval :storage] (get conf-opts :storage-check-c (core/doc-chan))
+            [:scraper :storage]        (get conf-opts :store-doc-c (core/doc-chan))})]
+
      (component/system-map
        :logger (or (:logger comps) (logger/build-component conf-opts))
 
