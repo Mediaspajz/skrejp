@@ -3,8 +3,7 @@
   (:require [clojure.core.typed :as t])
   (:require [com.stuartsierra.component :as component])
   (:require [skrejp.error-handling.component :as error-handling])
-  (:require [skrejp.scraper-verification.component :as scraper-verification]
-            [skrejp.logger.component :as logger]
+  (:require [skrejp.logger.component :as logger]
             [skrejp.retrieval.plumbing :as retrieval]
             [skrejp.storage.component :as storage]
             [skrejp.scraper.component :as scraper]
@@ -74,7 +73,4 @@
                         {:check-inp-c (chan-map [:feed-retrieval :storage])
                          :check-out-c (chan-map [:storage :page-retrieval])
                          :store-doc-c (chan-map [:scraper :storage])})
-                      [:logger]))
-       :scraper-verification (component/using
-                               (scraper-verification/build-component conf-opts)
-                               [:logger :storage :page-retrieval :error-handling])))))
+                      [:logger]))))))
