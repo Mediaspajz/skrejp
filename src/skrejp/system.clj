@@ -2,7 +2,6 @@
   (:use [skrejp.ann])
   (:require [clojure.core.typed :as t])
   (:require [com.stuartsierra.component :as component])
-  (:require [skrejp.error-handling.component :as error-handling])
   (:require [skrejp.logger.component :as logger]
             [skrejp.retrieval.plumbing :as retrieval]
             [skrejp.storage.component :as storage]
@@ -41,15 +40,12 @@
      (component/system-map
        :logger (or (:logger comps) (logger/build-component conf-opts))
 
-       :error-handling (component/using
-                         (error-handling/build-component conf-opts)
-                         [:logger])
        :crawl-planner (component/using
                         (crawl-planner/build-component
                           conf-opts
                           {:cmd-c     (core/cmd-chan)
                            :out-doc-c (chan-map [:crawl-planner :feed-retrieval])})
-                        [:logger :page-retrieval :error-handling :scraper])
+                        [:logger :page-retrieval :scraper])
        :feed-retrieval (component/using
                          (let [chans {:inp-doc-c (chan-map [:crawl-planner :feed-retrieval])
                                       :out-doc-c (chan-map [:feed-retrieval :storage])}]
@@ -65,7 +61,7 @@
                     conf-opts
                     {:inp-doc-c (chan-map [:page-retrieval :scraper])
                      :out-doc-c (chan-map [:scraper :storage])})
-                  [:logger :page-retrieval :error-handling])
+                  [:logger :page-retrieval])
        :storage (or (:storage comps)
                     (component/using
                       (storage/build-elastic-component
