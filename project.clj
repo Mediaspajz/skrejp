@@ -14,7 +14,7 @@
   :core.typed    {:check [skrejp.core skrejp.retrieval.component skrejp.logger.component skrejp.storage.component
                           skrejp.scraper-verification.component skrejp.crawl-planner.component
                           skrejp.error-handling.component skrejp.scraper.component skrejp.system]}
-  :dependencies [[org.clojure/clojure    "1.7.0"]
+  :dependencies [[org.clojure/clojure    "1.8.0-RC4"]
                  [org.clojure/core.typed "0.3.19"]
                  [org.clojure/core.async "0.2.374"]
                  [com.stuartsierra/component "0.3.1"]
@@ -28,4 +28,4 @@
                  [clj-time          "0.11.0"]
 
                  ;; storage
-                 [clojurewerkz/elastisch "2.2.0-beta5"]])
+                 [clojurewerkz/elastisch "2.2.0-rc1"]])
