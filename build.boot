@@ -13,7 +13,7 @@
                   [clj-time          "0.11.0"]
 
                   ;; storage
-                  [clojurewerkz/elastisch "2.2.0-rc1"]
+                  [clojurewerkz/elastisch "2.2.0"]
 
                   [boot-deps "0.1.6"]
 
@@ -22,8 +22,11 @@
                   [http-kit.fake "0.2.2" :scope "test"]
                   [debugger "0.1.7" :scope "test"]
 
-                  [seancorfield/boot-expectations "1.0.3" :scope "test"]]
+                  [seancorfield/boot-expectations "1.0.3" :scope "test"]
+                  [it.frbracch/boot-marginalia "0.1.3" :scope "test"]
+                  [zilti/boot-typed "0.1.1"]]
 
   :source-paths #(conj % "src" "test"))
 
 (require '[seancorfield.boot-expectations :refer :all])
+(require '[it.frbracch.boot-marginalia :refer [marginalia]])
