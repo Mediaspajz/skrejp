@@ -28,10 +28,12 @@
       (logger/info (:logger this) "CrawlPlanner: Starting")
       (async/onto-chan (:cmd-c this) (or planner-cmds []) false)
       (go-loop [cmd (<! (:cmd-c this))]
-        (logger/info (:logger this) (format "CrawlPlanner: Received: %s" cmd))
-        (case cmd
-          :plan-feeds (async/onto-chan out-doc-c feeds false))
-        (recur (<! cmd-c))))
+        (when-not (nil? cmd)
+          (logger/info (:logger this) (format "CrawlPlanner: Received: %s" cmd))
+          (case cmd
+            :plan-feeds (async/onto-chan out-doc-c feeds false)
+            (logger/info (:logger this) (str "Unknown command " cmd)))
+          (recur (<! cmd-c)))))
     this)
 
   (stop [this]
