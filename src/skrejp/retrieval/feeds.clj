@@ -15,7 +15,7 @@
           [input-stream (ByteArrayInputStream. (.getBytes feed-s "UTF-8"))]
           (feeds/parse-feed input-stream)))
 
-(defn build-feed-retrieval-component [retrieval-plumbing chans]
+(defn build-feed-retrieval-component [retrieval-plumbing improve chans]
   (retrieval/build-component
     retrieval-plumbing
     {:key-fn     (fn [feed-url]
@@ -24,7 +24,7 @@
      :process-fn (fn [_feed-url resp]
                    (when-not (:error resp)
                      (map (fn [entry]
-                            (assoc (select-keys entry [:title])
+                            (improve (select-keys entry [:title])
                               :url (or (entry :link) (entry :uri))
                               :published_at (DateTime. (entry :published-date))))
                           (-> resp :body parse-feed-str :entries))))

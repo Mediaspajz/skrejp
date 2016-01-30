@@ -55,7 +55,7 @@
                inp-doc-c :- core/TDocChan
                out-doc-c :- core/TDocChan])
 
-(defrecord ScraperComponent [scraper-defs inp-doc-c out-doc-c]
+(defrecord ScraperComponent [scraper-defs inp-doc-c out-doc-c improve]
   component/Lifecycle
 
   (start [this]
@@ -94,7 +94,7 @@
               scraped-doc (reduce
                             (fn [doc-accu [attr sel]]
                               (let [val (scrape-attr sel doc-accu)]
-                                (if (present? val) (assoc doc-accu attr val) doc-accu)))
+                                (if (present? val) (improve doc-accu attr val) doc-accu)))
                             doc scraper-def)]
              (xf result (merge doc scraped-doc)))))))))
 
@@ -102,6 +102,4 @@
   "Build a Scraper component."
   [conf-opts :- (t/HMap :mandatory {:scraper-defs TScraperDefs})
    chans :- (t/HMap :mandatory {:inp-doc-c core/TDocChan :out-doc-c core/TDocChan})] :- ScraperComponent
-  (map->ScraperComponent {:scraper-defs (:scraper-defs conf-opts)
-                          :inp-doc-c (:inp-doc-c chans)
-                          :out-doc-c (:out-doc-c chans)}))
+  (map->ScraperComponent (merge (select-keys conf-opts [:scraper-defs :improve]) (select-keys chans [:inp-doc-c :out-doc-c]))))

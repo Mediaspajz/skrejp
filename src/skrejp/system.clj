@@ -51,16 +51,16 @@
                  :feed-retrieval (component/using
                                    (let [chans {:inp-doc-c (chan-map [:crawl-planner :feed-retrieval])
                                                 :out-doc-c (chan-map [:feed-retrieval :storage])}]
-                                     (feeds/build-feed-retrieval-component retrieval-plumbing chans))
+                                     (feeds/build-feed-retrieval-component retrieval-plumbing assoc chans))
                                    [:logger])
                  :page-retrieval (component/using
                                    (let [chans {:inp-doc-c (chan-map [:storage :page-retrieval])
                                                 :out-doc-c (chan-map [:page-retrieval :scraper])}]
-                                     (pages/build-page-retrieval-component retrieval-plumbing chans))
+                                     (pages/build-page-retrieval-component retrieval-plumbing assoc chans))
                                    [:logger])
                  :scraper (component/using
                             (scraper/build-component
-                              conf-opts
+                              (assoc conf-opts :improve assoc)
                               {:inp-doc-c (chan-map [:page-retrieval :scraper])
                                :out-doc-c (chan-map [:scraper :storage])})
                             [:logger :page-retrieval])

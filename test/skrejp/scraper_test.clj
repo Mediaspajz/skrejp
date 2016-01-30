@@ -14,7 +14,8 @@
                                         :content [:div#content]
                                         :path    (fn [doc]
                                                    (-> doc :url urly/url-like urly/path-of))}
-                     "www.example.com" "example.com"}}
+                     "www.example.com" "example.com"}
+                    :improve assoc}
                    {:inp-doc-c inp-c :out-doc-c out-c})
    page-body "<html><body><h1 id='title'>Foo Title</h1><div id='content'>Bar Content</div></body></html>"
    page-resp { :url "http://www.example.com/index.html" :http-payload page-body }
