@@ -2,7 +2,7 @@
   (:require [expectations :as e]))
 
 (defn- collect-test-ns []
-  ['skrejp.crawl-planner-test 'skrejp.scraper-test 'skrejp.storage-test 'skrejp.system-test])
+  ['skrejp.crawl-planner-test 'skrejp.scraper-test 'skrejp.storage-test 'skrejp.system-test 'skrejp.utils-test])
 
 (defn run-tests
   "Reload and execute test namespaces."
