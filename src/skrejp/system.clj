@@ -60,7 +60,7 @@
                                    [:logger])
                  :scraper (component/using
                             (scraper/build-component
-                              (assoc conf-opts :improve assoc)
+                              (merge {:improve assoc} conf-opts)
                               {:inp-doc-c (chan-map [:page-retrieval :scraper])
                                :out-doc-c (chan-map [:scraper :storage])})
                             [:logger :page-retrieval])

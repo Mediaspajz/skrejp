@@ -8,7 +8,7 @@
   (:require [clojurewerkz.urly.core :as urly])
   (:require [clojure.core.async :as async :refer [go go-loop chan <! >!]])
   (:require [net.cgrand.enlive-html :as html])
-  (:import (clojure.lang PersistentVector Fn)))
+  (:import (clojure.lang PersistentVector Fn ExceptionInfo)))
 
 (t/tc-ignore
   (defn extract-sel
@@ -85,18 +85,28 @@
           (throw (Exception. (format "Missing scraper definition for host %s" url-host)))))))
 
   (scrape [this]
-    (t/tc-ignore
-      (fn [xf]
-        (fn ([] (xf)) ([result] (xf result))
-          ([result doc]
+    (fn [xf]
+      (fn
+        ([] (xf))
+        ([result] (xf result))
+        ([result doc]
+         (try
            (let
              [scraper-def (get-scraper-def this (doc :url))
               scraped-doc (reduce
                             (fn [doc-accu [attr sel]]
                               (let [val (scrape-attr sel doc-accu)]
-                                (if (present? val) (improve doc-accu attr val) doc-accu)))
+                                (if (present? val)
+                                  (improve doc-accu attr val)
+                                  doc-accu)))
                             doc scraper-def)]
-             (xf result (merge doc scraped-doc)))))))))
+             (xf result scraped-doc))
+           (catch clojure.lang.ExceptionInfo e
+             (if (= :scraping-error (:cause (ex-data e)))
+               (do
+                 (logger/info (:logger this) (ex-data e))
+                 (xf result))
+               (throw e)))))))))
 
 (t/defn build-component
   "Build a Scraper component."
