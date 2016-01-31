@@ -14,18 +14,18 @@
   :core.typed    {:check [skrejp.core skrejp.retrieval.component skrejp.logger.component skrejp.storage.component
                           skrejp.scraper-verification.component skrejp.crawl-planner.component
                           skrejp.error-handling.component skrejp.scraper.component skrejp.system]}
-  :dependencies [[org.clojure/clojure    "1.8.0-RC4"]
+  :dependencies [[org.clojure/clojure    "1.8.0"]
                  [org.clojure/core.typed "0.3.19"]
                  [org.clojure/core.async "0.2.374"]
                  [com.stuartsierra/component "0.3.1"]
                  [org.clojure/tools.reader "0.10.0"]
 
                  ;; crawling, parsing, scraping
-                 [org.clojars.scsibug/feedparser-clj "0.4.0"]
+                 [adamwynne/feedparser-clj "0.5.2"]
                  [http-kit          "2.1.19"]
                  [clojurewerkz/urly "1.0.0"]
                  [enlive            "1.1.6"]
                  [clj-time          "0.11.0"]
 
                  ;; storage
-                 [clojurewerkz/elastisch "2.2.0-rc1"]])
+                 [clojurewerkz/elastisch "2.2.1"]])

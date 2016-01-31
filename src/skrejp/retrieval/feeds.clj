@@ -25,8 +25,8 @@
                    (when-not (:error resp)
                      (map (fn [entry]
                             (improve (select-keys entry [:title])
-                              :url (or (entry :link) (entry :uri))
-                              :published_at (DateTime. (entry :published-date))))
+                              :url (or (:link entry) (:url entry))
+                              :published_at (DateTime. (:published-date entry))))
                           (-> resp :body parse-feed-str :entries))))
 
      :url-fn     identity}
