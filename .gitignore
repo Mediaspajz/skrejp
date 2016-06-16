@@ -10,3 +10,4 @@ pom.xml.asc
 .idea/
 skrejp.iml
 .nrepl-history
+nohup.out
